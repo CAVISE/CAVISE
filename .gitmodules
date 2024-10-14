@@ -1,0 +1,4 @@
+[submodule "opencda"]
+	path = opencda
+	url = git@github.com:CAVISE/OpenCDA.git
+	branch = 982
