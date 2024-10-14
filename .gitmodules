@@ -2,3 +2,7 @@
 	path = opencda
 	url = git@github.com:CAVISE/OpenCDA.git
 	branch = 982
+[submodule "artery"]
+	path = artery
+	url = git@github.com:CAVISE/artery.git
+	branch = 982
