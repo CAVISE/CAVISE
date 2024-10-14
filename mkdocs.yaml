@@ -1,0 +1,31 @@
+# For more information see https://www.mkdocs.org
+
+site_name: CAVISE
+site_dir: www
+repo_name: 'CAVISE on GitHub'
+repo_url: https://github.com/CAVISE/DRL-FL
+
+theme:
+  name: readthedocs
+  features:
+    - tabs
+    - content.code.copy
+  font:
+    text: 'Lato'
+    code: 'Oxygen Mono'
+
+markdown_extensions:
+  - admonition
+  - abbr
+  - attr_list
+  - footnotes
+  - meta
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+
+nav:
+  - CAVISE: index.md
+  - Scenarios creation: scenario_creation.md  

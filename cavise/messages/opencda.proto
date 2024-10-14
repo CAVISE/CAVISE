@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package structure_opencda;
+
+message OpenCDA_message {   // Информация полученная от остальных cav
+    repeated Cav cav = 1;
+
+    message Cav {   // Исходная Cav
+      string vid = 1;    // id машины
+      float ego_spd = 2;   // Скорость машины
+      EgoPos ego_pos = 3;    // Позиция машины
+      BlueVehicles blue_vehicles = 4;    // Синие машины, о которых знает исходная Сav
+      Vehicles vehicles = 5; // Машины, которые видела исходная Cav
+      TrafficLights traffic_lights = 6;    // Светофоры, которые видела исходная Сav
+      StaticObjects static_objects = 7;    // Другие объекты, которые видела исходная Сav
+      repeated string from_who_received = 8;
+
+      message EgoPos {    // Позиция машины
+        float x = 1;
+        float y = 2;
+        float z = 3;
+        float pitch = 4;
+        float yaw = 5;
+        float roll = 6;
+      }
+
+      message BlueVehicles {    // Синие машины, о которых знает исходная Сav
+        repeated BlueCav blue_cav = 1;
+
+        message BlueCav {
+          string vid = 1;    // id машины
+          float ego_spd = 2;   // Скорость машины
+          EgoPos ego_pos = 3;    // Позиция машины
+        }
+      }
+
+      message Vehicles {   // Машины, которые видела исходная Cav
+          repeated CavPos cav_pos = 1;    // Позиция машины
+
+          message CavPos {   // Позиция машины
+            float x = 1;
+            float y = 2;
+            float z = 3;
+          }
+        }
+
+      message TrafficLights {   // Светофоры, которые видела исходная Сav
+        repeated TfPos tf_pos = 1;    // Позиция светофора
+
+        message TfPos {   // Позиция светофора
+          float x = 1;
+          float y = 2;
+          float z = 3;
+        }
+      }
+
+      message StaticObjects {   // Другие объекты, которые видела исходная Сav
+        repeated ObjPos obj_pos = 1;    // Позиция объекта
+
+        message ObjPos {    // Позиция объекта
+          float x = 1;
+          float y = 2;
+          float z = 3;
+        }
+      }
+    }
+}

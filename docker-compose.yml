@@ -1,0 +1,47 @@
+services:
+  artery_container:
+    build:
+      context: .
+      dockerfile: artery/Dockerfile
+    privileged: true
+    environment:
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./cavise/messages:/cavise/messages
+      - ./protos:/cavise/protos
+      - ./simdata:/cavise/simdata
+    command: ["sh", "-c", "sleep infinity"]    
+    healthcheck:
+      test: ["CMD", "ping", "-c", "1", "opencda_container"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - cccp_network
+
+  opencda_container:
+    build:
+      context: .
+      dockerfile: opencda/Dockerfile
+    privileged: true
+    environment:
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - .:/cavise
+    command: ["sh", "-c", "sleep infinity"]
+    healthcheck:
+      test: ["CMD", "ping", "-c", "1", "artery_container"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - cccp_network
+
+networks:
+  cccp_network:
