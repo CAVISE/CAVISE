@@ -28,4 +28,5 @@ plugins:
 
 nav:
   - CAVISE: index.md
-  - Scenarios creation: scenario_creation.md  
+  - Scenarios creation: scenario_creation.md
+  - august changelog: repo-update.md
