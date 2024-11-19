@@ -1,8 +1,8 @@
 [submodule "opencda"]
 	path = opencda
-	url = git@github.com:CAVISE/OpenCDA.git
-	branch = 982
+	url = ../OpenCDA.git
+	branch = main
 [submodule "artery"]
 	path = artery
-	url = git@github.com:CAVISE/artery.git
-	branch = 982
+	url = ../artery.git
+	branch = main
