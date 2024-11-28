@@ -1,0 +1,85 @@
+stages:
+  - scan
+  - upload_report
+  - build
+  - push_images
+  - sync_repos
+  - clean
+
+variables:
+  DOCKER_HOST: "tcp://10.10.1.4:2375"
+  GIT_SUBMODULE_STRATEGY: recursive
+  NEXUS_ADDRESS: 10.10.1.5:10444
+  NEXUS_API_ADDRESS: 10.10.1.5:8081
+  ARTERY_IMAGE: artery
+  OPENCDA_IMAGE: opencda
+  IMAGE_NAMESPACE: cavise-images
+  TAG: $CI_COMMIT_TAG
+
+build_artery:
+  stage: build
+  script:
+    - docker build -t $NEXUS_ADDRESS/$IMAGE_NAMESPACE/$ARTERY_IMAGE:$TAG -f artery/Dockerfile .
+  only:
+    - tags
+
+build_opencda:
+  stage: build
+  script:
+    - docker build -t $NEXUS_ADDRESS/$IMAGE_NAMESPACE/$OPENCDA_IMAGE:$TAG -f opencda/Dockerfile .
+  only:
+    - tags
+
+push_artery:
+  stage: push_images
+  script:
+    - echo "Logging in to Nexus..."
+    - echo $NEXUS_PASSWORD | docker login $NEXUS_ADDRESS -u $NEXUS_USER --password-stdin
+
+    - docker push $NEXUS_ADDRESS/$IMAGE_NAMESPACE/$ARTERY_IMAGE:$TAG
+  only:
+    - tags
+
+push_opencda:
+  stage: push_images
+  script:
+    - echo "Logging in to Nexus..."
+    - echo $NEXUS_PASSWORD | docker login $NEXUS_ADDRESS -u $NEXUS_USER --password-stdin
+
+    - docker push $NEXUS_ADDRESS/$IMAGE_NAMESPACE/$OPENCDA_IMAGE:$TAG
+  only:
+    - tags
+   
+clean:
+  stage: clean
+  script:
+    - docker system prune -a -f
+  only:
+    - tags
+   
+clean_nexus:
+  stage: clean
+  before_script:
+    - apk update && apk add curl jq
+  script:
+    - |
+      for rep in "cavise-images/artery" "cavise-images/opencda"; do
+        VERSIONS=$(curl -u $NEXUS_USER:$NEXUS_PASSWORD "http://$NEXUS_API_ADDRESS/service/rest/v1/components?repository=cavise-images" | jq -r --arg rep "$rep" '.items[] | select(.name == $rep) | "\(.version) \(.id)"' | sort -V)
+        COUNT=$(echo "$VERSIONS" | wc -l)
+        if [ "$COUNT" -gt 2 ]; then 
+          OLDEST=$(echo "$VERSIONS" | head -n 1)
+          ID=$(echo "$OLDEST" | awk '{print $2}')
+          curl -u "$AUTH" -X DELETE "$NEXUS_URL/service/rest/v1/components/$ID"
+        fi
+      done
+
+    - unused_task_id=$(curl -u $NEXUS_USER:$NEXUS_PASSWORD "http://$NEXUS_API_ADDRESS/service/rest/v1/tasks" | grep unused -B 1 | grep id | awk -F '"' '{print $4}')
+    - curl -u $NEXUS_USER:$NEXUS_PASSWORD "http://$NEXUS_API_ADDRESS/service/rest/v1/tasks/$unused_task_id/run" -X POST
+
+    - incomplete_uploads_task_id=$(curl -u $NEXUS_USER:$NEXUS_PASSWORD "http://$NEXUS_API_ADDRESS/service/rest/v1/tasks" | grep incomplete_uploads -B 1 | grep id | awk -F '"' '{print $4}')
+    - curl -u $NEXUS_USER:$NEXUS_PASSWORD "http://$NEXUS_API_ADDRESS/service/rest/v1/tasks/$incomplete_uploads_task_id/run" -X POST
+
+    - compact_blobstore_task_id=$(curl -u $NEXUS_USER:$NEXUS_PASSWORD "http://$NEXUS_API_ADDRESS/service/rest/v1/tasks" | grep compact_blobstore -B 1 | grep id | awk -F '"' '{print $4}')
+    - curl -u $NEXUS_USER:$NEXUS_PASSWORD "http://$NEXUS_API_ADDRESS/service/rest/v1/tasks/$compact_blobstore_task_id/run" -X POST
+  only:
+    - tags

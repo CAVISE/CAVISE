@@ -1,8 +1,6 @@
 services:
   artery_container:
-    build:
-      context: .
-      dockerfile: artery/Dockerfile
+    image: $NEXUS_ADDR/$ARTERY_IMAGE:$TAG
     privileged: true
     environment:
       - DISPLAY=${DISPLAY}
@@ -23,9 +21,7 @@ services:
       - cccp_network
 
   opencda_container:
-    build:
-      context: .
-      dockerfile: opencda/Dockerfile
+    image: $NEXUS_ADDR/$OPENCDA_IMAGE:$TAG
     privileged: true
     environment:
       - DISPLAY=${DISPLAY}
