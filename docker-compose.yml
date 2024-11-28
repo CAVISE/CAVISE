@@ -1,5 +1,5 @@
 services:
-  artery_container:
+  artery_cavise:
     image: $NEXUS_ADDR/$ARTERY_IMAGE:$TAG
     privileged: true
     environment:
@@ -10,9 +10,10 @@ services:
       - ./cavise/messages:/cavise/messages
       - ./protos:/cavise/protos
       - ./simdata:/cavise/simdata
+      - ./artery:/cavise/artery
     command: ["sh", "-c", "sleep infinity"]    
     healthcheck:
-      test: ["CMD", "ping", "-c", "1", "opencda_container"]
+      test: ["CMD", "ping", "-c", "1", "opencda_cavise"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -20,7 +21,7 @@ services:
     networks:
       - cccp_network
 
-  opencda_container:
+  opencda_cavise:
     image: $NEXUS_ADDR/$OPENCDA_IMAGE:$TAG
     privileged: true
     environment:
@@ -28,10 +29,14 @@ services:
     volumes:
       - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - .:/cavise
+      - ./cavise/messages:/cavise/messages
+      - ./protos:/cavise/protos
+      - ./simdata:/cavise/simdata
+      - ./.python-version:/cavise/.python-version
+      - ./opencda:/cavise/opencda
     command: ["sh", "-c", "sleep infinity"]
     healthcheck:
-      test: ["CMD", "ping", "-c", "1", "artery_container"]
+      test: ["CMD", "ping", "-c", "1", "artery_cavise"]
       interval: 30s
       timeout: 10s
       retries: 3
