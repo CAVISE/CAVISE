@@ -25,3 +25,8 @@ clean:
 	@rm -r source/doxygen
 	@echo "removed source/doxygen"
 	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+# TODO: fix resources location, should be /build/html/doxygen/... instead of /build/doxygen...
+html:
+	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@cp -r $(BUILDDIR)/doxygen $(BUILDDIR)/html
