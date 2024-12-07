@@ -2652,7 +2652,7 @@ GENERATE_LEGEND        = YES
 
 DOT_CLEANUP            = YES
 
-HTML_EXTRA_STYLESHEET = external/doxygen-awesome.css
+HTML_EXTRA_STYLESHEET = docs/external/doxygen-awesome.css
 
 GENERATE_TREEVIEW = NO
 
