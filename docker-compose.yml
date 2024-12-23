@@ -1,6 +1,24 @@
 services:
-  artery_cavise:
-    image: $NEXUS_ADDR/$ARTERY_IMAGE:$TAG
+  carla:
+    image: carlasim/carla:0.9.12
+    command: ["sh", "-c", "sleep infinity"]
+    privileged: true
+    environment:
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            capabilities: [gpu]
+
+  artery:
+    image: ${NEXUS_ADDR}/${ARTERY_IMAGE}:${TAG}
+    build:
+      dockerfile: artery/Dockerfile
     privileged: true
     environment:
       - DISPLAY=${DISPLAY}
@@ -8,21 +26,20 @@ services:
       - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./cavise/messages:/cavise/messages
-      - ./protos:/cavise/protos
       - ./simdata:/cavise/simdata
       - ./artery:/cavise/artery
     command: ["sh", "-c", "sleep infinity"]    
     healthcheck:
-      test: ["CMD", "ping", "-c", "1", "opencda_cavise"]
+      test: ["CMD", "ping", "-c", "1", "artery"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
-    networks:
-      - cccp_network
 
-  opencda_cavise:
-    image: $NEXUS_ADDR/$OPENCDA_IMAGE:$TAG
+  opencda:
+    image: ${NEXUS_ADDR}/${OPENCDA_IMAGE}:${TAG}
+    build:
+      dockerfile: opencda/Dockerfile
     privileged: true
     environment:
       - DISPLAY=${DISPLAY}
@@ -30,19 +47,13 @@ services:
       - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./cavise/messages:/cavise/messages
-      - ./protos:/cavise/protos
       - ./simdata:/cavise/simdata
       - ./.python-version:/cavise/.python-version
       - ./opencda:/cavise/opencda
     command: ["sh", "-c", "sleep infinity"]
     healthcheck:
-      test: ["CMD", "ping", "-c", "1", "artery_cavise"]
+      test: ["CMD", "ping", "-c", "1", "opencda"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
-    networks:
-      - cccp_network
-
-networks:
-  cccp_network:
