@@ -1,0 +1,16 @@
+services:
+  carla:
+    privileged: true
+
+  artery:
+    privileged: true
+    volumes:
+      - ./cavise/messages:/cavise/messages
+      - ./simdata:/cavise/simdata
+  
+  opencda:
+    privileged: true
+    volumes:
+      - ./cavise/messages:/cavise/messages
+      - ./simdata:/cavise/simdata
+      - ./opencda:/cavise/opencda
