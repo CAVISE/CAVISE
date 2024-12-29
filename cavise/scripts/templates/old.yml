@@ -1,13 +1,17 @@
 services:
   carla:
-    image: carlasim/carla:0.9.12
+    image: ${NEXUS_ADDR}/${CARLA_IMAGE}:${TAG}
+    build:
+      dockerfile: carla/Dockerfile
     command: ["sh", "-c", "sleep infinity"]
     privileged: true
     environment:
+      - XAUTHORITY=${XAUTHORITY}
       - DISPLAY=${DISPLAY}
     volumes:
       - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${XAUTHORITY}:${XAUTHORITY}
     deploy:
       resources:
         reservations:
@@ -27,7 +31,7 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./cavise/messages:/cavise/messages
       - ./simdata:/cavise/simdata
-      - ./artery:/cavise/artery
+      # - ./artery:/cavise/artery
     command: ["sh", "-c", "sleep infinity"]    
     healthcheck:
       test: ["CMD", "ping", "-c", "1", "artery"]
@@ -35,6 +39,12 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            capabilities: [gpu]
 
   opencda:
     image: ${NEXUS_ADDR}/${OPENCDA_IMAGE}:${TAG}
@@ -48,7 +58,6 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./cavise/messages:/cavise/messages
       - ./simdata:/cavise/simdata
-      - ./.python-version:/cavise/.python-version
       - ./opencda:/cavise/opencda
     command: ["sh", "-c", "sleep infinity"]
     healthcheck:
@@ -57,3 +66,9 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            capabilities: [gpu]
