@@ -49,7 +49,7 @@ try:
 except ModuleNotFoundError as error:
     coloredlogs = None
     print('could not find coloredlogs module! Your logs will look boring.')
-    print('if you interested: https://pypi.org/project/coloredlogs')
+    print('if you are interested: https://pypi.org/project/coloredlogs')
 
 try:
     yaml = importlib.import_module('yaml')
@@ -82,12 +82,12 @@ class Pack(enum.Enum):
 class Handler:
 
     # default handlers for common docker-compose usage.
-    DEFAULT = ['graphics', 'healthcheck', 'xorg', 'build-local']
+    DEFAULT = ['graphics', 'healthcheck', 'xorg', 'build-local', 'command']
 
     # packs.
-    LOCAL_BUILD = ['graphics', 'healthcheck', 'xorg', 'build-local']
-    LOCAL_ARTERY_BUILD = ['graphics', 'healthcheck', 'xorg', 'build-local', 'artery-local']
-    REMOTE_BUILD = ['graphics', 'healthcheck', 'xorg', 'build-remote']
+    LOCAL_BUILD = ['graphics', 'healthcheck', 'xorg', 'build-local', 'command']
+    LOCAL_ARTERY_BUILD = ['graphics', 'healthcheck', 'xorg', 'build-local', 'artery-local', 'command']
+    REMOTE_BUILD = ['graphics', 'healthcheck', 'xorg', 'build-remote', 'command']
 
     # use this to map enum values to actual pack values.
     PACK_RESOLVER = {
@@ -122,7 +122,7 @@ class Handler:
         if 'volumes' not in service:
             service['volumes'] = list()
         if any([element.startswith(master) for element in service['volumes']]):
-            logging.warning('service {name} already has defined mountpoint: {slave}')
+            logging.warning(f'service {name} already has defined mountpoint: {slave}')
             return
         service['volumes'].append(f'{master}:{slave}')
         return service
@@ -132,7 +132,7 @@ class Handler:
         if 'environment' not in service:
             service['environment'] = list()
         if any([element.startswith(variable) for element in service['environment']]):
-            logging.warning('service {name} already has defined mountpoint: {slave}')
+            logging.warning(f'service {name} already has defined variable {variable} set to {value}')
             return
         service['environment'].append(f'{variable}={value}')
         return service
@@ -154,6 +154,13 @@ class Handler:
                         return f'failed to find environment variable: {key} on line {i}'
                     print(environ[key], end='')
                 print(line[last:], end='')
+
+    def handle_command(name: str, service: typing.Dict[str, str]) -> typing.Dict[str, str] | str:
+        if 'command' in service:
+            logging.warning(f'service {name} already has defined command, skipping')
+            return service
+        service['command'] = ['sh', '-c', 'sleep infinity']
+        return service
 
     @staticmethod
     def handle_graphics(name: str, service: typing.Dict[str, str]) -> typing.Dict[str, str] | str:
@@ -279,8 +286,6 @@ def sanity_check() -> str | None:
     pwd = pathlib.PurePath(os.getcwd())
     if not os.path.exists(pwd.joinpath('.gitignore')):
         return f'current location: {pwd}, no .gitignore found. Are you sure this runs from cavise root?'
-    if not os.path.exists(pwd.joinpath('simdata')):
-        return f'this scripts needs simdata directory for temporary files'
     
 def resolve_path(path: pathlib.PurePath, anchor: pathlib.PurePath) -> pathlib.PurePath:
     if path.is_absolute():
@@ -298,9 +303,11 @@ def main() -> None:
         print(version)
         sys.exit()
 
-    logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)])
-    import coloredlogs
-    coloredlogs.install(level=int(getattr(args, 'verbosity')), fmt='- [%(asctime)s] %(message)s', datefmt='%M:%S')
+    if coloredlogs is not None:
+        logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)])
+        coloredlogs.install(level=int(getattr(args, 'verbosity')), fmt='- [%(asctime)s] %(message)s', datefmt='%M:%S')
+    else:
+        logging.basicConfig(level=int(getattr(args, 'verbosity')), fmt='- [%(asctime)s] %(message)s', datefmt='%M:%S', handlers=[logging.StreamHandler(sys.stdout)])
 
     holder = sanity_check()
     if isinstance(holder, str):

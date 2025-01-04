@@ -14,8 +14,8 @@ fi
 if [ $# -eq 0 ]
 then
     echo "Building docker compose"
-    docker-compose --env-file compose.env build
+    docker compose --env-file compose.env up --build -d
 else
     echo "Building docker compose with $1 only"
-    docker-compose --env-file compose.env build "$1"
+    docker compose --env-file compose.env up --build "$1" -d
 fi
