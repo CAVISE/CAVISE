@@ -8,17 +8,10 @@ Python file
 В скрипте заменить `<scenario_name>` на название сценария, а так же название города на нужные.
 
 
-Содержимое <scenario_name>.py только для OpenCDA
-""""""""""""""""""""""""""""""""""""""""""""""""
+Содержимое <scenario_name>.py
 
 Пример:
-https://github.com/ucla-mobility/OpenCDA/blob/main/opencda/scenario_testing/single_town06_cosim.py
-
-Содержимое <scenario_name>.py для cccp
-""""""""""""""""""""""""""""""""""""""
-
-Пример:
-https://github.com/CAVISE/OpenCDA/blob/d74d6c73fcc6f2883cc4583e5d3f23b419a169cb/opencda/scenario_testing/realistic_town06_cosim.py
+#TODO: Поставить сюда ссылку из гитлаба на сценарий rsu_check
 
 Yaml file
 ---------
@@ -28,24 +21,40 @@ Yaml file
 Содержимое <scenario_name>.yaml
 """""""""""""""""""""""""""""""
 
+После добавления CCCP yaml файлы были немного усовершенствованны с добавлением нового заголовка `sumo-artery`. Используется следующим образом:
+
+.. code-block:: yaml
+
+    sumo:
+        port: ~
+        host: ~
+        gui: true
+        client_order: 1
+        step_length: ${world.fixed_delta_seconds}
+
+    sumo-artery:
+        port: 8813
+        host: artery # IP address artery docker container
+        gui: true
+        client_order: 2
+        step_length: ${world.fixed_delta_seconds}
+
+
 Пример:
 https://github.com/CAVISE/OpenCDA/blob/d74d6c73fcc6f2883cc4583e5d3f23b419a169cb/opencda/scenario_testing/config_yaml/intersections.yaml
 
 Assets
 ------
 
-Только для OpenCDA
-""""""""""""""""""
+В директории `opencda/opencda/assets/` создаем папку в формате `<scenario_name>` и следующие 5 файлов:
 
-В директории `opencda/opencda/assets/` создаем папку в формате `<Town_name>_<scenario_name>` (если сценарий только для OpenCDA) и следующие 3 файла:
-
-<Town_name><scenario_name>.sumocfg
+<scenario_name>.sumocfg
 """"""""""""""""""""""""""""""""""
 
 Пример:
 https://github.com/CAVISE/OpenCDA/blob/d74d6c73fcc6f2883cc4583e5d3f23b419a169cb/opencda/assets/Town06_intersections/Town06_intersections.sumocfg
 
-<Town_name><scenario_name>.xml
+<scenario_name>.xml
 """"""""""""""""""""""""""""""
 
 Файл содержит пути транспортных средств. Через flow задается поток, через trip задается путь только одной машины. Подробнее можно почитать здесь - https://sumo.dlr.de/docs/Definition_of_Vehicles%2C_Vehicle_Types%2C_and_Routes.html. Так же есть скрипт питоновский, который может сгенерировать рандомное количество машин через trip - https://sumo.dlr.de/docs/Tools/Trip.html. `from` и `to` обозначаются участки дорог где начинается поток и где заканчивается. Номера дорог можно получить, если открыть sumo и открыть .net.xml файл сценария,  правой кнопкой мыши по участку дороги выведет ее номер.
@@ -53,7 +62,7 @@ https://github.com/CAVISE/OpenCDA/blob/d74d6c73fcc6f2883cc4583e5d3f23b419a169cb/
 Пример:
 https://github.com/CAVISE/OpenCDA/blob/d74d6c73fcc6f2883cc4583e5d3f23b419a169cb/opencda/assets/Town06_intersections/Town06_intersections.xml
 
-<Town_name><scenario_name>.net.xml
+<scenario_name>.net.xml
 """"""""""""""""""""""""""""""""""
 
 Файл, который сгенерирован для каждого города свой и который можно редактировать через sumo. Если карта устраивает, то просто копируем. 
@@ -61,31 +70,63 @@ https://github.com/CAVISE/OpenCDA/blob/d74d6c73fcc6f2883cc4583e5d3f23b419a169cb/
 Пример:
 https://github.com/CAVISE/OpenCDA/blob/d74d6c73fcc6f2883cc4583e5d3f23b419a169cb/opencda/assets/Town06_intersections/Town06_intersections.net.xml
 
-Для cccp
---------
-
-В директории `opencda/opencda/scenario_testing/config_sumo` создаем папку в формате `<scenario_name>` (если сценарий только для OpenCDA) и следующие 4 файла:
-
-<scenario_name>.net.xml
+Файлы для поддержки CCCP
 """""""""""""""""""""""
-
-Он по аналогии со сценариями только для OpenCDA, в основном копировать только и его можно редачить в sumo.
 
 <scenario_name>.poly.xml
 """"""""""""""""""""""""
 
-Файл отмечающий различные зоны, которые используются в Artery. Тоже только копировать.
+Пример:
+https://github.com/CAVISE/OpenCDA/blob/982/opencda/scenario_testing/config_sumo/realistic_town06_cosim/realistic_town06_cosim.poly.xml
 
-<scenario_name>.rou.xml
-"""""""""""""""""""""""
 
-Он по аналогии со сценариями только для OpenCDA.
-
-<scenario_name>.sumocfg
-"""""""""""""""""""""""
+<scenario_name>_artery.sumocfg
+""""""""""""""""""""""""""""""
 
 Пример:
 https://github.com/CAVISE/OpenCDA/blob/d74d6c73fcc6f2883cc4583e5d3f23b419a169cb/opencda/scenario_testing/config_sumo/realistic_town06_cosim/realistic_town06_cosim.sumocfg
+
+Artery
+------
+
+В директории `artery/scenarios/` создаем папку в формате `<scenario_name>`. Пример можно взять отсюда:
+#TODO: Добавить ссылку на папку
+
+Файлы, которые должны быть такие же как и в assets Opencda: \n
+<scenario_name>.net.xml, <scenario_name>.poly.xml, <scenario_name>.rou.xml, <scenario_name>.sumocfg
+
+Нужно изменить следующие файлы:
+
+CMakeLists.txt
+""""""""""""""
+
+.. code-block:: cmake
+
+    cmake_minimum_required(VERSION 3.19)
+        
+    add_artery_feature(<scenario_name> ArteryManager.cc)
+
+    target_link_libraries(<scenario_name> PRIVATE protobuf::libprotobuf libzmq-static protos comms plog::plog)
+
+    add_opp_run(<scenario_name> CONFIG omnetpp.ini)
+
+
+omnetpp.ini
+"""""""""""
+Строчку:
+
+.. code-block:: ini
+
+    *.traci.launcher.sumocfg = "<scenario_name>.sumocfg"
+
+artery/scenarios/CMakeLists.txt
+"""""""""""""""""""""""""""""""
+
+Добавить цель:
+
+.. code-block:: cmake
+
+    add_subdirectory(<scenario_name>)
 
 Как получать координаты для yaml файлов
 ---------------------------------------
@@ -96,12 +137,6 @@ https://github.com/CAVISE/OpenCDA/blob/d74d6c73fcc6f2883cc4583e5d3f23b419a169cb/
 
     /carla/PythonAPI/util/config.py --map Town06
 
-
-Если пишет, что нет модуля карла то:
-
-.. code-block:: bash
-
-    pyenv global 3.7.17
 
 В opencda созданы два скрипта get_position.py и set_position.py в директории `opencda/opencda/scenario_testing/utils`. Координату z лучше оставлять как есть на 1.05. Четвертый и шестой параметр оставляем по нулям.
 
@@ -115,7 +150,7 @@ get_position.py
     import carla  
     import random  
     
-    client = carla.Client('localhost', 2000)  
+    client = carla.Client('carla', 2000)  
     world = client.get_world()  
     
     spectator = world.get_spectator()  
@@ -132,7 +167,7 @@ set_position.py
     import carla  
     import random  
     
-    client = carla.Client('localhost', 2000)  
+    client = carla.Client('carla', 2000)  
     world = client.get_world()  
     
     spectator = world.get_spectator()  
