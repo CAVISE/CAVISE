@@ -1,16 +1,30 @@
 services:
   carla:
+    container_name: carla
     privileged: true
+    networks:
+      - cavise
+
 
   artery:
+    container_name: artery
     privileged: true
     volumes:
       - ./cavise/messages:/cavise/messages
       - ./simdata:/cavise/simdata
+    networks:
+      - cavise
+
   
   opencda:
-    privileged: true
+    container_name: opencda
     volumes:
       - ./cavise/messages:/cavise/messages
       - ./simdata:/cavise/simdata
       - ./opencda:/cavise/opencda
+    networks:
+      - cavise
+
+networks:
+  cavise: 
+    name: cavise
