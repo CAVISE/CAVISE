@@ -11,7 +11,7 @@ Python file
 Содержимое <scenario_name>.py
 
 Пример:
-#TODO: Поставить сюда ссылку из гитлаба на сценарий rsu_check
+https://172.18.130.50:9443/cavise-982/opencda/-/blob/main/opencda/scenario_testing/rsu_check.py?ref_type=heads
 
 Yaml file
 ---------
@@ -41,7 +41,7 @@ Yaml file
 
 
 Пример:
-https://github.com/CAVISE/OpenCDA/blob/d74d6c73fcc6f2883cc4583e5d3f23b419a169cb/opencda/scenario_testing/config_yaml/intersections.yaml
+https://172.18.130.50:9443/cavise-982/opencda/-/blob/main/opencda/scenario_testing/config_yaml/rsu_check.yaml?ref_type=heads
 
 Assets
 ------
@@ -52,15 +52,15 @@ Assets
 """"""""""""""""""""""""""""""""""
 
 Пример:
-https://github.com/CAVISE/OpenCDA/blob/d74d6c73fcc6f2883cc4583e5d3f23b419a169cb/opencda/assets/Town06_intersections/Town06_intersections.sumocfg
+https://172.18.130.50:9443/cavise-982/opencda/-/blob/main/opencda/assets/rsu_check/rsu_check.sumocfg?ref_type=heads
 
-<scenario_name>.xml
+<scenario_name>.rou.xml
 """"""""""""""""""""""""""""""
 
 Файл содержит пути транспортных средств. Через flow задается поток, через trip задается путь только одной машины. Подробнее можно почитать здесь - https://sumo.dlr.de/docs/Definition_of_Vehicles%2C_Vehicle_Types%2C_and_Routes.html. Так же есть скрипт питоновский, который может сгенерировать рандомное количество машин через trip - https://sumo.dlr.de/docs/Tools/Trip.html. `from` и `to` обозначаются участки дорог где начинается поток и где заканчивается. Номера дорог можно получить, если открыть sumo и открыть .net.xml файл сценария,  правой кнопкой мыши по участку дороги выведет ее номер.
 
 Пример:
-https://github.com/CAVISE/OpenCDA/blob/d74d6c73fcc6f2883cc4583e5d3f23b419a169cb/opencda/assets/Town06_intersections/Town06_intersections.xml
+https://172.18.130.50:9443/cavise-982/opencda/-/blob/main/opencda/assets/rsu_check/rsu_check.rou.xml?ref_type=heads
 
 <scenario_name>.net.xml
 """"""""""""""""""""""""""""""""""
@@ -68,7 +68,7 @@ https://github.com/CAVISE/OpenCDA/blob/d74d6c73fcc6f2883cc4583e5d3f23b419a169cb/
 Файл, который сгенерирован для каждого города свой и который можно редактировать через sumo. Если карта устраивает, то просто копируем. 
 
 Пример:
-https://github.com/CAVISE/OpenCDA/blob/d74d6c73fcc6f2883cc4583e5d3f23b419a169cb/opencda/assets/Town06_intersections/Town06_intersections.net.xml
+https://172.18.130.50:9443/cavise-982/opencda/-/blob/main/opencda/assets/rsu_check/rsu_check.net.xml?ref_type=heads
 
 Файлы для поддержки CCCP
 """""""""""""""""""""""
@@ -77,39 +77,25 @@ https://github.com/CAVISE/OpenCDA/blob/d74d6c73fcc6f2883cc4583e5d3f23b419a169cb/
 """"""""""""""""""""""""
 
 Пример:
-https://github.com/CAVISE/OpenCDA/blob/982/opencda/scenario_testing/config_sumo/realistic_town06_cosim/realistic_town06_cosim.poly.xml
+https://172.18.130.50:9443/cavise-982/opencda/-/blob/main/opencda/assets/rsu_check/rsu_check.poly.xml?ref_type=heads
 
 
 <scenario_name>_artery.sumocfg
 """"""""""""""""""""""""""""""
 
 Пример:
-https://github.com/CAVISE/OpenCDA/blob/d74d6c73fcc6f2883cc4583e5d3f23b419a169cb/opencda/scenario_testing/config_sumo/realistic_town06_cosim/realistic_town06_cosim.sumocfg
+https://172.18.130.50:9443/cavise-982/opencda/-/blob/main/opencda/assets/rsu_check/rsu_check_artery.sumocfg?ref_type=heads
 
 Artery
 ------
 
 В директории `artery/scenarios/` создаем папку в формате `<scenario_name>`. Пример можно взять отсюда:
-#TODO: Добавить ссылку на папку
+https://172.18.130.50:9443/cavise-982/artery/-/tree/main/scenarios/rsu_check?ref_type=heads
 
 Файлы, которые должны быть такие же как и в assets Opencda: \n
 <scenario_name>.net.xml, <scenario_name>.poly.xml, <scenario_name>.rou.xml, <scenario_name>.sumocfg
 
 Нужно изменить следующие файлы:
-
-CMakeLists.txt
-""""""""""""""
-
-.. code-block:: cmake
-
-    cmake_minimum_required(VERSION 3.19)
-        
-    add_artery_feature(<scenario_name> ArteryManager.cc)
-
-    target_link_libraries(<scenario_name> PRIVATE protobuf::libprotobuf libzmq-static protos comms plog::plog)
-
-    add_opp_run(<scenario_name> CONFIG omnetpp.ini)
-
 
 omnetpp.ini
 """""""""""
@@ -126,7 +112,7 @@ artery/scenarios/CMakeLists.txt
 
 .. code-block:: cmake
 
-    add_subdirectory(<scenario_name>)
+    add_opp_run(<scenario_name> WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/<scenario_name> NED_FOLDERS ${CMAKE_SOURCE_DIR}/src/cavise)
 
 Как получать координаты для yaml файлов
 ---------------------------------------
@@ -176,4 +162,3 @@ set_position.py
     location = carla.Location(x=x, y=y, z=z)  
     rotation = carla.Rotation(pitch=0, yaw=-180, roll=0)  
     spectator.set_transform(carla.Transform(location, rotation))
-
