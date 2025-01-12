@@ -121,7 +121,7 @@ artery/scenarios/CMakeLists.txt
 
 .. code-block:: bash
 
-    /carla/PythonAPI/util/config.py --map Town06
+    /home/carla/PythonAPI/util/config.py --map Town06
 
 
 В opencda созданы два скрипта get_position.py и set_position.py в директории `opencda/opencda/scenario_testing/utils`. Координату z лучше оставлять как есть на 1.05. Четвертый и шестой параметр оставляем по нулям.
