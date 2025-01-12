@@ -14,7 +14,6 @@ RUN rm -f /etc/apt/sources.list.d/cuda.list && \
     apt-key del 3bf863cc
 
 RUN apt-get update && apt-get install -y \
-    wget \
     curl \
     git \
     gcc \
