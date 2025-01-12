@@ -6,6 +6,13 @@ ARG CARLA_VERSION
 ARG MAPS_ARCHIVE_URL=https://carla-releases.s3.us-east-005.backblazeb2.com/Linux/AdditionalMaps_${CARLA_VERSION}.tar.gz
 
 USER root
+
+# Fix 403 error
+RUN rm -f /etc/apt/sources.list.d/cuda.list && \
+    rm -f /etc/apt/sources.list.d/nvidia-ml.list && \
+    apt-key del 7fa2af80 && \
+    apt-key del 3bf863cc
+
 RUN apt-get update && apt-get install -y \
     wget \
     curl \
