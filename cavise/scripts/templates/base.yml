@@ -3,28 +3,47 @@ services:
     container_name: carla
     privileged: true
     networks:
-      - cavise
-
-
+      highly_accurate_network:
+        ipv4_address: 8.8.0.11
   artery:
     container_name: artery
     privileged: true
     volumes:
-      - ./cavise/messages:/cavise/messages
+      - ${CAVISE-HOME}/cavise/messages:/cavise/messages
       - ./simdata:/cavise/simdata
     networks:
-      - cavise
-
-  
+      highly_accurate_network:
+        ipv4_address: 8.8.0.12
   opencda:
     container_name: opencda
+    privileged: true
     volumes:
       - ./cavise/messages:/cavise/messages
       - ./simdata:/cavise/simdata
       - ./opencda:/cavise/opencda
     networks:
-      - cavise
+      highly_accurate_network:
+        ipv4_address: 8.8.0.10
+  redis:
+    image: redis:7.4.1
+    ports:
+      - "6369:6379"
+    networks:
+      highly_accurate_network:
+        ipv4_address: 8.8.0.9
+  scenario-manager:
+    container_name: scenario-manager
+    image: sc-mn
+    ports:
+      - "8999:8999"
+    networks:
+      highly_accurate_network:
+        ipv4_address: 8.8.0.8
 
 networks:
-  cavise: 
-    name: cavise
+  highly_accurate_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "8.8.0.0/16"

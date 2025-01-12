@@ -30,6 +30,7 @@ Usage:
     --environment-path PATH path, where .env files are looked up.
 """
 
+import io
 import re
 import os
 import sys
@@ -67,7 +68,7 @@ class HandlerConfig:
     # Generated compose name.
     output_name: str = 'compose.yml'
     # Where to put result.
-    output_path: pathlib.PurePath = make_abs('simdata')
+    output_path: pathlib.PurePath = make_abs('dc-configs')
     # Where to look for templates.
     templates_path: pathlib.PurePath = make_abs('cavise/scripts/templates')
     # Where to look for .env files.
@@ -281,6 +282,24 @@ def parse_command_line() -> argparse.Namespace:
 
     return parser.parse_args()
 
+def parse_string(params) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(add_help=False)
+    # supported options.
+    parser.add_argument('--help', action='store_true', dest='help')
+    parser.add_argument('--version', action='store_true', dest='version')
+    # generator options.
+    parser.add_argument('-v', '--verbosity', action='store', dest='verbosity', default=logging.INFO)
+    parser.add_argument('-e', '--env-file', action='store', dest='env_file')
+    parser.add_argument('-t', '--template', action='store', dest='template')
+    parser.add_argument('--handlers', nargs='+', dest='handlers')
+    parser.add_argument('--pack', action='store', dest='pack')
+    parser.add_argument('--output-name', action='store', dest='output_name')
+    parser.add_argument('--output-path', action='store', dest='output_path')
+    parser.add_argument('--template-path', action='store', dest='template_path')
+    parser.add_argument('--environment-path', action='store', dest='environment_path')
+
+    return parser.parse_args(params)
+
 # Various checks regarding correctness of usage of this script.
 def sanity_check() -> str | None:
     pwd = pathlib.PurePath(os.getcwd())
@@ -304,10 +323,10 @@ def main() -> None:
         sys.exit()
 
     if coloredlogs is not None:
-        logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)])
+        logging.basicConfig(handlers=[logging.StreamHandler(log_stream)])
         coloredlogs.install(level=int(getattr(args, 'verbosity')), fmt='- [%(asctime)s] %(message)s', datefmt='%M:%S')
     else:
-        logging.basicConfig(level=int(getattr(args, 'verbosity')), fmt='- [%(asctime)s] %(message)s', datefmt='%M:%S', handlers=[logging.StreamHandler(sys.stdout)])
+        logging.basicConfig(level=int(getattr(args, 'verbosity')), fmt='- [%(asctime)s] %(message)s', datefmt='%M:%S', handlers=[logging.StreamHandler(log_stream)])
 
     holder = sanity_check()
     if isinstance(holder, str):
@@ -361,6 +380,8 @@ def main() -> None:
     except Exception as error:
         logging.error(f'handler failed with error: {error}')
     logging.info('Bye bye.')
+
+    return log_stream.getvalue()
 
 
 if __name__ == '__main__':

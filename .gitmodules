@@ -1,8 +1,12 @@
 [submodule "opencda"]
 	path = opencda
-	url = ../OpenCDA.git
+	url = ../opencda.git
 	branch = main
 [submodule "artery"]
 	path = artery
 	url = ../artery.git
+	branch = main
+[submodule "scenario-manager"]
+	path = scenario-manager
+	url = ../scenario-manager.git
 	branch = main
