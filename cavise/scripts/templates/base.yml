@@ -9,7 +9,7 @@ services:
     container_name: artery
     privileged: true
     volumes:
-      - ${CAVISE-HOME}/cavise/messages:/cavise/messages
+      - ${CAVISE_HOME}/cavise/messages:/cavise/messages
       - ./simdata:/cavise/simdata
     networks:
       highly_accurate_network:

@@ -311,6 +311,7 @@ def resolve_path(path: pathlib.PurePath, anchor: pathlib.PurePath) -> pathlib.Pu
         return path
     return anchor.joinpath(path)
 
+
 # Is this needed to be explained?
 def main() -> None:
     args = parse_command_line()
@@ -323,10 +324,10 @@ def main() -> None:
         sys.exit()
 
     if coloredlogs is not None:
-        logging.basicConfig(handlers=[logging.StreamHandler(log_stream)])
+        logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)])
         coloredlogs.install(level=int(getattr(args, 'verbosity')), fmt='- [%(asctime)s] %(message)s', datefmt='%M:%S')
     else:
-        logging.basicConfig(level=int(getattr(args, 'verbosity')), fmt='- [%(asctime)s] %(message)s', datefmt='%M:%S', handlers=[logging.StreamHandler(log_stream)])
+        logging.basicConfig(level=int(getattr(args, 'verbosity')), fmt='- [%(asctime)s] %(message)s', datefmt='%M:%S', handlers=[logging.StreamHandler(sys.stdout)])
 
     holder = sanity_check()
     if isinstance(holder, str):
@@ -380,8 +381,6 @@ def main() -> None:
     except Exception as error:
         logging.error(f'handler failed with error: {error}')
     logging.info('Bye bye.')
-
-    return log_stream.getvalue()
 
 
 if __name__ == '__main__':
