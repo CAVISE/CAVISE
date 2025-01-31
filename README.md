@@ -3,14 +3,14 @@
 ## Overview
 
 This monorepository contains the tools used in the development
-of the DRL-FL team, as well as our own developments - **CCCP** and others. 
+of the DRL-FL team, as well as our own developments - **CAPI** and others. 
 
 ## How it works
 
 **Opencda** and **Artery** are two separate tools that can work
 and were developed separately, however, in 2024 & 2023, the DRL&FL team implemented
 a protocol for the interaction of these tools within the framework of the basic scenario *realistic_town06_cosim*
-and it is called CCCP.
+and it is called CAPI.
 
 Both simulators use their modules to interact together, in **Artery** this is a class
 **CommunicationManager** (part of the comms static library), which provides network
