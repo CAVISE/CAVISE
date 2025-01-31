@@ -21,7 +21,7 @@ Yaml file
 Содержимое <scenario_name>.yaml
 """""""""""""""""""""""""""""""
 
-После добавления CCCP yaml файлы были немного усовершенствованны с добавлением нового заголовка `sumo-artery`. Используется следующим образом:
+После добавления CAPI yaml файлы были немного усовершенствованны с добавлением нового заголовка `sumo-artery`. Используется следующим образом:
 
 .. code-block:: yaml
 
@@ -70,7 +70,7 @@ https://172.18.130.50:9443/cavise-982/opencda/-/blob/main/opencda/assets/rsu_che
 Пример:
 https://172.18.130.50:9443/cavise-982/opencda/-/blob/main/opencda/assets/rsu_check/rsu_check.net.xml?ref_type=heads
 
-Файлы для поддержки CCCP
+Файлы для поддержки CAPI
 """""""""""""""""""""""
 
 <scenario_name>.poly.xml
