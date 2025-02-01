@@ -13,7 +13,8 @@ RUN rm -f /etc/apt/sources.list.d/cuda.list && \
     apt-key del 7fa2af80 && \
     apt-key del 3bf863cc
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    wget \
     curl \
     git \
     gcc \
@@ -29,17 +30,22 @@ RUN apt-get update && apt-get install -y \
     libncursesw5-dev \
     xz-utils \
     fontconfig \
-    ttf-ubuntu-font-family
+    ttf-ubuntu-font-family && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 
 USER carla
 WORKDIR /home/carla/Import
-RUN wget ${MAPS_ARCHIVE_URL}
+
+RUN wget ${MAPS_ARCHIVE_URL} && \
+    cd .. && \
+    ./ImportAssets.sh && \
+    rm /home/carla/Import/AdditionalMaps_${CARLA_VERSION}.tar.gz
 
 WORKDIR /home/carla
-RUN ./ImportAssets.sh
 
-RUN curl https://pyenv.run | bash
+RUN curl https://pyenv.run | bash && \
+    rm -rf /tmp/*
 
 ENV HOME=/home/carla
 ENV PYENV_ROOT=${HOME}/.pyenv
@@ -47,6 +53,7 @@ ENV PATH=${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}
 
 RUN pyenv install ${PYTHON_VERSION} && \
     pyenv global ${PYTHON_VERSION} && \
-    pyenv rehash
+    pyenv rehash && \
+    rm -rf ${PYENV_ROOT}/sources/*
 
-RUN pip install --break-system-packages pygame numpy==1.26.4 carla==${CARLA_VERSION}
+RUN pip install --no-cache-dir --break-system-packages pygame numpy==1.26.4 carla==${CARLA_VERSION}
