@@ -1,9 +1,13 @@
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG  # Запускать пайплайн только при наличии тега
+      when: always
+    - when: never  # Для всех остальных случаев пайплайн не запускается
+
 stages:
-  - scan
-  - upload_report
   - build
-  - push_images
-  - sync_repos
+  - clean_nexus
+  - push
   - clean
 
 variables:
@@ -13,60 +17,81 @@ variables:
   NEXUS_API_ADDRESS: 10.10.1.5:8081
   ARTERY_IMAGE: artery
   OPENCDA_IMAGE: opencda
+  CARLA_IMAGE: carla
+  SCENARIO_MANAGER_IMAGE: scenario-manager
   IMAGE_NAMESPACE: cavise-images
   TAG: $CI_COMMIT_TAG
 
-build_artery:
+.default-build-job:
   stage: build
   script:
-    - docker build -t $NEXUS_ADDRESS/$IMAGE_NAMESPACE/$ARTERY_IMAGE:$TAG -f artery/Dockerfile .
-  only:
-    - tags
+    - docker build -t $NEXUS_ADDRESS/$IMAGE_NAMESPACE/$IMAGE_NAME:$TAG -f $DOCKERFILE_PATH . --no-cache
+
+build_artery:
+  extends: .default-build-job
+  variables:
+    IMAGE_NAME: $ARTERY_IMAGE
+    DOCKERFILE_PATH: artery/Dockerfile
 
 build_opencda:
-  stage: build
+  extends: .default-build-job
+  variables:
+    IMAGE_NAME: $OPENCDA_IMAGE
+    DOCKERFILE_PATH: opencda/Dockerfile
+
+build_carla:
+  extends: .default-build-job
+  variables:
+    IMAGE_NAME: $CARLA_IMAGE
+    DOCKERFILE_PATH: carla/Dockerfile
+
+build_scenario-manager:
+  extends: .default-build-job
   script:
-    - docker build -t $NEXUS_ADDRESS/$IMAGE_NAMESPACE/$OPENCDA_IMAGE:$TAG -f opencda/Dockerfile .
-  only:
-    - tags
+    - docker build -t $NEXUS_ADDRESS/$IMAGE_NAMESPACE/$SCENARIO_MANAGER_IMAGE:$TAG -f scenario-manager/Dockerfile scenario-manager --no-cache
+
+.default-push-job:
+  stage: push
+  script:
+    - echo "Logging in to Nexus..."
+    - echo $NEXUS_PASSWORD | docker login $NEXUS_ADDRESS -u $NEXUS_USER --password-stdin
+    - docker push $NEXUS_ADDRESS/$IMAGE_NAMESPACE/$IMAGE_NAME:$TAG
 
 push_artery:
-  stage: push_images
-  script:
-    - echo "Logging in to Nexus..."
-    - echo $NEXUS_PASSWORD | docker login $NEXUS_ADDRESS -u $NEXUS_USER --password-stdin
-
-    - docker push $NEXUS_ADDRESS/$IMAGE_NAMESPACE/$ARTERY_IMAGE:$TAG
-  only:
-    - tags
+  extends: .default-push-job
+  variables:
+    IMAGE_NAME: $ARTERY_IMAGE
 
 push_opencda:
-  stage: push_images
-  script:
-    - echo "Logging in to Nexus..."
-    - echo $NEXUS_PASSWORD | docker login $NEXUS_ADDRESS -u $NEXUS_USER --password-stdin
+  extends: .default-push-job
+  variables:
+    IMAGE_NAME: $OPENCDA_IMAGE
 
-    - docker push $NEXUS_ADDRESS/$IMAGE_NAMESPACE/$OPENCDA_IMAGE:$TAG
-  only:
-    - tags
+push_carla:
+  extends: .default-push-job
+  variables:
+    IMAGE_NAME: $CARLA_IMAGE
+
+push_scenario-manager:
+  extends: .default-push-job
+  variables:
+    IMAGE_NAME: $SCENARIO_MANAGER_IMAGE
    
 clean:
   stage: clean
   script:
     - docker system prune -a -f
-  only:
-    - tags
    
 clean_nexus:
-  stage: clean
+  stage: clean_nexus
   before_script:
     - apk update && apk add curl jq
   script:
     - |
-      for rep in "cavise-images/artery" "cavise-images/opencda"; do
+      for rep in "cavise-images/artery" "cavise-images/opencda" "cavise-images/carla" "cavise-images/scenario-manager"; do
         VERSIONS=$(curl -u $NEXUS_USER:$NEXUS_PASSWORD "http://$NEXUS_API_ADDRESS/service/rest/v1/components?repository=cavise-images" | jq -r --arg rep "$rep" '.items[] | select(.name == $rep) | "\(.version) \(.id)"' | sort -V)
         COUNT=$(echo "$VERSIONS" | wc -l)
-        if [ "$COUNT" -gt 2 ]; then 
+        if [ "$COUNT" -gt 1 ]; then 
           OLDEST=$(echo "$VERSIONS" | head -n 1)
           ID=$(echo "$OLDEST" | awk '{print $2}')
           curl -u "$AUTH" -X DELETE "$NEXUS_URL/service/rest/v1/components/$ID"
@@ -81,5 +106,4 @@ clean_nexus:
 
     - compact_blobstore_task_id=$(curl -u $NEXUS_USER:$NEXUS_PASSWORD "http://$NEXUS_API_ADDRESS/service/rest/v1/tasks" | grep compact_blobstore -B 1 | grep id | awk -F '"' '{print $4}')
     - curl -u $NEXUS_USER:$NEXUS_PASSWORD "http://$NEXUS_API_ADDRESS/service/rest/v1/tasks/$compact_blobstore_task_id/run" -X POST
-  only:
-    - tags
+  
