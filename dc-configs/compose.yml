@@ -1,0 +1,126 @@
+networks:
+  highly_accurate_network:
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 8.8.0.0/16
+      driver: default
+services:
+  artery:
+    build:
+      context: ..
+      dockerfile: artery/Dockerfile
+    command:
+    - sh
+    - -c
+    - sleep infinity
+    container_name: artery
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - capabilities:
+            - gpu
+            driver: nvidia
+    environment:
+    - DISPLAY=${DISPLAY}
+    - XAUTHORITY=${XAUTHORITY}
+    healthcheck:
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      test:
+      - CMD
+      - ping
+      - -c
+      - '1'
+      - artery
+      timeout: 10s
+    networks:
+      highly_accurate_network:
+        ipv4_address: 8.8.0.12
+    privileged: true
+    volumes:
+    - ../simdata:/cavise/simdata
+    - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
+    - /tmp/.X11-unix:/tmp/.X11-unix
+    - ${XAUTHORITY}:${XAUTHORITY}
+  carla:
+    build:
+      context: ..
+      dockerfile: carla/Dockerfile
+    command:
+    - sh
+    - -c
+    - sleep infinity
+    container_name: carla
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - capabilities:
+            - gpu
+            driver: nvidia
+    environment:
+    - DISPLAY=${DISPLAY}
+    - XAUTHORITY=${XAUTHORITY}
+    healthcheck:
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      test:
+      - CMD
+      - ping
+      - -c
+      - '1'
+      - carla
+      timeout: 10s
+    networks:
+      highly_accurate_network:
+        ipv4_address: 8.8.0.11
+    privileged: true
+    volumes:
+    - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
+    - /tmp/.X11-unix:/tmp/.X11-unix
+    - ${XAUTHORITY}:${XAUTHORITY}
+  opencda:
+    build:
+      context: ..
+      dockerfile: opencda/Dockerfile
+    command:
+    - sh
+    - -c
+    - sleep infinity
+    container_name: opencda
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - capabilities:
+            - gpu
+            driver: nvidia
+    environment:
+    - DISPLAY=${DISPLAY}
+    - XAUTHORITY=${XAUTHORITY}
+    healthcheck:
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      test:
+      - CMD
+      - ping
+      - -c
+      - '1'
+      - opencda
+      timeout: 10s
+    networks:
+      highly_accurate_network:
+        ipv4_address: 8.8.0.10
+    privileged: true
+    volumes:
+    - ../cavise/messages:/cavise/cavise/messages
+    - ../simdata:/cavise/simdata
+    - ../opencda:/cavise/opencda
+    - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
+    - /tmp/.X11-unix:/tmp/.X11-unix
+    - ${XAUTHORITY}:${XAUTHORITY}
