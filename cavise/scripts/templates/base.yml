@@ -9,8 +9,7 @@ services:
     container_name: artery
     privileged: true
     volumes:
-      - ${CAVISE_HOME}/cavise/messages:/cavise/messages
-      - ./simdata:/cavise/simdata
+      - ${CAVISE_HOME}/simdata:/cavise/simdata
     networks:
       highly_accurate_network:
         ipv4_address: 8.8.0.12
@@ -18,9 +17,9 @@ services:
     container_name: opencda
     privileged: true
     volumes:
-      - ./cavise/messages:/cavise/messages
-      - ./simdata:/cavise/simdata
-      - ./opencda:/cavise/opencda
+      - ${CAVISE_HOME}/cavise/messages:/cavise/cavise/messages
+      - ${CAVISE_HOME}/simdata:/cavise/simdata
+      - ${CAVISE_HOME}/opencda:/cavise/opencda
     networks:
       highly_accurate_network:
         ipv4_address: 8.8.0.10
