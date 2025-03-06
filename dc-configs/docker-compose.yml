@@ -1,0 +1,138 @@
+services:
+  artery:
+    build:
+      context: ..
+      dockerfile: artery/Dockerfile
+    image: artery:local
+    container_name: artery
+    command: ["sh", "-c", "sleep infinity"]
+    networks:
+      highly_accurate_network:
+        ipv4_address: 8.8.0.12
+    environment:
+      - DISPLAY=${DISPLAY}
+      - XAUTHORITY=${XAUTHORITY}
+    privileged: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+              driver: nvidia
+    healthcheck:
+      test: ["CMD", "ping", "-c", "1", "artery"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - ../simdata:/cavise/simdata
+      - ../artery/scenarios/:/cavise/artery/scenarios/
+      - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${XAUTHORITY}:${XAUTHORITY}
+
+  carla:
+    build:
+      context: ..
+      dockerfile: carla/Dockerfile
+    image: carla:local
+    container_name: carla
+    command: ["sh", "-c", "sleep infinity"]
+    networks:
+      highly_accurate_network:
+        ipv4_address: 8.8.0.11
+    environment:
+      - DISPLAY=${DISPLAY}
+      - XAUTHORITY=${XAUTHORITY}
+    privileged: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+              driver: nvidia
+    healthcheck:
+      test: ["CMD", "ping", "-c", "1", "carla"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${XAUTHORITY}:${XAUTHORITY}
+
+  opencda:
+    build:
+      context: ..
+      dockerfile: opencda/Dockerfile
+    image: opencda:local
+    container_name: opencda
+    command: ["sh", "-c", "sleep infinity"]
+    networks:
+      highly_accurate_network:
+        ipv4_address: 8.8.0.10
+    environment:
+      - DISPLAY=${DISPLAY}
+      - XAUTHORITY=${XAUTHORITY}
+    privileged: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+              driver: nvidia
+    healthcheck:
+      test: ["CMD", "ping", "-c", "1", "opencda"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - ../cavise/messages:/cavise/cavise/messages
+      - ../simdata:/cavise/simdata
+      - ../opencda:/cavise/opencda
+      - ../sumo/assets:/cavise/opencda/opencda/sumo-assets
+      - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${XAUTHORITY}:${XAUTHORITY}
+
+  sumo:
+    build:
+      context: ..
+      dockerfile: sumo/Dockerfile
+    image: sumo:local
+    container_name: sumo
+    command: ["sh", "-c", "sleep infinity"]
+    networks:
+      highly_accurate_network:
+        ipv4_address: 8.8.0.7
+    environment:
+      - DISPLAY=${DISPLAY}
+      - XAUTHORITY=${XAUTHORITY}
+    privileged: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+              driver: nvidia
+    healthcheck:
+      test: ["CMD", "ping", "-c", "1", "sumo"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - ../sumo/assets:/home/sumoboy/assets
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${XAUTHORITY}:${XAUTHORITY}
+
+networks:
+  highly_accurate_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 8.8.0.0/16

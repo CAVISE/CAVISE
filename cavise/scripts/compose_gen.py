@@ -3,6 +3,20 @@
 # Dynamically assemble docker compose file for
 # various usages.
 
+import re
+import os
+import sys
+import enum
+import errno
+import shutil
+import typing
+import logging
+import pathlib
+import argparse
+import fileinput
+import importlib
+import dataclasses
+
 version = """CAVISE docker-compose generator, version 0.0.0 (pre-release)."""
 
 doc = """Overview
@@ -25,42 +39,29 @@ Usage:
     --handlers HANDLERS...  list of handlers to use. Overrides --pack, if also supplied.
     --pack PACK             pre-defined list of handlers to use.
     --output-name NAME      name of output file, defaults to compose.yml
-    --output-path PATH      path, where output file is stored. Defaults to simdata.
+    --output-path PATH      path, where output file is stored. Defaults to dc-configs.
     --template-path PATH    path, where template files are looked up.
     --environment-path PATH path, where .env files are looked up.
 """
 
-import io
-import re
-import os
-import sys
-import enum
-import errno
-import shutil
-import typing
-import logging
-import pathlib
-import argparse
-import fileinput
-import importlib
-import dataclasses
-
 try:
     coloredlogs = importlib.import_module('coloredlogs')
-except ModuleNotFoundError as error:
+except ModuleNotFoundError:
     coloredlogs = None
     print('could not find coloredlogs module! Your logs will look boring.')
     print('if you are interested: https://pypi.org/project/coloredlogs')
 
 try:
     yaml = importlib.import_module('yaml')
-except ModuleNotFoundError as error:
+except ModuleNotFoundError:
     print('how did you think I would work with yaml, if you have no yaml package installed?')
     print('install it: https://pypi.org/project/pyaml')
     sys.exit(errno.EPERM)
 
 
-make_abs = lambda relative: pathlib.PurePath(os.getcwd()).joinpath(relative)
+def make_abs(relative: pathlib.Path): 
+    return pathlib.PurePath(os.getcwd()).joinpath(relative)
+
 
 # dataclass for paths utilized in this script.
 @dataclasses.dataclass(init=True, repr=True)
@@ -74,11 +75,13 @@ class HandlerConfig:
     # Where to look for .env files.
     environment_path: pathlib.PurePath = make_abs('cavise/scripts/environments')
 
+
 # pre-defined collections of handlers, for convenience.
 class Pack(enum.Enum):
     LOCAL_BUILD = 1
     LOCAL_ARTERY_BUILD = 2
     REMOTE_BUILD = 3
+
 
 class Handler:
 
@@ -113,7 +116,7 @@ class Handler:
         with open(self.generated, 'r') as stream:
             self.yaml = yaml.load(stream, yaml.SafeLoader)
         return self
-    
+
     def __exit__(self, *_) -> None:
         with open(self.generated, 'w') as stream:
             yaml.dump(self.yaml, stream, default_flow_style=False)
@@ -240,13 +243,14 @@ def parse_environment_file(path: pathlib.PurePath) -> typing.Dict[str, str] | st
                 key, value = line.split(': ')
             if re.match(r'[^=]*=[^=]*', line):
                 key, value = line.split('=')
-            
+
             if key is None and value is None:
                 return f'failed to match a line in .env file: {line}'
             if key in environ:
                 return f'double key detected - key {key} has two conflicting values: {value} and {environ[key]}'
             environ[key] = value                
     return environ
+
 
 # Handles creation of environment - in python's terms it is a dictionary,
 # where key and value are both strings. Path argument instructs function
@@ -261,6 +265,7 @@ def create_environment(path: pathlib.PurePath | None = None) -> typing.Dict[str,
             return f'failed to parse .env file, parser reported: {holder}'
         environ = holder
     return environ
+
 
 # Parses command line arguments and returns initialized namespace with them.
 # Best place to look for program options.
@@ -282,30 +287,14 @@ def parse_command_line() -> argparse.Namespace:
 
     return parser.parse_args()
 
-def parse_string(params) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(add_help=False)
-    # supported options.
-    parser.add_argument('--help', action='store_true', dest='help')
-    parser.add_argument('--version', action='store_true', dest='version')
-    # generator options.
-    parser.add_argument('-v', '--verbosity', action='store', dest='verbosity', default=logging.INFO)
-    parser.add_argument('-e', '--env-file', action='store', dest='env_file')
-    parser.add_argument('-t', '--template', action='store', dest='template')
-    parser.add_argument('--handlers', nargs='+', dest='handlers')
-    parser.add_argument('--pack', action='store', dest='pack')
-    parser.add_argument('--output-name', action='store', dest='output_name')
-    parser.add_argument('--output-path', action='store', dest='output_path')
-    parser.add_argument('--template-path', action='store', dest='template_path')
-    parser.add_argument('--environment-path', action='store', dest='environment_path')
-
-    return parser.parse_args(params)
 
 # Various checks regarding correctness of usage of this script.
 def sanity_check() -> str | None:
     pwd = pathlib.PurePath(os.getcwd())
     if not os.path.exists(pwd.joinpath('.gitignore')):
         return f'current location: {pwd}, no .gitignore found. Are you sure this runs from cavise root?'
-    
+
+
 def resolve_path(path: pathlib.PurePath, anchor: pathlib.PurePath) -> pathlib.PurePath:
     if path.is_absolute():
         return path
@@ -325,9 +314,9 @@ def main() -> None:
 
     if coloredlogs is not None:
         logging.basicConfig(handlers=[logging.StreamHandler(sys.stdout)])
-        coloredlogs.install(level=int(getattr(args, 'verbosity')), fmt='- [%(asctime)s] %(message)s', datefmt='%M:%S')
+        coloredlogs.install(level=int(getattr(args, 'verbosity')), format='- [%(asctime)s] %(message)s', datefmt='%M:%S')
     else:
-        logging.basicConfig(level=int(getattr(args, 'verbosity')), fmt='- [%(asctime)s] %(message)s', datefmt='%M:%S', handlers=[logging.StreamHandler(sys.stdout)])
+        logging.basicConfig(level=int(getattr(args, 'verbosity')), format='- [%(asctime)s] %(message)s', datefmt='%M:%S', handlers=[logging.StreamHandler(sys.stdout)])
 
     holder = sanity_check()
     if isinstance(holder, str):

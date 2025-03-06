@@ -8,27 +8,27 @@ services="$@"
 case "$command" in
   build)
     echo "Запуск контейнеров с пересборкой..."
-    docker compose -f simdata/compose.yml --project-directory="$PWD" --env-file cavise/scripts/environments/base.env up --build -d $services
+    docker compose -f dc-configs/docker-compose.yml --build -d $services
     ;;
   up)
     echo "Запуск контейнеров..."
-    docker compose -f simdata/compose.yml --project-directory="$PWD" --env-file cavise/scripts/environments/base.env up -d $services
+    docker compose -f dc-configs/docker-compose.yml up -d $services
     ;;
   down)
     echo "Остановка и удаление контейнеров..."
-    docker compose -f simdata/compose.yml --project-directory="$PWD" --env-file cavise/scripts/environments/base.env down $services
+    docker compose -f dc-configs/docker-compose.yml down $services
     ;;
   start)
     echo "Запуск остановленных контейнеров..."
-    docker compose -f simdata/compose.yml --project-directory="$PWD" --env-file cavise/scripts/environments/base.env start $services
+    docker compose -f dc-configs/docker-compose.yml start $services
     ;;
   stop)
     echo "Остановка контейнеров..."
-    docker compose -f simdata/compose.yml --project-directory="$PWD" --env-file cavise/scripts/environments/base.env stop $services
+    docker compose -f dc-configs/docker-compose.yml stop $services
     ;;
   restart)
     echo "Перезапуск контейнеров..."
-    docker compose -f simdata/compose.yml --project-directory="$PWD" --env-file cavise/scripts/environments/base.env restart $services
+    docker compose -f dc-configs/docker-compose.yml restart $services
     ;;
   *)
     echo "Использование: $0 {build|up|start|stop|down|restart} [services...]"
