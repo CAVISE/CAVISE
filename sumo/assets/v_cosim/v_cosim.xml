@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--generated on 2020-03-04 18:25:00 by create_sumo_vtypes.py-->
+
+
+
+<routes>
+    <vType id="vType_0" minGap="2.00" speedFactor="normc(1.00,0.00)" vClass="passenger" carFollowModel="IDMM" tau="0.4"/>
+    <vType id="DEFAULT_VEHTYPE" minGap="2.50" tau="1.0"  color="255,255,255" Class="passenger" accel="0.5"/>
+     <flow id="flow_0" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="33.0.00" to="-54.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+     <flow id="flow_1" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="33.0.00" to="-54.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+     <flow id="flow_2" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="33.0.00" to="-54.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+
+     <flow id="flow_3" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="-53.0.00" to="-40.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+     <flow id="flow_4" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="-53.0.00" to="-40.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+     <flow id="flow_5" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="-53.0.00" to="-40.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+     <flow id="flow_6" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="-53.0.00" to="-40.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+
+     <flow id="flow_7" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="22.0.00" to="-29.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+     <flow id="flow_8" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="22.0.00" to="-29.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+     <flow id="flow_9" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="22.0.00" to="-29.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+
+     <flow id="flow_10" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="22.0.00" to="-30.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+     <flow id="flow_11" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="22.0.00" to="-30.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+     <flow id="flow_12" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="22.0.00" to="-30.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+
+     <flow id="flow_13" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="-48.0.00" to="-52.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+     <flow id="flow_14" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="-48.0.00" to="-52.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+     <flow id="flow_15" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="-48.0.00" to="-52.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+
+     <flow id="flow_16" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="-54.0.00" to="33.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+     <flow id="flow_17" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="-54.0.00" to="33.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+     <flow id="flow_18" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="-54.0.00" to="33.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
+     
+</routes>
+

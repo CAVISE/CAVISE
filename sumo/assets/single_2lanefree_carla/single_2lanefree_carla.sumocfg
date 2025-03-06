@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<configuration>
+  <input>
+        <net-file value="single_2lanefree_carla.net.xml"/>
+    <route-files value="single_2lanefree_carla.rou.xml"/>
+  </input>
+  <num-clients value="1"/>
+</configuration>

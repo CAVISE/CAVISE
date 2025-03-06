@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--generated on 2020-03-04 18:25:00 by create_sumo_vtypes.py-->
+
+<routes>
+	<vType id="vType_0" minGap="2.00" speedFactor="normc(1.00,0.00)" vClass="passenger" carFollowModel="IDMM" tau="0.4"/>
+	<vType id="vehicle.lincoln.mkz_2017" minGap="2.50" tau="1.0"  color="255,255,255" Class="passenger" accel="0.5"/>
+	<vehicle id="sumo0"  maxSpeed="16.665" desiredMaxSpeed="16.665" depart="0.05" departLane="4" departPos="15.75" departSpeed="0.00" arrivalLane="4" arrivalPos="44.69" arrivalSpeed="14.72">
+		<route edges="-35.0.00 -36.0.00"/>
+	</vehicle>
+
+	<vehicle id="sumo1"  maxSpeed="16.66565" desiredMaxSpeed="16.665" depart="0.05" departLane="6" departPos="15.75" departSpeed="0.00" arrivalLane="6" arrivalPos="44.65" arrivalSpeed="13.03">
+			<route edges="-35.0.00 -36.0.00"/>
+	</vehicle>
+
+	<vehicle id="sumo2"  maxSpeed="16.665" desiredMaxSpeed="16.665" depart="0.05" departLane="2" departPos="30.78" departSpeed="0.00" arrivalLane="2" arrivalPos="60.40" arrivalSpeed="14.03">
+			<route edges="-35.0.00 -36.0.00"/>
+	</vehicle>
+
+	<vehicle id="sumo3"  maxSpeed="16.665" desiredMaxSpeed="16.665" depart="0.05" departLane="4" departPos="30.75" departSpeed="0.00" arrivalLane="4" arrivalPos="60.38" arrivalSpeed="15.04">
+			<route edges="-35.0.00 -36.0.00"/>
+	</vehicle>
+
+	<vehicle id="sumo4"  maxSpeed="16.665" desiredMaxSpeed="16.665" depart="0.05" departLane="6" departPos="30.72" departSpeed="0.00" arrivalLane="6" arrivalPos="60.36" arrivalSpeed="14.31">
+			<route edges="-35.0.00 -36.0.00"/>
+	</vehicle>
+
+	<vehicle id="sumo5"  maxSpeed="16.665" desiredMaxSpeed="16.665" depart="0.05" departLane="2" departPos="0.78" departSpeed="0.00" arrivalLane="2" arrivalPos="28.86" arrivalSpeed="11.54">
+			<route edges="-35.0.00 -36.0.00"/>
+	</vehicle>
+
+	<vehicle id="sumo6"  maxSpeed="16.665" desiredMaxSpeed="16.665" depart="0.05" departLane="4" departPos="0.75" departSpeed="0.00" arrivalLane="4" arrivalPos="28.39" arrivalSpeed="14.53">
+			<route edges="-35.0.00 -36.0.00"/>
+	</vehicle>
+
+	<vehicle id="sumo7"  maxSpeed="16.665" desiredMaxSpeed="16.665" depart="0.05" departLane="6" departPos="0.72" departSpeed="0.00" arrivalLane="6" arrivalPos="28.40" arrivalSpeed="12.31">
+			<route edges="-35.0.00 -36.0.00"/>
+	</vehicle>
+
+	<vehicle id="sumo8"  maxSpeed="16.665" desiredMaxSpeed="16.665" depart="0.05" departLane="2" departPos="15.78" departSpeed="0.00" arrivalLane="2" arrivalPos="44.70" arrivalSpeed="13.03">
+			<route edges="-35.0.00 -36.0.00"/>
+	</vehicle>
+</routes>

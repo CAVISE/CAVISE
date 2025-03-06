@@ -1,0 +1,27 @@
+[flake8]
+exclude =
+    # __init__.py file imports raise warnings about unused imports
+    __init__.py
+ignore =
+    # False positives on imports used only in generic type annotations
+    F401
+    # In conflict with modern PEP8, see https://gitlab.com/pycqa/flake8/issues/139
+    W503
+    # the next two are hanging indent errors. We exclude these because pylint
+    # already catches them and in a few places we need to manually suppress
+    # them to avoid fighting with PyCharm. We'd rather just add one
+    # suppression comment.
+    E128
+    E131
+    # E203 is often wrong and black is right
+    E203
+    # isort handles this now
+    E402
+    # already covered by PyLint and gives false positives for typing.overload
+    F811
+    # trailing whitespace - black handles it in code; in comments we don't care.
+    W291
+# Let black handle the line lengths
+max-line-length = 300
+# but black won't touch comments, so flake8 can still handle those
+max-doc-length = 300
