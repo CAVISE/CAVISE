@@ -4,10 +4,10 @@ ARG PYTHON_VERSION=3.10
 ARG SUMO_VERSION=v1_22_0
 
 # :)
-ARG USER=sumoboy
-ARG GROUP=sumoboy
-ARG UID=1001
-ARG GID=1001
+ARG USER=sumo
+ARG GROUP=sumo
+ARG UID=1000
+ARG GID=1000
 
 RUN apt update && apt install -y \
     build-essential \
