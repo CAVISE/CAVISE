@@ -1,8 +1,8 @@
 services:
   artery:
     build:
-      context: ..
-      dockerfile: artery/Dockerfile
+      context: ${CAVISE_ROOT}
+      dockerfile: ${PATH_TO_ARTERY}/Dockerfile
     image: artery:local
     container_name: artery
     command: ["sh", "-c", "sleep infinity"]
@@ -26,16 +26,16 @@ services:
       retries: 3
       start_period: 10s
     volumes:
-      - ../simdata:/cavise/simdata
-      - ../artery/scenarios/:/cavise/artery/scenarios/
+      - ${CAVISE_ROOT}/simdata:/cavise/simdata
+      - ${PATH_TO_ARTERY}/scenarios/:/cavise/artery/scenarios/
       - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ${XAUTHORITY}:${XAUTHORITY}
 
   carla:
     build:
-      context: ..
-      dockerfile: carla/Dockerfile
+      context: ${CAVISE_ROOT}
+      dockerfile: ${PATH_TO_CARLA}/Dockerfile
     image: carla:local
     container_name: carla
     command: ["sh", "-c", "sleep infinity"]
@@ -65,8 +65,8 @@ services:
 
   opencda:
     build:
-      context: ..
-      dockerfile: opencda/Dockerfile
+      context: ${CAVISE_ROOT}
+      dockerfile: ${PATH_TO_OPENCDA}/Dockerfile
     image: opencda:local
     container_name: opencda
     command: ["sh", "-c", "sleep infinity"]
@@ -90,18 +90,18 @@ services:
       retries: 3
       start_period: 10s
     volumes:
-      - ../cavise/messages:/cavise/cavise/messages
-      - ../simdata:/cavise/simdata
-      - ../opencda:/cavise/opencda
-      - ../sumo/assets:/cavise/opencda/opencda/sumo-assets
+      - ${CAVISE_ROOT}/cavise/messages:/cavise/cavise/messages
+      - ${CAVISE_ROOT}/simdata:/cavise/simdata
+      - ${PATH_TO_OPENCDA}:/cavise/opencda
+      - ${PATH_TO_SUMO}/assets:/cavise/opencda/opencda/sumo-assets
       - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ${XAUTHORITY}:${XAUTHORITY}
 
   sumo:
     build:
-      context: ..
-      dockerfile: sumo/Dockerfile
+      context: ${CAVISE_ROOT}
+      dockerfile: ${PATH_TO_SUMO}/Dockerfile
     image: sumo:local
     container_name: sumo
     command: ["sh", "-c", "sleep infinity"]
@@ -125,7 +125,7 @@ services:
       retries: 3
       start_period: 10s
     volumes:
-      - ../sumo/assets:/home/sumoboy/assets
+      - ${PATH_TO_SUMO}/assets:/home/sumo/assets
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ${XAUTHORITY}:${XAUTHORITY}
 
