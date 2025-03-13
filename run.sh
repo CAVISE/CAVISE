@@ -14,7 +14,7 @@ services="$@"
 case "$command" in
   build)
     echo "Запуск контейнеров с пересборкой..."
-    docker compose -f $CAVISE_ROOT/dc-configs/docker-compose.yml --env-file paths.conf up --build -d $services
+    docker compose -f $CAVISE_ROOT/dc-configs/docker-compose.yml --env-file paths.conf build $services
     ;;
   up)
     echo "Запуск контейнеров..."
