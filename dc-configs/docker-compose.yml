@@ -90,10 +90,10 @@ services:
       retries: 3
       start_period: 10s
     volumes:
-      - ${CAVISE_ROOT}/cavise/messages:/cavise/cavise/messages
-      - ${CAVISE_ROOT}/simdata:/cavise/simdata
-      - ${PATH_TO_OPENCDA}:/cavise/opencda
-      - ${PATH_TO_SUMO}/assets:/cavise/opencda/opencda/sumo-assets
+      - ${CAVISE_ROOT}/cavise/messages:/home/opencda/cavise/messages
+      - ${CAVISE_ROOT}/simdata:/home/opencda/cavise/simdata
+      - ${PATH_TO_OPENCDA}:/home/opencda/cavise/opencda
+      - ${PATH_TO_SUMO}/assets:/home/opencda/cavise/opencda/opencda/sumo-assets
       - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ${XAUTHORITY}:${XAUTHORITY}
