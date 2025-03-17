@@ -1,14 +1,14 @@
-# CAVISE
+# CAVISE Simulator (Project 982)
 
 ## Overview
 
-This monorepository contains the tools used in the development
+This repository contains the tools used in the development
 of the DRL-FL team, as well as our own developments - **CAPI** and others. 
 
-## How it works
+## History
 
 **Opencda** and **Artery** are two separate tools that can work
-and were developed separately, however, in 2024 & 2023, the DRL&FL team implemented
+and were developed separately, however, in 2023 & 2024, the DRL&FL team implemented
 a protocol for the interaction of these tools within the framework of the basic scenario *realistic_town06_cosim*
 and it is called CAPI.
 
@@ -23,7 +23,241 @@ sent and received from **Artery** are also implemented.
 
 Compiling protobuf to source code files is part of the **Artery** compilation routine.
 
-## How to work with it
+## Full Use of the Simulator
+
+### Installation
+
+#### Clone the Repository
+
+To clone the main repository (recommended):
+
+```bash
+git clone ssh://git@172.18.130.50:8822/cavise-982/highly_accurate-cda-ise.git
+```
+
+Alternatively, using HTTPS:
+
+```bash
+git clone https://172.18.130.50:9443/cavise-982/highly_accurate-cda-ise.git
+```
+
+#### Install Dependencies
+
+Ensure you have Python 3.10 or higher installed:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip3 install -r requirements.txt
+```
+
+#### Install Required Repositories
+
+```bash
+cd highly_accurate-cda-ise
+./setup.py
+```
+
+To install specific repositories:
+
+```bash
+./setup.py opencda
+```
+
+### Build and Run the Simulator
+
+#### Using Docker Compose
+
+Run all components:
+
+```bash
+docker compose -f dc-configs/docker-compose.yml --env-file paths.conf build # Build
+docker compose -f dc-configs/docker-compose.yml --env-file paths.conf up -d # Start
+```
+
+To run specific services:
+
+```bash
+docker compose -f dc-configs/docker-compose.yml --env-file paths.conf up -d <service-name>
+```
+
+Other Docker Compose commands:
+
+```bash
+docker compose -f dc-configs/docker-compose.yml --env-file paths.conf restart <service-name>
+
+docker compose -f dc-configs/docker-compose.yml --env-file paths.conf down <service-name>
+```
+
+#### Using `run.sh`
+
+Alternatively, use the predefined script:
+
+```bash
+./run.sh up
+```
+
+Run specific services:
+
+```bash
+./run.sh build <service-name>
+./run.sh up <service-name>
+./run.sh restart <service-name>
+./run.sh down <service-name>
+```
+
+#### Using `interface.py`
+
+Install dependencies and run the interface:
+
+```bash
+pip install -r requirements.txt
+python interface.py
+```
+
+Go to **Admin Panel → Simulator Control Panel**, then click **Build**.
+
+### Running Individual Components
+
+#### Carla
+
+Enter the Carla container:
+
+```bash
+docker exec -it carla bash
+```
+
+Start Carla:
+
+```bash
+./CarlaUE4.sh
+```
+
+Lower quality settings:
+
+```bash
+./CarlaUE4.sh --quality-level=Low
+```
+
+Run in headless mode:
+
+```bash
+./CarlaUE4.sh -RenderOffScreen
+```
+
+Change map or weather:
+
+```bash
+./PythonAPI/util/config.py --map Town06
+./PythonAPI/util/config.py --weather ClearNoon
+```
+
+#### SUMO
+
+Enter the SUMO container:
+
+```bash
+docker exec -it sumo bash
+```
+
+Start SUMO:
+
+```bash
+sumo-gui -c /path/to/scenario.sumocfg --remote-port x --num-clients n
+```
+
+Example:
+
+```bash
+sumo-gui -c assets/rsu_check/rsu_check.sumocfg --remote-port 3000 --num-clients 2
+```
+
+#### OpenCDA
+
+Enter the OpenCDA container:
+
+```bash
+docker exec -it opencda bash
+```
+
+Run a scenario:
+
+```bash
+python opencda.py -t rsu_check
+```
+
+Run SUMO during simulation:
+
+```bash
+python opencda.py -t rsu_check --cosim
+```
+
+Enable free camera movement:
+
+```bash
+python opencda.py -t rsu_check --cosim --free-spectator
+```
+
+Run cooperative perception models:
+
+```bash
+python opencda.py -t rsu_check --cosim --free-spectator \
+--with-coperception --model-dir opencda/coperception_models/point_pillar_where2comm_v2xset --fusion-method intermediate
+```
+
+For help:
+
+```bash
+python opencda.py -h
+```
+
+#### Artery
+
+Enter the Artery container:
+
+```bash
+docker exec -it artery bash
+cd build/Release/
+```
+
+Run a scenario in Artery:
+
+```bash
+cmake --build . --target run_realistic_town06_cosim
+```
+
+Start SUMO (see SUMO section), then run the OpenCDA scenario:
+
+```bash
+python opencda.py -t realistic_town06_cosim -c --with-capi
+```
+
+### Troubleshooting
+
+#### Carla Error: "Town06 is not found"
+
+Ensure the city has changed in Carla, then retry the scenario.
+
+#### OpenCDA Error: "No module named ‘opencood.utils.box_overlaps’"
+
+```bash
+cd OpenCOOD
+python opencood/utils/setup.py build_ext --inplace
+```
+
+#### Display Errors in Artery
+
+```bash
+qt.qpa.xcb: could not connect to display :0
+```
+
+Run on host:
+
+```bash
+xhost +local:docker
+```
+
+## (Additionally) Artery development
 
 You may only need to collect **Artery** locally for syntax highlighting to work correctly.
 To do this, run these commands:
@@ -34,6 +268,8 @@ cd artery/
 source ./tools/setup/configure.sh
 ./tools/setup/build.py -b -c --config Debug --link
 ```
+
+## (Additionally) Interface info
 
 To run, you need:
 
@@ -46,7 +282,7 @@ After completing the previous step, you will be taken to the interface:
 
 ![alt text](<docs/images/interface-main-page.png>)
 
-### Menu content: 
+#### Menu content: 
 
 ```                                         
   |_ Info
@@ -63,13 +299,13 @@ After completing the previous step, you will be taken to the interface:
   |_ Exit
 ```
 
-## System Info:
+### System Info:
                                             
 Shows running simulations, docker/docker compose versions, hardware statuses
 
-## Admin Panel -> Simulator control panel:
+### Admin Panel -> Simulator control panel:
 
-### Overview                 
+#### Overview                 
 - Select File: Choose a Docker Compose configuration file.
 - Custom Parameters: Specify additional Docker Compose options (optional).
 - Select Services: Specify which services to start, stop, or restart (optional).
@@ -78,7 +314,7 @@ Shows running simulations, docker/docker compose versions, hardware statuses
 - Down Button: Stops and removes the Docker containers.
 - Restart Button: Restarts the Docker services.
 
-### Usage
+#### Usage
 
 1. Select File (File Selector)
     Purpose: Choose a Docker Compose configuration file.
@@ -91,7 +327,7 @@ Shows running simulations, docker/docker compose versions, hardware statuses
     Purpose: Specify which services from your Docker Compose file should be affected by the command.
     Where to Write: Enter the name of the services you want to start, stop, or restart. By default, the form will try to use the "main sim" service.
 
-### Buttons for Docker Compose Actions
+#### Buttons for Docker Compose Actions
 
 These buttons are the primary actions you will use in this form. Each button will execute a corresponding Docker Compose command with the parameters you specify.
 
@@ -104,18 +340,18 @@ These buttons are the primary actions you will use in this form. Each button wil
 4. Restart (Restart Button)
     Purpose: This button will run the docker compose restart command to restart services without shutting down the entire environment.                      
 
-### Output Area (Script Output)
+#### Output Area (Script Output)
 
     Purpose: Displays the logs and status of the actions you perform.
     What to Expect: After clicking any button (e.g., Build, Up, Down, Restart), the output will appear here. It shows real-time logs, errors, or success messages from Docker Compose.                             
                                     
-## Admin Panel -> ComponentName Info:   
+### Admin Panel -> ComponentName Info:   
                                                                       
     Shows hardware resources used by the container and his logs in real-time mode
 
-## Generate Compose Configs:
+## (Additionally) Generate Compose Configs
                                     
-### CAVISE docker-compose generator. This tool is used to dynamically
+#### CAVISE docker-compose generator. This tool is used to dynamically
 
 Create docker-compose configs depending on one's needs. Originally,
 the needs were:
@@ -123,7 +359,7 @@ the needs were:
     - optional artery mount
 these might be extended further.
 
-### Usage:
+#### Usage:
 
     --help                  prints this message.
     --version               prints script version.
@@ -138,7 +374,7 @@ these might be extended further.
     --template-path PATH    path, where template files are looked up.
     --environment-path PATH path, where .env files are looked up.
 
-## Scenario Manager:
+## (Additionally) Scenario Manager
                                     
 This panel is designed for sending API requests and displaying the responses. It consists of several key components:
 
