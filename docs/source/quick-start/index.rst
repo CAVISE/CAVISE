@@ -302,10 +302,10 @@ To run, you need:
 
 After completing the previous step, you will be taken to the interface:
 
-.. image:: <docs/images/interface-main-page.png>
+.. image:: images/interface-main-page.png
 
-Menu content:
-~~~~~~~~~~~~~
+Menu content
+~~~~~~~~~~~~
 
 .. code::
 
@@ -322,13 +322,13 @@ Menu content:
    |_ Help
    |_ Exit
 
-System Info:
-~~~~~~~~~~~~
+System Info
+~~~~~~~~~~~
 
 Shows running simulations, docker/docker compose versions, hardware statuses
 
-Admin Panel -> Simulator control panel:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Admin Panel -> Simulator control panel
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Overview                 
 - Select File: Choose a Docker Compose configuration file.
@@ -373,8 +373,8 @@ Output Area (Script Output)
 - Purpose: Displays the logs and status of the actions you perform.
 - What to Expect: After clicking any button (e.g., Build, Up, Down, Restart), the output will appear here. It shows real-time logs, errors, or success messages from Docker Compose.
 
-Admin Panel -> ComponentName Info:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Admin Panel -> ComponentName Info
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Shows hardware resources used by the container and his logs in real-time mode
 
@@ -389,8 +389,8 @@ the needs were:
 - optional artery mount
 these might be extended further.
 
-Help:
-~~~~~~
+Help
+~~~~
 
 .. code::
 
@@ -422,3 +422,4 @@ This panel is designed for sending API requests and displaying the responses. It
 
 3. Response Output
    - Response: After sending the request, the result will be displayed in this field as a formatted JSON response from the server.
+

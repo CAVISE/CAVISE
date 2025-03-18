@@ -280,9 +280,9 @@ python interface.py
 
 After completing the previous step, you will be taken to the interface:
 
-![alt text](<docs/images/interface-main-page.png>)
+![alt text](<docs/source/quick-start/images/interface-main-page.png>)
 
-#### Menu content: 
+#### Menu content
 
 ```                                         
   |_ Info
@@ -299,11 +299,11 @@ After completing the previous step, you will be taken to the interface:
   |_ Exit
 ```
 
-### System Info:
+### System Info
                                             
 Shows running simulations, docker/docker compose versions, hardware statuses
 
-### Admin Panel -> Simulator control panel:
+### Admin Panel -> Simulator control panel
 
 #### Overview                 
 - Select File: Choose a Docker Compose configuration file.
@@ -345,7 +345,7 @@ These buttons are the primary actions you will use in this form. Each button wil
     Purpose: Displays the logs and status of the actions you perform.
     What to Expect: After clicking any button (e.g., Build, Up, Down, Restart), the output will appear here. It shows real-time logs, errors, or success messages from Docker Compose.                             
                                     
-### Admin Panel -> ComponentName Info:   
+### Admin Panel -> ComponentName Info
                                                                       
     Shows hardware resources used by the container and his logs in real-time mode
 
@@ -359,7 +359,7 @@ the needs were:
     - optional artery mount
 these might be extended further.
 
-#### Usage:
+#### Help
 
     --help                  prints this message.
     --version               prints script version.
@@ -388,3 +388,4 @@ This panel is designed for sending API requests and displaying the responses. It
 
 3. Response Output
     Response: After sending the request, the result will be displayed in this field as a formatted JSON response from the server.
+
