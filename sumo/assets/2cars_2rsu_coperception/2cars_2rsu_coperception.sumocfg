@@ -3,7 +3,7 @@
     <input>
         <net-file value="Town04.net.xml"/>
         <route-files value="2cars_2rsu_coperception.rou.xml" />
-        <additional-files value="2cars_2rsu_coperception_town04.poly.xml"/>
+        <additional-files value="2cars_2rsu_coperception.poly.xml"/>
     </input>
     <time>
         <step-length value="0.1"/>
