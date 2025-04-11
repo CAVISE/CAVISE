@@ -2,8 +2,8 @@
 <configuration>
     <input>
         <net-file value="Town04.net.xml"/>
-        <route-files value="2cars_2rsu_coperception.rou.xml" />
-        <additional-files value="2cars_2rsu_coperception.poly.xml"/>
+        <route-files value="2cars_no_rsu_coperception.rou.xml" />
+        <additional-files value="2cars_no_rsu_coperception.poly.xml"/>
     </input>
     <time>
         <step-length value="0.1"/>
