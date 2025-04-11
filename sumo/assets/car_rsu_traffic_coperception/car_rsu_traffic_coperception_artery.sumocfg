@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <configuration>
 	<input>
-		<net-file value="car_rsu_traffic_coperception.net.xml"/>
+		<net-file value="Town06.net.xml"/>
 		<route-files value="car_rsu_traffic_coperception.rou.xml"/>
 		<additional-files value="car_rsu_traffic_coperception.poly.xml"/>
 	</input>
