@@ -5,15 +5,30 @@ package structure_artery;
 message Artery_message {
     repeated Received_information received_information = 1;
 
-    message Received_information{
-        // Информация полученная от остальных cav
-        string artery_vid = 1; // id машины в artery
-        string vid = 2;    // id машины
-        repeated Cav cav = 3;
+    message Received_information {
+        string artery_id = 1;
+        int64 id = 2;
+        repeated Entity entity = 3;
 
-        message Cav {   // Исходная Cav
-            string vid = 1;    // id машины
-            float ego_spd = 2;   // Скорость машины
+        message Entity {
+            int64 id = 1;
+            optional int64 infra = 2;
+            optional float velocity = 3;
+            optional float time_delay = 4;
+            repeated int64 object_ids = 5;
+
+            NDArray object_bbx_center = 6;
+            optional NDArray spatial_correction_matrix = 7;
+            optional NDArray voxel_num_points = 8;
+            optional NDArray voxel_features = 9;
+            optional NDArray voxel_coords = 10;
+            optional NDArray projected_lidar = 11;
         }
     }
+}
+
+message NDArray {
+  bytes data = 1;
+  repeated int64 shape = 2;
+  string dtype = 3;
 }

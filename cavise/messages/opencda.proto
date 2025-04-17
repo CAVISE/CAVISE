@@ -2,11 +2,27 @@ syntax = "proto3";
 
 package structure_opencda;
 
-message OpenCDA_message {   // Информация полученная от остальных cav
-    repeated Cav cav = 1;
+message OpenCDA_message {    // Информация полученная от остальных CAV
+    repeated Entity entity = 1;
 
-    message Cav {   // Исходная Cav
-      string vid = 1;    // id машины
-      float ego_spd = 2;   // Скорость машины
+    message Entity {         // Could be CAV or RSU
+        int64 id = 1;         // CAV's or RSU's id (CAV > 0, RSU < 0)
+        optional int64 infra = 2;
+        optional float velocity = 3;
+        optional float time_delay = 4;
+        repeated int64 object_ids = 5;
+
+        NDArray object_bbx_center = 6;
+        optional NDArray spatial_correction_matrix = 7;
+        optional NDArray voxel_num_points = 8;
+        optional NDArray voxel_features = 9;
+        optional NDArray voxel_coords = 10;
+        optional NDArray projected_lidar = 11;
     }
+}
+
+message NDArray {
+  bytes data = 1;
+  repeated int64 shape = 2;
+  string dtype = 3;
 }
