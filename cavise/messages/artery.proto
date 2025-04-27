@@ -10,19 +10,26 @@ message Artery_message {
         int64 id = 2;
         repeated Entity entity = 3;
 
-        message Entity {
-            int64 id = 1;
+        message Entity {         // Could be CAV or RSU
+            int64 id = 1;        // CAV's or RSU's id (CAV > 0, RSU < 0)
             optional int64 infra = 2;
             optional float velocity = 3;
             optional float time_delay = 4;
             repeated int64 object_ids = 5;
+            repeated float lidar_pose = 6;
 
-            NDArray object_bbx_center = 6;
-            optional NDArray spatial_correction_matrix = 7;
-            optional NDArray voxel_num_points = 8;
-            optional NDArray voxel_features = 9;
-            optional NDArray voxel_coords = 10;
-            optional NDArray projected_lidar = 11;
+            optional NDArray object_bbx_center = 7;
+            optional NDArray object_bbx_mask = 8;
+            optional NDArray anchor_box = 9;
+            optional NDArray pos_equal_one = 10;
+            optional NDArray neg_equal_one = 11;
+            optional NDArray targets = 12;
+            optional NDArray origin_lidar = 13;
+            optional NDArray spatial_correction_matrix = 14;
+            optional NDArray voxel_num_points = 15;
+            optional NDArray voxel_features = 16;
+            optional NDArray voxel_coords = 17;
+            optional NDArray projected_lidar = 18;
         }
     }
 }
