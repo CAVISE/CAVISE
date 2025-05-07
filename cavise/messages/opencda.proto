@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package structure_opencda;
 
-message OpenCDA_message {    // Информация полученная от остальных CAV
+message OpenCDA_message {   // Information received from other vehicles (CAV/RSU/Platoon)
     repeated Entity entity = 1;
 
-    message Entity {         // Could be CAV or RSU
-        int64 id = 1;        // CAV's or RSU's id (CAV > 0, RSU < 0)
+    message Entity {
+        string id = 1;      // Unique string ID: e.g., 'cav-1', 'rsu-3', 'platoon-5'
         optional int64 infra = 2;
         optional float velocity = 3;
         optional float time_delay = 4;
