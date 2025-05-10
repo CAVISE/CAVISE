@@ -5,13 +5,12 @@ package structure_artery;
 message Artery_message {
     repeated Received_information received_information = 1;
 
-    message Received_information {
-        string artery_id = 1;
-        int64 id = 2;
-        repeated Entity entity = 3;
+    message Received_information {      // Information received from other vehicles (CAV/RSU/Platoon)
+        string id = 1;
+        repeated Entity entity = 2;
 
-        message Entity {         // Could be CAV or RSU
-            int64 id = 1;        // CAV's or RSU's id (CAV > 0, RSU < 0)
+        message Entity {
+            string id = 1;              // Unique string ID: e.g., 'cav-1', 'rsu-3', 'platoon-5'
             optional int64 infra = 2;
             optional float velocity = 3;
             optional float time_delay = 4;
