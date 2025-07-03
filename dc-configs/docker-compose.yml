@@ -63,6 +63,37 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ${XAUTHORITY}:${XAUTHORITY}
 
+  carla10:
+    build:
+      context: ${CAVISE_ROOT}
+      dockerfile: ${PATH_TO_CARLA}/Dockerfile.carla-0.10.0
+    image: carla10:local
+    container_name: carla10
+    command: ["sh", "-c", "sleep infinity"]
+    networks:
+      highly_accurate_network:
+        ipv4_address: 8.8.0.11
+    environment:
+      - DISPLAY=${DISPLAY}
+      - XAUTHORITY=${XAUTHORITY}
+    privileged: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+              driver: nvidia
+    healthcheck:
+      test: ["CMD", "ping", "-c", "1", "carla"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${XAUTHORITY}:${XAUTHORITY}
+
   opencda:
     build:
       context: ${CAVISE_ROOT}
