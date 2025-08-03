@@ -1,8 +1,8 @@
 services:
   artery:
     build:
-      context: ${PATH_TO_ARTERY}
-      dockerfile: Dockerfile
+      context: ${CAVISE_ROOT}
+      dockerfile: ${PATH_TO_ARTERY}/Dockerfile
     image: artery:local
     container_name: artery
     command: ["sh", "-c", "sleep infinity"]
