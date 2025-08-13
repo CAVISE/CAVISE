@@ -13,7 +13,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-CAVISE_TAGS = {"opencda": "v1.0.0", "artery": "v1.0.0"}
+CAVISE_TAGS = {"opencda": "v0.0.1", "artery": "v0.0.1"}
 
 
 def clone_repo(repo_base, repo_name, tag=None):
