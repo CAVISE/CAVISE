@@ -19,7 +19,7 @@ To connect SUMO to a scenario, you must add the following block to the YAML file
         client_order: 2
         step_length: ${world.fixed_delta_seconds}
 
-Example:  
+Example:
 https://172.18.130.50:9443/cavise-982/opencda/-/blob/main/opencda/scenario_testing/config_yaml/rsu_check.yaml?ref_type=heads
 
 Assets
@@ -31,17 +31,17 @@ All SUMO-related files are stored in the `sumo/assets/` directory. Create a subd
 """""""""""""""""""""""
 The main SUMO config file, which references the other configuration files such as `.rou.xml`, `.net.xml`, etc.
 
-Example:  
+Example:
 https://172.18.130.50:9443/cavise-982/opencda/-/blob/main/opencda/assets/rsu_check/rsu_check.sumocfg?ref_type=heads
 
 <scenario_name>.rou.xml
 """""""""""""""""""""""
-This file defines vehicle routes. Use `flow` to define traffic flow and `trip` to define the path of a single vehicle. More information: https://sumo.dlr.de/docs/Definition_of_Vehicles%2C_Vehicle_Types%2C_and_Routes.html  
-You can also use a Python script to generate random trips: https://sumo.dlr.de/docs/Tools/Trip.html  
+This file defines vehicle routes. Use `flow` to define traffic flow and `trip` to define the path of a single vehicle. More information: https://sumo.dlr.de/docs/Definition_of_Vehicles%2C_Vehicle_Types%2C_and_Routes.html
+You can also use a Python script to generate random trips: https://sumo.dlr.de/docs/Tools/Trip.html
 The `from` and `to` fields are road segment IDs, which can be obtained by opening the `.net.xml` file in SUMO and right-clicking on a segment.
 
-**Important:**  
-If the scenario uses SUMO, there must always be at least one vehicle or flow active; otherwise, the simulation ends immediately.  
+**Important:**
+If the scenario uses SUMO, there must always be at least one vehicle or flow active; otherwise, the simulation ends immediately.
 To prevent early termination, you can add a dummy stationary vehicle like this (replace `edges` and `lane` with actual values):
 
 .. code-block:: xml
@@ -51,15 +51,15 @@ To prevent early termination, you can add a dummy stationary vehicle like this (
         <stop lane="27_3" startPos="0" endPos="5" duration="100000"/>
     </vehicle>
 
-Example:  
+Example:
 https://172.18.130.50:9443/cavise-982/opencda/-/blob/main/opencda/assets/rsu_check/rsu_check.rou.xml?ref_type=heads
 
 <scenario_name>.net.xml
 """""""""""""""""""""""
-This file describes the road network in SUMO format. It must be generated for each map.  
+This file describes the road network in SUMO format. It must be generated for each map.
 If the map already exists in another scenario, you can copy it. Otherwise, generate it as described in the section below.
 
-Example:  
+Example:
 https://172.18.130.50:9443/cavise-982/opencda/-/blob/main/opencda/assets/rsu_check/rsu_check.net.xml?ref_type=heads
 
 CAPI Support Files
@@ -71,25 +71,25 @@ If the scenario uses Artery, you need to create one required and one optional fi
 """"""""""""""""""""""""""""""
 Similar to the standard `.sumocfg` but with `num-clients = 2`.
 
-Example:  
+Example:
 https://172.18.130.50:9443/cavise-982/opencda/-/blob/main/opencda/assets/rsu_check/rsu_check_artery.sumocfg?ref_type=heads
 
 <scenario_name>.poly.xml
 """"""""""""""""""""""""
-Optional file. It describes various zones like buildings or trees that might affect signal propagation.  
+Optional file. It describes various zones like buildings or trees that might affect signal propagation.
 Used by Artery for accurate communication modeling. For Town06, use the existing example; otherwise, create manually using netedit.
 
-Example:  
+Example:
 https://172.18.130.50:9443/cavise-982/opencda/-/blob/main/opencda/assets/rsu_check/rsu_check.poly.xml?ref_type=heads
 
 Artery
 ------
 
-Artery configuration is stored in the `artery/scenarios/` directory. Create a subfolder named `<scenario_name>`.  
-Example:  
+Artery configuration is stored in the `artery/scenarios/` directory. Create a subfolder named `<scenario_name>`.
+Example:
 https://172.18.130.50:9443/cavise-982/artery/-/tree/main/scenarios/rsu_check?ref_type=heads
 
-Files in this folder are the same as for SUMO:  
+Files in this folder are the same as for SUMO:
 <scenario_name>.net.xml, <scenario_name>.poly.xml, <scenario_name>.rou.xml, <scenario_name>.sumocfg (Artery version)
 
 You also need the following additional files:
@@ -150,7 +150,7 @@ After launching Carla using `cd /carla && ./CarlaUE4.sh &disown`, change the map
 
     /home/carla/PythonAPI/util/config.py --map Town06
 
-OpenCDA provides two scripts: `get_position.py` and `set_position.py`, located in `opencda/opencda/scenario_testing/utils`.  
+OpenCDA provides two scripts: `get_position.py` and `set_position.py`, located in `opencda/opencda/scenario_testing/utils`.
 Keep the z-coordinate as `1.05`. Leave the 4th and 6th parameters as `0`.
 
 get_position.py
@@ -159,12 +159,12 @@ Outputs the current spectator position. Change port to match Carla’s configura
 
 .. code-block:: python
 
-    import carla  
-    import random  
-    
-    client = carla.Client('carla', 2000)  
-    world = client.get_world()  
-    
+    import carla
+    import random
+
+    client = carla.Client('carla', 2000)
+    world = client.get_world()
+
     spectator = world.get_spectator()
     location = spectator.get_transform().location
     rotation = spectator.get_transform().rotation
@@ -177,17 +177,17 @@ Used to place the spectator at a specified coordinate:
 
 .. code-block:: python
 
-    import carla  
-    import random  
-    
-    client = carla.Client('carla', 2000)  
-    world = client.get_world()  
-    
-    spectator = world.get_spectator()  
-    
-    x, y, z = map(float, input().split(","))  
-    location = carla.Location(x=x, y=y, z=z)  
-    rotation = carla.Rotation(pitch=0, yaw=-180, roll=0)  
+    import carla
+    import random
+
+    client = carla.Client('carla', 2000)
+    world = client.get_world()
+
+    spectator = world.get_spectator()
+
+    x, y, z = map(float, input().split(","))
+    location = carla.Location(x=x, y=y, z=z)
+    rotation = carla.Rotation(pitch=0, yaw=-180, roll=0)
     spectator.set_transform(carla.Transform(location, rotation))
 
 .. _gen-net-xml:
@@ -199,7 +199,7 @@ Generating .net.xml for Carla Maps
 
 **Solution**: Carla provides a script to generate `.net.xml` from `.xodr` maps (official guide: https://carla.readthedocs.io/en/latest/adv_sumo/#create-the-sumo-net)
 
-In the Carla container, `.xodr` map files are located in:  
+In the Carla container, `.xodr` map files are located in:
 `CarlaUE4/Content/Carla/Maps/OpenDrive/`
 
 Install dependencies and define the `SUMO_HOME` environment variable:
@@ -216,11 +216,11 @@ Install dependencies and define the `SUMO_HOME` environment variable:
     Author-email: sumo@dlr.de
     License: EPL-2.0
     Location: /home/carla/.pyenv/versions/3.10.11/lib/python3.10/site-packages
-    Requires: 
-    Required-by: 
+    Requires:
+    Required-by:
     carla@ed06e934540b:~$ export SUMO_HOME=/home/carla/.pyenv/versions/3.10.11/lib/python3.10/site-packages/sumo/
 
-Then run the script at:  
+Then run the script at:
 `Co-Simulation/Sumo/util/netconvert_carla.py`
 
 .. code-block:: bash
@@ -232,7 +232,7 @@ Then run the script at:
 Creating .poly.xml
 ------------------
 
-Start by creating a template file and referencing it in the `.sumoconfig` using the line `<additional-files value="scenario_name.poly.xml"/>`:  
+Start by creating a template file and referencing it in the `.sumoconfig` using the line `<additional-files value="scenario_name.poly.xml"/>`:
 
 .. code-block:: xml
 
@@ -247,7 +247,7 @@ In the settings, enable `fill` and `Close shape`, and optionally set ID, color, 
 
 .. image:: images/poly_settings.png
 
-Click Enter to start drawing the polygon. Mark the desired area on the map and press Enter again to stop.  
+Click Enter to start drawing the polygon. Mark the desired area on the map and press Enter again to stop.
 Repeat for all necessary zones and save the file.
 
 .. image:: images/without_building.png

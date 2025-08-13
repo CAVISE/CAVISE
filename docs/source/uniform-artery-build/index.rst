@@ -5,7 +5,7 @@ Uniform Artery build
 использовалась комбинация *configure.sh* и *build.py*, где *configure.sh* устанавливал и конфигурировал
 среду, а *build.py* собирал исходный код. Теперь как альтернатива этому тулчейну используется один *build.py*.
 
-Скрипт расположен в ``tools/build.py`` в репозитории Artery. Для получения актуальных 
+Скрипт расположен в ``tools/build.py`` в репозитории Artery. Для получения актуальных
 команд можно использовать ``./tools/build.py --help``.
 
 Общий пайплайн выглядит следующим образом:
@@ -23,7 +23,7 @@ Uniform Artery build
     .. code-block:: bash
 
         source configure.sh
-        cd artery  
+        cd artery
 
 Clear
 -----

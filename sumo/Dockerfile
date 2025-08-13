@@ -41,5 +41,3 @@ RUN curl https://pyenv.run | bash && \
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir \
     traci eclipse-sumo
-
-  

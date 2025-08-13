@@ -38,7 +38,7 @@ self.menu_top = self.menu(
 ```python
 def show_info(self, button: u.Button) -> None:
     """Shows the Info view when the 'Info' button is pressed.
-    
+
     Args:
         button (u.Button): The button that triggered the event.
     """
@@ -48,4 +48,3 @@ def show_info(self, button: u.Button) -> None:
 ```
 
 6. Create a Merge Request for your changes. The rules for working with GitLab can be found on the project's Notion page.
-

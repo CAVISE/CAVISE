@@ -17,4 +17,3 @@
      <flow id="flow_6" begin="0.00" departLane="1" arrivalSpeed="60" departSpeed="random" departPos="random" from="-19.0.00" to="-39.0.00"  end="4800.00" vehsPerHour="700.00" type="DEFAULT_VEHTYPE"/>
      <flow id="flow_7" begin="0.00" departLane="2" arrivalSpeed="60" departSpeed="random" departPos="random" from="-19.0.00" to="-39.0.00"  end="4800.00" vehsPerHour="700.00" type="DEFAULT_VEHTYPE"/>
 </routes>
-

@@ -76,12 +76,12 @@ push_scenario-manager:
   extends: .default-push-job
   variables:
     IMAGE_NAME: $SCENARIO_MANAGER_IMAGE
-   
+
 clean:
   stage: clean
   script:
     - docker system prune -a -f
-   
+
 clean_nexus:
   stage: clean_nexus
   before_script:
@@ -91,7 +91,7 @@ clean_nexus:
       for rep in "cavise-images/artery" "cavise-images/opencda" "cavise-images/carla" "cavise-images/scenario-manager"; do
         VERSIONS=$(curl -u $NEXUS_USER:$NEXUS_PASSWORD "http://$NEXUS_API_ADDRESS/service/rest/v1/components?repository=cavise-images" | jq -r --arg rep "$rep" '.items[] | select(.name == $rep) | "\(.version) \(.id)"' | sort -V)
         COUNT=$(echo "$VERSIONS" | wc -l)
-        if [ "$COUNT" -gt 1 ]; then 
+        if [ "$COUNT" -gt 1 ]; then
           OLDEST=$(echo "$VERSIONS" | head -n 1)
           ID=$(echo "$OLDEST" | awk '{print $2}')
           curl -u "$AUTH" -X DELETE "$NEXUS_URL/service/rest/v1/components/$ID"
@@ -106,4 +106,3 @@ clean_nexus:
 
     - compact_blobstore_task_id=$(curl -u $NEXUS_USER:$NEXUS_PASSWORD "http://$NEXUS_API_ADDRESS/service/rest/v1/tasks" | grep compact_blobstore -B 1 | grep id | awk -F '"' '{print $4}')
     - curl -u $NEXUS_USER:$NEXUS_PASSWORD "http://$NEXUS_API_ADDRESS/service/rest/v1/tasks/$compact_blobstore_task_id/run" -X POST
-  

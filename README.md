@@ -3,7 +3,7 @@
 ## Overview
 
 This repository contains the tools used in the development
-of the CAVISE team, as well as our own developments - **CAPI** and others. 
+of the CAVISE team, as well as our own developments - **CAPI** and others.
 
 ## History
 

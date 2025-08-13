@@ -1,12 +1,11 @@
 import urwid as u
-import subprocess
-import docker
 from python_on_whales import docker
 
 from .common_elements import CommonElements
 
 import threading
 import time
+
 
 class ComponentView(u.WidgetWrap, CommonElements):
     def __init__(self, component_name, loop):
@@ -16,21 +15,22 @@ class ComponentView(u.WidgetWrap, CommonElements):
         self.metrics = u.Text("Info:\n")
         self.logs = u.Text("")
         self.logs_header = u.Text("Logs:")
-        self.scrollable_metrics_filler = u.Filler(self.metrics, valign='top')
+        self.scrollable_metrics_filler = u.Filler(self.metrics, valign="top")
         self.scrollable_logs_header_filler = u.Filler(self.logs_header)
         self.scrollable_logs_filler = self.create_scrollable_script_output(self.logs)
-        self.about_filler = u.Filler(self.about, valign='top')
+        self.about_filler = u.Filler(self.about, valign="top")
 
-        pile = u.Pile([
-            ('weight', 1, self.about_filler),
-            u.Divider("-"),
-            ('weight', 1, self.scrollable_metrics_filler),
-            u.Divider("-"),
-            ('weight', 1, self.scrollable_logs_header_filler),
-            ('weight', 1, self.scrollable_logs_filler),
-            u.Divider("-"),
-
-        ])
+        pile = u.Pile(
+            [
+                ("weight", 1, self.about_filler),
+                u.Divider("-"),
+                ("weight", 1, self.scrollable_metrics_filler),
+                u.Divider("-"),
+                ("weight", 1, self.scrollable_logs_header_filler),
+                ("weight", 1, self.scrollable_logs_filler),
+                u.Divider("-"),
+            ]
+        )
 
         u.WidgetWrap.__init__(self, pile)
 
@@ -38,7 +38,6 @@ class ComponentView(u.WidgetWrap, CommonElements):
         self.logs_thread = threading.Thread(target=self.update_logs, daemon=True)
         self.metrics_thread.start()
         self.logs_thread.start()
-
 
     def update_metrics(self):
         """Updates metrics in real-time."""
@@ -72,7 +71,7 @@ class ComponentView(u.WidgetWrap, CommonElements):
                 break
 
     def update_logs(self):
-        log = ''
+        log = ""
         try:
             output_docker = docker.logs(self.component_name, stream=True)
             for stream_type, stream_content in output_docker:
@@ -83,4 +82,3 @@ class ComponentView(u.WidgetWrap, CommonElements):
         except Exception as e:
             self.logs.set_text(f"Error fetching logs:\n {e.stderr}")
             self.loop.draw_screen()
-

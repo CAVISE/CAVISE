@@ -30,6 +30,5 @@
      <flow id="flow_16" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="-54.0.00" to="33.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
      <flow id="flow_17" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="-54.0.00" to="33.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
      <flow id="flow_18" begin="0.00" departLane="random" arrivalSpeed="60" departSpeed="random" departPos="random" from="-54.0.00" to="33.0.00"  end="4800.00" vehsPerHour="200.00" type="DEFAULT_VEHTYPE"/>
-     
-</routes>
 
+</routes>

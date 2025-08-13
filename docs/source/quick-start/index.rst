@@ -76,7 +76,7 @@ Build and Run the Simulator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Using Docker Compose
-~~~~~~~~~~~~~~~~~~~~ 
+~~~~~~~~~~~~~~~~~~~~
 
 Run all components:
 
@@ -310,12 +310,12 @@ Menu content
 .. code::
 
    |_ Info
-   |_ Admin Panel 
+   |_ Admin Panel
    |____ Simulator control panel
    |____ OpenCDA Info
    |____ Artery Info
    |____ Carla Info
-   |____ Scenario Manager Info                                        
+   |____ Scenario Manager Info
    |_ Generate Compose Configs
    |_ Scenario Manager
    |_ About Us
@@ -330,7 +330,7 @@ Shows running simulations, docker/docker compose versions, hardware statuses
 Admin Panel -> Simulator control panel
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Overview                 
+Overview
 - Select File: Choose a Docker Compose configuration file.
 - Custom Parameters: Specify additional Docker Compose options (optional).
 - Select Services: Specify which services to start, stop, or restart (optional).
@@ -363,9 +363,9 @@ These buttons are the primary actions you will use in this form. Each button wil
 2. Up (Up Button)
    - Purpose: This button will run the docker compose up command, which starts the Docker services.
 3. Down (Down Button)
-   - Purpose: This button will run the docker compose down command to stop the services and remove the associated containers.                       
+   - Purpose: This button will run the docker compose down command to stop the services and remove the associated containers.
 4. Restart (Restart Button)
-   - Purpose: This button will run the docker compose restart command to restart services without shutting down the entire environment.                      
+   - Purpose: This button will run the docker compose restart command to restart services without shutting down the entire environment.
 
 Output Area (Script Output)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -422,4 +422,3 @@ This panel is designed for sending API requests and displaying the responses. It
 
 3. Response Output
    - Response: After sending the request, the result will be displayed in this field as a formatted JSON response from the server.
-

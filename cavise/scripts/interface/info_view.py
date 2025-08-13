@@ -22,7 +22,10 @@ class InfoView(u.WidgetWrap, CommonElements):
         self.status_thread = threading.Thread(target=self.update_statuses, daemon=True)
         self.status_thread.start()
 
-        u.WidgetWrap.__init__(self, u.Padding(self.create_scrollable_script_output(self.text), left=5, right=2))
+        u.WidgetWrap.__init__(
+            self,
+            u.Padding(self.create_scrollable_script_output(self.text), left=5, right=2),
+        )
 
     def update_statuses(self):
         """Real-time updates of container statuses and hardware info."""
@@ -47,7 +50,7 @@ class InfoView(u.WidgetWrap, CommonElements):
             docker = DockerClient()
             docker_version = docker.version().client.version
             compose_version = docker.compose.version()
-            
+
             self.status_output += f"\nDocker version:         {docker_version}\n"
             self.status_output += f"Docker Compose version: {compose_version}\n"
 
@@ -68,9 +71,15 @@ class InfoView(u.WidgetWrap, CommonElements):
             memory_info = psutil.virtual_memory()
 
             self.status_output += "\nMemory Information:\n"
-            self.status_output += f"Total Memory:     {memory_info.total / 1024 / 1024} MB\n"
-            self.status_output += f"Available Memory: {memory_info.available / 1024 / 1024} MB\n"
-            self.status_output += f"Used Memory:      {memory_info.used / 1024 / 1024} MB\n"
+            self.status_output += (
+                f"Total Memory:     {memory_info.total / 1024 / 1024} MB\n"
+            )
+            self.status_output += (
+                f"Available Memory: {memory_info.available / 1024 / 1024} MB\n"
+            )
+            self.status_output += (
+                f"Used Memory:      {memory_info.used / 1024 / 1024} MB\n"
+            )
 
             gpus = GPUtil.getGPUs()
 
@@ -101,13 +110,17 @@ class InfoView(u.WidgetWrap, CommonElements):
 
     def update_status_scmn(self, container="scenario-manager"):
         try:
-            check_command = f"docker ps --filter 'name={container}' --format '{{{{.Names}}}}'"
-            result = subprocess.run(check_command, shell=True, text=True, capture_output=True)
+            check_command = (
+                f"docker ps --filter 'name={container}' --format '{{{{.Names}}}}'"
+            )
+            result = subprocess.run(
+                check_command, shell=True, text=True, capture_output=True
+            )
             if result.stdout.strip():
-                command_check_process = (
-                    f"docker exec {container} pgrep -f 'python main.py' > /dev/null 2>&1 && echo 'Healthy. Scenario Manager is running' || echo 'Unhealthy. Scenario Manager is not running'"
+                command_check_process = f"docker exec {container} pgrep -f 'python main.py' > /dev/null 2>&1 && echo 'Healthy. Scenario Manager is running' || echo 'Unhealthy. Scenario Manager is not running'"
+                result_process = subprocess.run(
+                    command_check_process, shell=True, text=True, capture_output=True
                 )
-                result_process = subprocess.run(command_check_process, shell=True, text=True, capture_output=True)
                 health_status = result_process.stdout.strip()
             else:
                 health_status = "Container not running."
@@ -119,13 +132,17 @@ class InfoView(u.WidgetWrap, CommonElements):
 
     def update_status_carla(self, container="carla"):
         try:
-            check_command = f"docker ps --filter 'name={container}' --format '{{{{.Names}}}}'"
-            result = subprocess.run(check_command, shell=True, text=True, capture_output=True)
+            check_command = (
+                f"docker ps --filter 'name={container}' --format '{{{{.Names}}}}'"
+            )
+            result = subprocess.run(
+                check_command, shell=True, text=True, capture_output=True
+            )
             if result.stdout.strip():
-                command_check_process = (
-                    f"docker exec {container} pgrep -f 'CarlaUE4.sh' > /dev/null 2>&1 && echo 'Healthy. The process CarlaUE4.sh is running' || echo 'Unhealthy. The process CarlaUE4.sh is not running'"
+                command_check_process = f"docker exec {container} pgrep -f 'CarlaUE4.sh' > /dev/null 2>&1 && echo 'Healthy. The process CarlaUE4.sh is running' || echo 'Unhealthy. The process CarlaUE4.sh is not running'"
+                result_process = subprocess.run(
+                    command_check_process, shell=True, text=True, capture_output=True
                 )
-                result_process = subprocess.run(command_check_process, shell=True, text=True, capture_output=True)
                 health_status = result_process.stdout.strip()
             else:
                 health_status = "Container not running."
@@ -134,18 +151,24 @@ class InfoView(u.WidgetWrap, CommonElements):
 
         except Exception as e:
             self.status_output += f"{container}: Error - {e}\n"
-          
+
     def update_status_opencda(self, container="opencda"):
         try:
-            check_command = f"docker ps --filter 'name={container}' --format '{{{{.Names}}}}'"
-            result = subprocess.run(check_command, shell=True, text=True, capture_output=True)
+            check_command = (
+                f"docker ps --filter 'name={container}' --format '{{{{.Names}}}}'"
+            )
+            result = subprocess.run(
+                check_command, shell=True, text=True, capture_output=True
+            )
             if result.stdout.strip():
                 command_check_process = (
                     f"docker exec {container} pgrep -f 'opencda.py|python' > /dev/null 2>&1 && "
                     f"docker exec {container} ps aux | grep -E 'opencda.py|python' | awk '{{print $11, $12, $13, $14}}' | grep -v grep || echo 'Waiting. No scenario is running'"
                 )
 
-                result_process = subprocess.run(command_check_process, shell=True, text=True, capture_output=True)
+                result_process = subprocess.run(
+                    command_check_process, shell=True, text=True, capture_output=True
+                )
                 health_status = result_process.stdout.strip()
 
                 if "Waiting" in health_status:
@@ -155,31 +178,38 @@ class InfoView(u.WidgetWrap, CommonElements):
                     health_status = f"Healthy. The process opencda.py is running. Scenario: {command_line}"
             else:
                 health_status = "Container not running."
-            
+
             self.status_output += f"{container}: {health_status}\n"
 
         except Exception as e:
             self.status_output += f"{container}: Error - {e}\n"
-        
+
     def update_status_artery(self, container="artery"):
         try:
-            check_command = f"docker ps --filter 'name={container}' --format '{{{{.Names}}}}'"
-            result = subprocess.run(check_command, shell=True, text=True, capture_output=True)
+            check_command = (
+                f"docker ps --filter 'name={container}' --format '{{{{.Names}}}}'"
+            )
+            result = subprocess.run(
+                check_command, shell=True, text=True, capture_output=True
+            )
 
             if result.stdout.strip():
                 command_check_process = (
                     f"docker exec {container} pgrep -f 'make run_' > /dev/null 2>&1 && "
                     f"docker exec {container} ps aux | grep 'make run_' | grep -v grep || echo 'Waiting. No scenario is running'"
                 )
-                result_process = subprocess.run(command_check_process, shell=True, text=True, capture_output=True)
+                result_process = subprocess.run(
+                    command_check_process, shell=True, text=True, capture_output=True
+                )
                 health_status = result_process.stdout.strip()
 
                 if "Waiting" in health_status:
                     health_status = "Waiting. No scenario is running"
                 else:
-
                     command_line = result_process.stdout.strip().split("\n")[0]
-                    health_status = f"Healthy. The scenario is running. Command - {command_line}"
+                    health_status = (
+                        f"Healthy. The scenario is running. Command - {command_line}"
+                    )
             else:
                 health_status = "Container not running."
 

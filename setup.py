@@ -8,15 +8,12 @@ from git.exc import GitCommandError, InvalidGitRepositoryError
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
 
-CAVISE_TAGS = {
-    "opencda": "v1.0.0",
-    "artery": None
-}
+CAVISE_TAGS = {"opencda": "v1.0.0", "artery": "v1.0.0"}
 
 
 def clone_repo(repo_base, repo_name, tag=None):
@@ -43,7 +40,7 @@ def clone_repo(repo_base, repo_name, tag=None):
 
 if __name__ == "__main__":
     try:
-        repo = Repo('.')
+        repo = Repo(".")
         origin_url = repo.remotes.origin.url
     except InvalidGitRepositoryError:
         logger.error("Current directory is not a Git repository")

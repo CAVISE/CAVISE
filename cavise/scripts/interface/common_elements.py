@@ -9,7 +9,7 @@ class CommonElements:
         Sets the text of the file_list widget to display available files or an error message.
         """
         try:
-            self.files = os.listdir('./dc-configs')
+            self.files = os.listdir("./dc-configs")
             formatted_files = "\n".join(self.files)
         except FileNotFoundError:
             formatted_files = "Directory './dc-configs' not found."
@@ -24,5 +24,5 @@ class CommonElements:
         listbox_content = u.ListBox([u.Text("")])
         listbox_content.body.append(script_output)
 
-        scrollable_output = u.BoxAdapter(listbox_content, height=50) 
-        return u.Filler(scrollable_output, valign='top')
+        scrollable_output = u.BoxAdapter(listbox_content, height=50)
+        return u.Filler(scrollable_output, valign="top")

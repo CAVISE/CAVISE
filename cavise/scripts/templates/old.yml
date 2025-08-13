@@ -32,7 +32,7 @@ services:
       - ./cavise/messages:/cavise/messages
       - ./simdata:/cavise/simdata
       # - ./artery:/cavise/artery
-    command: ["sh", "-c", "sleep infinity"]    
+    command: ["sh", "-c", "sleep infinity"]
     healthcheck:
       test: ["CMD", "ping", "-c", "1", "artery"]
       interval: 30s

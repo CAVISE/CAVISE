@@ -1,19 +1,18 @@
-import os
 import queue
 import threading
-import subprocess
 import urwid as u
 from python_on_whales import DockerClient
- 
+
 
 from .common_elements import CommonElements
+
 
 class CAVISEView(u.WidgetWrap, CommonElements):
     """A view for interacting with Docker Compose commands in the CAVISE environment.
 
     This view allows users to select a file from a list of available files, specify
-    custom parameters, choose services to start, and execute Docker Compose commands 
-    (up, down, build, restart). The output of the commands is displayed in a scrollable 
+    custom parameters, choose services to start, and execute Docker Compose commands
+    (up, down, build, restart). The output of the commands is displayed in a scrollable
     text area.
     """
 
@@ -23,53 +22,59 @@ class CAVISEView(u.WidgetWrap, CommonElements):
         self.loop = loop
         self.file_list = u.Text("")
         self.update_file_list()
-        
+
         self.ls_output_text = self.file_list
         self.file_selector = u.Edit("Select File: ")
         self.file_selector.set_edit_text(self.files[0] if self.files else "")
-        
+
         self.custom_params_input = u.Edit("Custom Parameters: ")
         self.services_from_input = u.Edit("Select Services (default: only main sim): ")
         self.script_output = u.Text("")
 
-        self.build_button = u.Button("Build", self.on_build_button_pressed, align="center")
+        self.build_button = u.Button(
+            "Build", self.on_build_button_pressed, align="center"
+        )
         self.up_button = u.Button("Up", self.on_up_button_pressed, align="center")
         self.down_button = u.Button("Down", self.on_down_button_pressed, align="center")
-        self.restart_button = u.Button("Restart", self.on_restart_button_pressed, align="center")
+        self.restart_button = u.Button(
+            "Restart", self.on_restart_button_pressed, align="center"
+        )
 
-        ls_filler = u.Filler(self.ls_output_text, valign='top')
-        file_filler = u.Filler(self.file_selector, valign='top')
-        params_filler = u.Filler(self.custom_params_input, valign='top')
-        services_filler = u.Filler(self.services_from_input, valign='top')
-        self.output_filler = self.create_scrollable_script_output(self.script_output) 
-        build_filler = u.Filler(self.build_button, valign='top')
-        up_filler = u.Filler(self.up_button, valign='top')
-        down_filler = u.Filler(self.down_button, valign='top')
-        restart_filler = u.Filler(self.restart_button, valign='top')
+        ls_filler = u.Filler(self.ls_output_text, valign="top")
+        file_filler = u.Filler(self.file_selector, valign="top")
+        params_filler = u.Filler(self.custom_params_input, valign="top")
+        services_filler = u.Filler(self.services_from_input, valign="top")
+        self.output_filler = self.create_scrollable_script_output(self.script_output)
+        build_filler = u.Filler(self.build_button, valign="top")
+        up_filler = u.Filler(self.up_button, valign="top")
+        down_filler = u.Filler(self.down_button, valign="top")
+        restart_filler = u.Filler(self.restart_button, valign="top")
 
-        pile = u.Pile([
-            u.Divider(" "),
-            ('weight', 2, ls_filler),
-            u.Divider("-"),
-            ('weight', 1, file_filler),
-            u.Divider("-"),
-            ('weight', 1, params_filler),
-            u.Divider("-"),
-            ('weight', 1, services_filler),
-            u.Divider("-"),
-            ('weight', 1, build_filler),
-            u.Divider("-"),
-            ('weight', 1, up_filler),
-            u.Divider("-"),
-            ('weight', 1, down_filler),
-            u.Divider("-"),
-            ('weight', 1, restart_filler),
-            u.Divider("-"),
-            ('weight', 2, self.output_filler)
-        ])
-        
+        pile = u.Pile(
+            [
+                u.Divider(" "),
+                ("weight", 2, ls_filler),
+                u.Divider("-"),
+                ("weight", 1, file_filler),
+                u.Divider("-"),
+                ("weight", 1, params_filler),
+                u.Divider("-"),
+                ("weight", 1, services_filler),
+                u.Divider("-"),
+                ("weight", 1, build_filler),
+                u.Divider("-"),
+                ("weight", 1, up_filler),
+                u.Divider("-"),
+                ("weight", 1, down_filler),
+                u.Divider("-"),
+                ("weight", 1, restart_filler),
+                u.Divider("-"),
+                ("weight", 2, self.output_filler),
+            ]
+        )
+
         u.WidgetWrap.__init__(self, u.Padding(pile, left=5, right=5))
-    
+
     # It is for blocking the interface while the Docker thread is running
     def on_up_button_pressed(self, button):
         if not self.is_docker_action_in_progress:
@@ -86,7 +91,6 @@ class CAVISEView(u.WidgetWrap, CommonElements):
     def on_down_button_pressed(self, button):
         if not self.is_docker_action_in_progress:
             self.run_down(button)
-
 
     def docker_up_thread(self, docker, params, services_to_up, log_queue):
         try:
@@ -110,7 +114,7 @@ class CAVISEView(u.WidgetWrap, CommonElements):
                 no_attach_services=params["no_attach_services"],
                 pull=params["pull"],
                 stream_logs=params["stream_logs"],
-                wait_timeout=params["wait_timeout"]
+                wait_timeout=params["wait_timeout"],
             )
 
             if output_docker:
@@ -134,7 +138,7 @@ class CAVISEView(u.WidgetWrap, CommonElements):
                 pull=params["pull"],
                 quiet=params["quiet"],
                 ssh=params["ssh"],
-                stream_logs=True
+                stream_logs=True,
             )
 
             if output_docker:
@@ -148,7 +152,7 @@ class CAVISEView(u.WidgetWrap, CommonElements):
             log_queue.put(f"Error: {e}\n")
         finally:
             log_queue.task_done()
-    
+
     def docker_down_thread(self, docker, params, services_to_stop, log_queue):
         try:
             output_docker = docker.compose.down(
@@ -158,7 +162,7 @@ class CAVISEView(u.WidgetWrap, CommonElements):
                 timeout=params["timeout"],
                 volumes=params["volumes"],
                 quiet=params["quiet"],
-                stream_logs=True
+                stream_logs=True,
             )
 
             if output_docker:
@@ -191,22 +195,22 @@ class CAVISEView(u.WidgetWrap, CommonElements):
         finally:
             log_queue.task_done()
 
-
     def log_updater(self, log_queue):
         while True:
             try:
                 log = log_queue.get(timeout=1)
                 if log is None:
                     break
-                current_output = str(self.script_output.get_text()[0]).replace('\\', "")
+                current_output = str(self.script_output.get_text()[0]).replace("\\", "")
                 updated_output = f"{current_output}{log.replace('\\', '')}"
                 self.script_output.set_text(updated_output)
 
-                self.output_filler = self.create_scrollable_script_output(self.script_output)
+                self.output_filler = self.create_scrollable_script_output(
+                    self.script_output
+                )
                 self.loop.draw_screen()
             except queue.Empty:
                 continue
-
 
     def run_build(self, button):
         """Executes the 'docker compose build' command based on user input.
@@ -215,7 +219,7 @@ class CAVISEView(u.WidgetWrap, CommonElements):
             button: The button that triggered this action.
         """
         try:
-            self.is_docker_action_in_progress = True # For UI blocking
+            self.is_docker_action_in_progress = True  # For UI blocking
             selected_file = self.file_selector.get_edit_text()
             custom_params = self.custom_params_input.get_edit_text().split()
             services_to_build = self.services_from_input.get_edit_text()
@@ -231,7 +235,6 @@ class CAVISEView(u.WidgetWrap, CommonElements):
                 "quiet": False,
                 "ssh": None,
             }
-
 
             self.is_docker_action_in_progress = True
             i = 0
@@ -259,21 +262,31 @@ class CAVISEView(u.WidgetWrap, CommonElements):
                     i += 1
 
             self.script_output.set_text("Build is running...")
-            self.output_filler = self.create_scrollable_script_output(self.script_output) 
+            self.output_filler = self.create_scrollable_script_output(
+                self.script_output
+            )
             self.loop.draw_screen()
 
             log_queue = queue.Queue()
 
-            docker_thread = threading.Thread(target=self.docker_build_thread, args=(docker, params, services_to_build, log_queue), daemon=True)
+            docker_thread = threading.Thread(
+                target=self.docker_build_thread,
+                args=(docker, params, services_to_build, log_queue),
+                daemon=True,
+            )
             docker_thread.start()
 
-            log_updater_thread = threading.Thread(target=self.log_updater, args=(log_queue,), daemon=True)
+            log_updater_thread = threading.Thread(
+                target=self.log_updater, args=(log_queue,), daemon=True
+            )
             log_updater_thread.start()
 
         except Exception as e:
             output = f"Error: {e}"
             self.script_output.set_text(output)
-            self.output_filler = self.create_scrollable_script_output(self.script_output) 
+            self.output_filler = self.create_scrollable_script_output(
+                self.script_output
+            )
         finally:
             self.is_docker_action_in_progress = False
 
@@ -284,34 +297,33 @@ class CAVISEView(u.WidgetWrap, CommonElements):
             button: The button that triggered this action.
         """
         try:
-            self.is_docker_action_in_progress = True # For UI blocking
+            self.is_docker_action_in_progress = True  # For UI blocking
             selected_file = self.file_selector.get_edit_text()
             custom_params = self.custom_params_input.get_edit_text()
             services_to_up = self.services_from_input.get_edit_text()
             docker = DockerClient(compose_files=[f"./dc-configs/{selected_file}"])
-            
-            params = {
-            "build": False,
-            "detach": True,
-            "abort_on_container_exit": False,
-            "scales": {},
-            "attach_dependencies": False,
-            "force_recreate": False,
-            "recreate": True,
-            "no_build": False,
-            "remove_orphans": False,
-            "renew_anon_volumes": False,
-            "color": True,
-            "log_prefix": True,
-            "start": True,
-            "quiet": False,
-            "wait": False,
-            "no_attach_services": None,
-            "pull": None,
-            "stream_logs": True,
-            "wait_timeout": None,
-        }
 
+            params = {
+                "build": False,
+                "detach": True,
+                "abort_on_container_exit": False,
+                "scales": {},
+                "attach_dependencies": False,
+                "force_recreate": False,
+                "recreate": True,
+                "no_build": False,
+                "remove_orphans": False,
+                "renew_anon_volumes": False,
+                "color": True,
+                "log_prefix": True,
+                "start": True,
+                "quiet": False,
+                "wait": False,
+                "no_attach_services": None,
+                "pull": None,
+                "stream_logs": True,
+                "wait_timeout": None,
+            }
 
             i = 0
             while i < len(custom_params):
@@ -378,21 +390,31 @@ class CAVISEView(u.WidgetWrap, CommonElements):
                     i += 1
 
             self.script_output.set_text("Up -d command is running...\n")
-            self.output_filler = self.create_scrollable_script_output(self.script_output) 
+            self.output_filler = self.create_scrollable_script_output(
+                self.script_output
+            )
             self.loop.draw_screen()
 
             log_queue = queue.Queue()
 
-            docker_thread = threading.Thread(target=self.docker_up_thread, args=(docker, params, services_to_up, log_queue), daemon=True)
+            docker_thread = threading.Thread(
+                target=self.docker_up_thread,
+                args=(docker, params, services_to_up, log_queue),
+                daemon=True,
+            )
             docker_thread.start()
 
-            log_updater_thread = threading.Thread(target=self.log_updater, args=(log_queue,), daemon=True)
+            log_updater_thread = threading.Thread(
+                target=self.log_updater, args=(log_queue,), daemon=True
+            )
             log_updater_thread.start()
-        
+
         except Exception as e:
             output = f"Error: {e}"
             self.script_output.set_text(output)
-            self.output_filler = self.create_scrollable_script_output(self.script_output) 
+            self.output_filler = self.create_scrollable_script_output(
+                self.script_output
+            )
         finally:
             self.is_docker_action_in_progress = False
 
@@ -403,7 +425,7 @@ class CAVISEView(u.WidgetWrap, CommonElements):
             button: The button that triggered this action.
         """
         try:
-            self.is_docker_action_in_progress = True # For UI blocking
+            self.is_docker_action_in_progress = True  # For UI blocking
 
             selected_file = self.file_selector.get_edit_text()
             custom_params = self.custom_params_input.get_edit_text()
@@ -418,8 +440,6 @@ class CAVISEView(u.WidgetWrap, CommonElements):
                 "quiet": False,
             }
 
-
-            
             i = 0
             while i < len(custom_params):
                 if custom_params[i] == "--remove-orphans":
@@ -448,21 +468,31 @@ class CAVISEView(u.WidgetWrap, CommonElements):
                     i += 1
 
             self.script_output.set_text("Docker compose down is running...")
-            self.output_filler = self.create_scrollable_script_output(self.script_output) 
+            self.output_filler = self.create_scrollable_script_output(
+                self.script_output
+            )
             self.loop.draw_screen()
-        
+
             log_queue = queue.Queue()
 
-            docker_thread = threading.Thread(target=self.docker_down_thread, args=(docker, params, services_to_stop, log_queue), daemon=True)
+            docker_thread = threading.Thread(
+                target=self.docker_down_thread,
+                args=(docker, params, services_to_stop, log_queue),
+                daemon=True,
+            )
             docker_thread.start()
 
-            log_updater_thread = threading.Thread(target=self.log_updater, args=(log_queue,), daemon=True)
+            log_updater_thread = threading.Thread(
+                target=self.log_updater, args=(log_queue,), daemon=True
+            )
             log_updater_thread.start()
         except Exception as e:
             output = f"Error: {e}"
 
             self.script_output.set_text(output)
-            self.output_filler = self.create_scrollable_script_output(self.script_output) 
+            self.output_filler = self.create_scrollable_script_output(
+                self.script_output
+            )
         finally:
             self.is_docker_action_in_progress = False
 
@@ -473,12 +503,12 @@ class CAVISEView(u.WidgetWrap, CommonElements):
             button: The button that triggered this action.
         """
         try:
-            self.is_docker_action_in_progress = True # For UI blocking
+            self.is_docker_action_in_progress = True  # For UI blocking
             selected_file = self.file_selector.get_edit_text()
             custom_params = self.custom_params_input.get_edit_text()
             services_to_restart = self.services_from_input.get_edit_text()
             docker = DockerClient(compose_files=[f"./dc-configs/{selected_file}"])
-            
+
             params = {
                 "services": None,
                 "timeout": None,
@@ -495,23 +525,33 @@ class CAVISEView(u.WidgetWrap, CommonElements):
                 else:
                     raise ValueError(f"Unknown parameter: {custom_params[i]}")
                     i += 1
-            
+
             self.script_output.set_text("Docker compose restart is running...\n")
-            self.output_filler = self.create_scrollable_script_output(self.script_output) 
+            self.output_filler = self.create_scrollable_script_output(
+                self.script_output
+            )
             self.loop.draw_screen()
 
             log_queue = queue.Queue()
 
-            docker_thread = threading.Thread(target=self.docker_restart_thread, args=(docker, params, services_to_restart, log_queue), daemon=True)
+            docker_thread = threading.Thread(
+                target=self.docker_restart_thread,
+                args=(docker, params, services_to_restart, log_queue),
+                daemon=True,
+            )
             docker_thread.start()
 
-            log_updater_thread = threading.Thread(target=self.log_updater, args=(log_queue,), daemon=True)
+            log_updater_thread = threading.Thread(
+                target=self.log_updater, args=(log_queue,), daemon=True
+            )
             log_updater_thread.start()
 
         except Exception as e:
             output = f"Error: {e}"
 
             self.script_output.set_text(output)
-            self.output_filler = self.create_scrollable_script_output(self.script_output) 
+            self.output_filler = self.create_scrollable_script_output(
+                self.script_output
+            )
         finally:
             self.is_docker_action_in_progress = False
