@@ -1,7 +1,7 @@
-ARG CARLA_VERSION=0.9.15
+ARG CARLA_VERSION=0.9.16
 FROM carlasim/carla:${CARLA_VERSION}
 
-ARG PYTHON_VERSION=3.10.11
+ARG PYTHON_VERSION=3.12.3
 ARG CARLA_VERSION
 ARG MAPS_ARCHIVE_URL=https://carla-releases.s3.us-east-005.backblazeb2.com/Linux/AdditionalMaps_${CARLA_VERSION}.tar.gz
 
@@ -17,15 +17,12 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     wget \
     curl \
     git \
-    gcc \
-    make \
     build-essential \
     libssl-dev \
     zlib1g-dev \
     libbz2-dev \
     libreadline-dev \
     libsqlite3-dev \
-    llvm \
     libncurses5-dev \
     libncursesw5-dev \
     xz-utils \
@@ -55,5 +52,8 @@ RUN pyenv install ${PYTHON_VERSION} && \
     pyenv global ${PYTHON_VERSION} && \
     pyenv rehash && \
     rm -rf ${PYENV_ROOT}/sources/*
+
+RUN apt-get purge -y build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libncurses5-dev libncursesw5-dev xz-utils && \
+    apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir --break-system-packages pygame numpy==1.26.4 carla==${CARLA_VERSION}

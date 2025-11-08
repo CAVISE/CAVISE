@@ -19,18 +19,11 @@ services:
           devices:
             - capabilities: [gpu]
               driver: nvidia
-    healthcheck:
-      test: ["CMD", "ping", "-c", "1", "artery"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
     volumes:
       - ${CAVISE_ROOT}/simdata:/cavise/simdata
       - ${PATH_TO_ARTERY}/scenarios/:/cavise/artery/scenarios/
       - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - ${XAUTHORITY}:${XAUTHORITY}
 
   carla:
     build:
@@ -52,21 +45,16 @@ services:
           devices:
             - capabilities: [gpu]
               driver: nvidia
-    healthcheck:
-      test: ["CMD", "ping", "-c", "1", "carla"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
     volumes:
       - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - ${XAUTHORITY}:${XAUTHORITY}
 
   opencda:
     build:
       context: ${CAVISE_ROOT}
       dockerfile: ${PATH_TO_OPENCDA}/Dockerfile
+      args:
+        UID: 1000  # Example: use your actual UID from `echo $UID`
     image: opencda:local
     container_name: opencda
     command: ["sh", "-c", "sleep infinity"]
@@ -75,7 +63,6 @@ services:
         ipv4_address: 8.8.0.10
     environment:
       - DISPLAY=${DISPLAY}
-      - XAUTHORITY=${XAUTHORITY}
     privileged: true
     deploy:
       resources:
@@ -83,12 +70,6 @@ services:
           devices:
             - capabilities: [gpu]
               driver: nvidia
-    healthcheck:
-      test: ["CMD", "ping", "-c", "1", "opencda"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
     volumes:
       - ${CAVISE_ROOT}/cavise/messages:/home/opencda/cavise/messages
       - ${CAVISE_ROOT}/simdata:/home/opencda/cavise/simdata
@@ -96,7 +77,6 @@ services:
       - ${PATH_TO_SUMO}/assets:/home/opencda/cavise/opencda/opencda/sumo-assets
       - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - ${XAUTHORITY}:${XAUTHORITY}
 
   sumo:
     build:
@@ -118,16 +98,9 @@ services:
           devices:
             - capabilities: [gpu]
               driver: nvidia
-    healthcheck:
-      test: ["CMD", "ping", "-c", "1", "sumo"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
     volumes:
       - ${PATH_TO_SUMO}/assets:/home/sumo/assets
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - ${XAUTHORITY}:${XAUTHORITY}
 
 networks:
   highly_accurate_network:
@@ -136,3 +109,6 @@ networks:
       driver: default
       config:
         - subnet: 8.8.0.0/16
+
+volumes:
+  opencood-builder:
