@@ -109,6 +109,3 @@ networks:
       driver: default
       config:
         - subnet: 8.8.0.0/16
-
-volumes:
-  opencood-builder:
