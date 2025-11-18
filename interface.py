@@ -1,4 +1,7 @@
-from __future__ import annotations
+import sys
+
+if __name__ == "__main__":
+    sys.exit("This interface is currently unavailable.")
 
 import os
 import urwid as u

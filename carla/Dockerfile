@@ -7,12 +7,6 @@ ARG MAPS_ARCHIVE_URL=https://carla-releases.s3.us-east-005.backblazeb2.com/Linux
 
 USER root
 
-# Fix 403 error
-RUN rm -f /etc/apt/sources.list.d/cuda.list && \
-    rm -f /etc/apt/sources.list.d/nvidia-ml.list && \
-    apt-key del 7fa2af80 && \
-    apt-key del 3bf863cc
-
 RUN apt-get update && apt-get install --no-install-recommends -y \
     wget \
     curl \
@@ -32,14 +26,15 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 
 USER carla
-WORKDIR /home/carla/Import
+ARG CARLA_ROOT=/workspace
+WORKDIR ${CARLA_ROOT}/Import
 
 RUN wget ${MAPS_ARCHIVE_URL} && \
     cd .. && \
     ./ImportAssets.sh && \
-    rm /home/carla/Import/AdditionalMaps_${CARLA_VERSION}.tar.gz
+    rm ${CARLA_ROOT}/Import/AdditionalMaps_${CARLA_VERSION}.tar.gz
 
-WORKDIR /home/carla
+WORKDIR ${CARLA_ROOT}
 
 RUN curl https://pyenv.run | bash && \
     rm -rf /tmp/*
@@ -53,7 +48,9 @@ RUN pyenv install ${PYTHON_VERSION} && \
     pyenv rehash && \
     rm -rf ${PYENV_ROOT}/sources/*
 
+USER root
 RUN apt-get purge -y build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libncurses5-dev libncursesw5-dev xz-utils && \
     apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 
+USER carla
 RUN pip install --no-cache-dir --break-system-packages pygame numpy==1.26.4 carla==${CARLA_VERSION}
