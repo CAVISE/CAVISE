@@ -1,8 +1,9 @@
 services:
   artery:
     build:
-      context: ${CAVISE_ROOT}
-      dockerfile: ${PATH_TO_ARTERY}/Dockerfile
+      context: ${CAVISE_ROOT}/artery
+      dockerfile: ${PATH_TO_ARTERY}/.devcontainer/debian/Dockerfile
+      target: cached-build
     image: artery:local
     container_name: artery
     command: ["sh", "-c", "sleep infinity"]
@@ -19,7 +20,7 @@ services:
             - capabilities: [gpu]
               driver: nvidia
     volumes:
-      - ${PATH_TO_ARTERY}/scenarios/:/cavise/artery/scenarios/
+      - ${PATH_TO_ARTERY}:/workspaces/artery/
       - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
       - /tmp/.X11-unix:/tmp/.X11-unix
 
