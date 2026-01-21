@@ -35,8 +35,8 @@ def get_available_versions(repo_url):
 
         return versions
     except GitCommandError as e:
-        logger.error(f"Cannot get repo version from {repo_url}: {e}")
-        return []
+        logger.error(f"Cannot get repo version from {repo_url}")
+        raise
 
 
 def select_version_interactive(repo_name, repo_url):
