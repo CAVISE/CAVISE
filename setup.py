@@ -17,6 +17,15 @@ logger = logging.getLogger(__name__)
 
 
 def get_available_versions(repo_url):
+    """
+    Retrieves all available branches and tags from a remote Git repository.
+
+    Runs `git ls-remote` against the given URL to fetch refs for both heads
+    (branches) and tags. Parses the output with regex to extract ref names
+    and returns a list of tuples: ("tag", name) or ("branch", name). Does not
+    clone the repo; only queries the remote. Raises GitCommandError if the
+    remote is unreachable or the URL is invalid.
+    """
     logger.info(f"Getting repo versions: {repo_url}...")
     try:
         git = cmd.Git()
@@ -40,6 +49,14 @@ def get_available_versions(repo_url):
 
 
 def select_version_interactive(repo_name, repo_url):
+    """
+    Lets the user pick a branch or tag interactively from the given repository.
+
+    Fetches available versions via get_available_versions, prints a numbered
+    list (tags and branches), then prompts the user to enter a number. Loops
+    until a valid choice is made. Returns the selected ref name (e.g. "main"
+    or "v0.1.0"). Raises ValueError if no versions are available.
+    """
     versions = get_available_versions(repo_url)
 
     if not versions:
@@ -64,6 +81,15 @@ def select_version_interactive(repo_name, repo_url):
 
 
 def clone_repo(repo_base, repo_name, version):
+    """
+    Clones a Git repository into a directory named after the repo.
+
+    Builds the full URL as repo_base + repo_name. If a directory with that
+    name already exists, logs a message and returns without cloning. Otherwise
+    clones with submodules (recursive=True). If version is given, checks out
+    that branch or tag; otherwise uses the default branch. On clone failure,
+    logs the error and exits the process with code 1.
+    """
     repo_url = f"{repo_base}{repo_name}"
     if os.path.isdir(repo_name):
         logger.info(f"Repository {repo_name} already exists. Skipping.")
@@ -86,6 +112,14 @@ def clone_repo(repo_base, repo_name, version):
 
 
 def parse_args():
+    """
+    Parses command-line arguments for the setup script.
+
+    Defines optional version flags for opencda and artery (-o/--opencda-version,
+    -a/--artery-version) and optional positional arguments for which repos to
+    clone (opencda, artery, or both). Returns the parsed namespace from
+    argparse.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-o", "--opencda-version",
@@ -108,6 +142,16 @@ def parse_args():
     return args
 
 def main():
+    """
+    Entry point: clones opencda and/or artery using versions from CLI or prompts.
+
+    Resolves the base URL from the current repo's origin remote. Determines
+    which repos to process (default: both). For each repo, uses the version
+    from the corresponding CLI flag if set; otherwise runs
+    select_version_interactive to ask the user. Then calls clone_repo for each.
+    Exits with code 1 if not in a Git repo, if origin is missing, or if clone
+    fails.
+    """
     args = parse_args()
 
     try:
