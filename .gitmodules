@@ -1,0 +1,6 @@
+[submodule "extern/opencda"]
+	path = extern/opencda
+	url = https://github.com/CAVISE/OpenCDA.git
+[submodule "extern/artery"]
+	path = extern/artery
+	url = https://github.com/CAVISE/artery.git

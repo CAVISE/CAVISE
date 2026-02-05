@@ -161,6 +161,6 @@ ready*
 
 *.tar*
 
-opencda
-artery
-scenario-manager
+/opencda
+/artery
+/scenario-manager
