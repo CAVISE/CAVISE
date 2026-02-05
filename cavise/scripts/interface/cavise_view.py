@@ -31,14 +31,10 @@ class CAVISEView(u.WidgetWrap, CommonElements):
         self.services_from_input = u.Edit("Select Services (default: only main sim): ")
         self.script_output = u.Text("")
 
-        self.build_button = u.Button(
-            "Build", self.on_build_button_pressed, align="center"
-        )
+        self.build_button = u.Button("Build", self.on_build_button_pressed, align="center")
         self.up_button = u.Button("Up", self.on_up_button_pressed, align="center")
         self.down_button = u.Button("Down", self.on_down_button_pressed, align="center")
-        self.restart_button = u.Button(
-            "Restart", self.on_restart_button_pressed, align="center"
-        )
+        self.restart_button = u.Button("Restart", self.on_restart_button_pressed, align="center")
 
         ls_filler = u.Filler(self.ls_output_text, valign="top")
         file_filler = u.Filler(self.file_selector, valign="top")
@@ -205,9 +201,7 @@ class CAVISEView(u.WidgetWrap, CommonElements):
                 updated_output = f"{current_output}{log.replace('\\', '')}"
                 self.script_output.set_text(updated_output)
 
-                self.output_filler = self.create_scrollable_script_output(
-                    self.script_output
-                )
+                self.output_filler = self.create_scrollable_script_output(self.script_output)
                 self.loop.draw_screen()
             except queue.Empty:
                 continue
@@ -262,9 +256,7 @@ class CAVISEView(u.WidgetWrap, CommonElements):
                     i += 1
 
             self.script_output.set_text("Build is running...")
-            self.output_filler = self.create_scrollable_script_output(
-                self.script_output
-            )
+            self.output_filler = self.create_scrollable_script_output(self.script_output)
             self.loop.draw_screen()
 
             log_queue = queue.Queue()
@@ -276,17 +268,13 @@ class CAVISEView(u.WidgetWrap, CommonElements):
             )
             docker_thread.start()
 
-            log_updater_thread = threading.Thread(
-                target=self.log_updater, args=(log_queue,), daemon=True
-            )
+            log_updater_thread = threading.Thread(target=self.log_updater, args=(log_queue,), daemon=True)
             log_updater_thread.start()
 
         except Exception as e:
             output = f"Error: {e}"
             self.script_output.set_text(output)
-            self.output_filler = self.create_scrollable_script_output(
-                self.script_output
-            )
+            self.output_filler = self.create_scrollable_script_output(self.script_output)
         finally:
             self.is_docker_action_in_progress = False
 
@@ -390,9 +378,7 @@ class CAVISEView(u.WidgetWrap, CommonElements):
                     i += 1
 
             self.script_output.set_text("Up -d command is running...\n")
-            self.output_filler = self.create_scrollable_script_output(
-                self.script_output
-            )
+            self.output_filler = self.create_scrollable_script_output(self.script_output)
             self.loop.draw_screen()
 
             log_queue = queue.Queue()
@@ -404,17 +390,13 @@ class CAVISEView(u.WidgetWrap, CommonElements):
             )
             docker_thread.start()
 
-            log_updater_thread = threading.Thread(
-                target=self.log_updater, args=(log_queue,), daemon=True
-            )
+            log_updater_thread = threading.Thread(target=self.log_updater, args=(log_queue,), daemon=True)
             log_updater_thread.start()
 
         except Exception as e:
             output = f"Error: {e}"
             self.script_output.set_text(output)
-            self.output_filler = self.create_scrollable_script_output(
-                self.script_output
-            )
+            self.output_filler = self.create_scrollable_script_output(self.script_output)
         finally:
             self.is_docker_action_in_progress = False
 
@@ -468,9 +450,7 @@ class CAVISEView(u.WidgetWrap, CommonElements):
                     i += 1
 
             self.script_output.set_text("Docker compose down is running...")
-            self.output_filler = self.create_scrollable_script_output(
-                self.script_output
-            )
+            self.output_filler = self.create_scrollable_script_output(self.script_output)
             self.loop.draw_screen()
 
             log_queue = queue.Queue()
@@ -482,17 +462,13 @@ class CAVISEView(u.WidgetWrap, CommonElements):
             )
             docker_thread.start()
 
-            log_updater_thread = threading.Thread(
-                target=self.log_updater, args=(log_queue,), daemon=True
-            )
+            log_updater_thread = threading.Thread(target=self.log_updater, args=(log_queue,), daemon=True)
             log_updater_thread.start()
         except Exception as e:
             output = f"Error: {e}"
 
             self.script_output.set_text(output)
-            self.output_filler = self.create_scrollable_script_output(
-                self.script_output
-            )
+            self.output_filler = self.create_scrollable_script_output(self.script_output)
         finally:
             self.is_docker_action_in_progress = False
 
@@ -527,9 +503,7 @@ class CAVISEView(u.WidgetWrap, CommonElements):
                     i += 1
 
             self.script_output.set_text("Docker compose restart is running...\n")
-            self.output_filler = self.create_scrollable_script_output(
-                self.script_output
-            )
+            self.output_filler = self.create_scrollable_script_output(self.script_output)
             self.loop.draw_screen()
 
             log_queue = queue.Queue()
@@ -541,17 +515,13 @@ class CAVISEView(u.WidgetWrap, CommonElements):
             )
             docker_thread.start()
 
-            log_updater_thread = threading.Thread(
-                target=self.log_updater, args=(log_queue,), daemon=True
-            )
+            log_updater_thread = threading.Thread(target=self.log_updater, args=(log_queue,), daemon=True)
             log_updater_thread.start()
 
         except Exception as e:
             output = f"Error: {e}"
 
             self.script_output.set_text(output)
-            self.output_filler = self.create_scrollable_script_output(
-                self.script_output
-            )
+            self.output_filler = self.create_scrollable_script_output(self.script_output)
         finally:
             self.is_docker_action_in_progress = False

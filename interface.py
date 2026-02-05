@@ -29,9 +29,7 @@ class MenuCardLayout(u.WidgetPlaceholder):
             menu (u.Widget): The menu widget to display.
         """
         self.menu = u.LineBox(menu)
-        self.card = u.LineBox(
-            u.Filler(u.Pile([("weight", 10, AboutUsView())]), valign="top")
-        )
+        self.card = u.LineBox(u.Filler(u.Pile([("weight", 10, AboutUsView())]), valign="top"))
 
         self.body = u.Columns([("weight", 2, self.menu), ("weight", 8, self.card)])
         super().__init__(self.body)
@@ -60,9 +58,7 @@ class MenuCardLayout(u.WidgetPlaceholder):
             str or None: The key to pass along or None to consume the key event.
         """
         if key == "esc" and self.previous_menu:
-            self.body = u.Columns(
-                [("weight", 2, self.previous_menu), ("weight", 8, self.card)]
-            )
+            self.body = u.Columns([("weight", 2, self.previous_menu), ("weight", 8, self.card)])
             self.original_widget = self.body
             return None
         elif key == "q":
@@ -85,27 +81,19 @@ class App:
                         self.menu_button("Simulator Control Panel", self.show_cavise),
                         self.menu_button(
                             "OpenCDA Info",
-                            lambda button: self.show_component(
-                                service="opencda", button=button
-                            ),
+                            lambda button: self.show_component(service="opencda", button=button),
                         ),
                         self.menu_button(
                             "Artery Info",
-                            lambda button: self.show_component(
-                                service="artery", button=button
-                            ),
+                            lambda button: self.show_component(service="artery", button=button),
                         ),
                         self.menu_button(
                             "Carla Info",
-                            lambda button: self.show_component(
-                                service="carla", button=button
-                            ),
+                            lambda button: self.show_component(service="carla", button=button),
                         ),
                         self.menu_button(
                             "Scenario Manager Info",
-                            lambda button: self.show_component(
-                                service="scenario-manager", button=button
-                            ),
+                            lambda button: self.show_component(service="scenario-manager", button=button),
                         ),
                     ],
                 ),
@@ -139,9 +127,7 @@ class App:
         """
         component_view = ComponentView(service, self.loop)
 
-        self.top.update_card(
-            u.Filler(u.Pile([("weight", 10, component_view)]), valign="top")
-        )
+        self.top.update_card(u.Filler(u.Pile([("weight", 10, component_view)]), valign="top"))
 
     def show_info(self, button: u.Button) -> None:
         """Shows the Info view when the 'Info' button is pressed.
@@ -150,9 +136,7 @@ class App:
             button (u.Button): The button that triggered the event.
         """
         status_view = InfoView(self.loop)
-        self.top.update_card(
-            u.Filler(u.Pile([("weight", 10, status_view)]), valign="top")
-        )
+        self.top.update_card(u.Filler(u.Pile([("weight", 10, status_view)]), valign="top"))
 
     def show_cavise(self, button: u.Button) -> None:
         """Shows the CAVISE view when the 'Run simulator' button is pressed.
@@ -161,9 +145,7 @@ class App:
             button (u.Button): The button that triggered the event.
         """
         cavise_view = CAVISEView(self.loop)
-        self.top.update_card(
-            u.Filler(u.Pile([("weight", 10, cavise_view)]), valign="top")
-        )
+        self.top.update_card(u.Filler(u.Pile([("weight", 10, cavise_view)]), valign="top"))
 
     def show_compose_gen(self, button: u.Button) -> None:
         """Shows the Compose Gen view when the 'Generate compose configs' button is pressed.
@@ -172,9 +154,7 @@ class App:
             button (u.Button): The button that triggered the event.
         """
         compose_gen_view = ComposeGenView()
-        self.top.update_card(
-            u.Filler(u.Pile([("weight", 10, compose_gen_view)]), valign="top")
-        )
+        self.top.update_card(u.Filler(u.Pile([("weight", 10, compose_gen_view)]), valign="top"))
 
     def show_scenario_manager(self, button: u.Button) -> None:
         """Shows the Scenario Manager view when the 'Scenario Manager' button is pressed.
@@ -183,9 +163,7 @@ class App:
             button (u.Button): The button that triggered the event.
         """
         scenario_manager_view = ScenarioManagerView()
-        self.top.update_card(
-            u.Filler(u.Pile([("weight", 10, scenario_manager_view)]), valign="top")
-        )
+        self.top.update_card(u.Filler(u.Pile([("weight", 10, scenario_manager_view)]), valign="top"))
 
     def show_aboutus(self, button: u.Button):
         """Shows the About Us view when the 'About Us' button is pressed.
@@ -194,9 +172,7 @@ class App:
             button (u.Button): The button that triggered the event.
         """
         aboutus_view = AboutUsView()
-        self.top.update_card(
-            u.Filler(u.Pile([("weight", 10, aboutus_view)]), valign="top")
-        )
+        self.top.update_card(u.Filler(u.Pile([("weight", 10, aboutus_view)]), valign="top"))
 
     def show_help(self, button: u.Button):
         """Shows the Help view when the 'Help' button is pressed.
@@ -205,9 +181,7 @@ class App:
             button (u.Button): The button that triggered the event.
         """
         help_view = HelpView()
-        self.top.update_card(
-            u.Filler(u.Pile([("weight", 10, help_view)]), valign="top")
-        )
+        self.top.update_card(u.Filler(u.Pile([("weight", 10, help_view)]), valign="top"))
 
     def menu_button(
         self,

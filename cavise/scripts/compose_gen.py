@@ -54,9 +54,7 @@ except ModuleNotFoundError:
 try:
     yaml = importlib.import_module("yaml")
 except ModuleNotFoundError:
-    print(
-        "how did you think I would work with yaml, if you have no yaml package installed?"
-    )
+    print("how did you think I would work with yaml, if you have no yaml package installed?")
     print("install it: https://pypi.org/project/pyaml")
     sys.exit(errno.EPERM)
 
@@ -135,9 +133,7 @@ class Handler:
             yaml.dump(self.yaml, stream, default_flow_style=False)
 
     @staticmethod
-    def add_mountpoint(
-        name: str, service: typing.Dict[str, str], slave: str, master: str
-    ) -> typing.Dict[str, str]:
+    def add_mountpoint(name: str, service: typing.Dict[str, str], slave: str, master: str) -> typing.Dict[str, str]:
         if "volumes" not in service:
             service["volumes"] = list()
         if any([element.startswith(master) for element in service["volumes"]]):
@@ -147,33 +143,25 @@ class Handler:
         return service
 
     @staticmethod
-    def add_environment_variable(
-        name: str, service: typing.Dict[str, str], variable: str, value: str
-    ) -> typing.Dict[str, str]:
+    def add_environment_variable(name: str, service: typing.Dict[str, str], variable: str, value: str) -> typing.Dict[str, str]:
         if "environment" not in service:
             service["environment"] = list()
         if any([element.startswith(variable) for element in service["environment"]]):
-            logging.warning(
-                f"service {name} already has defined variable {variable} set to {value}"
-            )
+            logging.warning(f"service {name} already has defined variable {variable} set to {value}")
             return
         service["environment"].append(f"{variable}={value}")
         return service
 
     # Performs search for environment variables and replaces them with current environment variables loaded.
     # Should not be called on template itself!
-    def __load_environment(
-        self, path: pathlib.PurePath, environ: typing.Dict[str, str]
-    ) -> None | str:
+    def __load_environment(self, path: pathlib.PurePath, environ: typing.Dict[str, str]) -> None | str:
         if path.match("*cavise/scripts/templates/*"):
             return f"refusing to load environment, is path {path} leads to template? copy it somewhere else first!"
         regex = re.compile(r"\$\{\w*\}")
         with fileinput.input(path, inplace=True) as file:
             for i, line in enumerate(file):
                 last = 0
-                for group, position in map(
-                    lambda match: (match.group(), match.start()), regex.finditer(line)
-                ):
+                for group, position in map(lambda match: (match.group(), match.start()), regex.finditer(line)):
                     print(line[last:position], end="")
                     last = position + len(group)
                     key = group[2:-1]
@@ -182,9 +170,7 @@ class Handler:
                     print(environ[key], end="")
                 print(line[last:], end="")
 
-    def handle_command(
-        name: str, service: typing.Dict[str, str]
-    ) -> typing.Dict[str, str] | str:
+    def handle_command(name: str, service: typing.Dict[str, str]) -> typing.Dict[str, str] | str:
         if "command" in service:
             logging.warning(f"service {name} already has defined command, skipping")
             return service
@@ -192,12 +178,8 @@ class Handler:
         return service
 
     @staticmethod
-    def handle_graphics(
-        name: str, service: typing.Dict[str, str]
-    ) -> typing.Dict[str, str] | str:
-        Handler.add_mountpoint(
-            name, service, "/usr/share/vulkan/icd.d", "/usr/share/vulkan/icd.d"
-        )
+    def handle_graphics(name: str, service: typing.Dict[str, str]) -> typing.Dict[str, str] | str:
+        Handler.add_mountpoint(name, service, "/usr/share/vulkan/icd.d", "/usr/share/vulkan/icd.d")
         Handler.add_mountpoint(name, service, "/tmp/.X11-unix", "/tmp/.X11-unix")
         tag = service
         for key in ["deploy", "resources", "reservations"]:
@@ -206,27 +188,19 @@ class Handler:
             tag = tag[key]
         tag = service["deploy"]["resources"]["reservations"]
         if "devices" in tag:
-            logging.warning(
-                "devices section is not empty! I'm scared, skipping setup here"
-            )
+            logging.warning("devices section is not empty! I'm scared, skipping setup here")
             return service
         tag["devices"] = [{"driver": "nvidia", "capabilities": ["gpu"]}]
         return service
 
     @staticmethod
     def handle_xorg(name: str, service: typing.Dict[str, str]) -> typing.Dict[str, str]:
-        service = Handler.add_environment_variable(
-            name, service, r"DISPLAY", r"${DISPLAY}"
-        )
-        service = Handler.add_environment_variable(
-            name, service, r"XAUTHORITY", r"${XAUTHORITY}"
-        )
+        service = Handler.add_environment_variable(name, service, r"DISPLAY", r"${DISPLAY}")
+        service = Handler.add_environment_variable(name, service, r"XAUTHORITY", r"${XAUTHORITY}")
         return Handler.add_mountpoint(name, service, r"${XAUTHORITY}", r"${XAUTHORITY}")
 
     @staticmethod
-    def handle_healthcheck(
-        name: str, service: typing.Dict[str, str]
-    ) -> typing.Dict[str, str]:
+    def handle_healthcheck(name: str, service: typing.Dict[str, str]) -> typing.Dict[str, str]:
         if "healthcheck" in service:
             logging.warning(f"service {name} already has healthcheck, skipping")
             return service
@@ -240,14 +214,10 @@ class Handler:
         return service
 
     @staticmethod
-    def handle_build_local(
-        name: str, service: typing.Dict[str, str]
-    ) -> typing.Dict[str, str]:
+    def handle_build_local(name: str, service: typing.Dict[str, str]) -> typing.Dict[str, str]:
         if "build" in service:
             if "dockerfile" in service["build"]:
-                logging.warning(
-                    f"dockerfile already specified for local build for service: {name}, why?"
-                )
+                logging.warning(f"dockerfile already specified for local build for service: {name}, why?")
                 return service
         else:
             service["build"] = dict()
@@ -256,21 +226,15 @@ class Handler:
         return service
 
     @staticmethod
-    def handle_build_remote(
-        name: str, service: typing.Dict[str, str]
-    ) -> typing.Dict[str, str]:
+    def handle_build_remote(name: str, service: typing.Dict[str, str]) -> typing.Dict[str, str]:
         if "image" in service:
-            logging.warning(
-                f"image already specified for remote build for service: {name}, why?"
-            )
+            logging.warning(f"image already specified for remote build for service: {name}, why?")
             return service
         service["image"] = r"${NEXUS_ADDR}/${" + f"{name.upper()}_IMAGE" + r"}:${TAG}"
         return service
 
     @staticmethod
-    def handle_artery_local(
-        name: str, service: typing.Dict[str, str]
-    ) -> typing.Dict[str, str]:
+    def handle_artery_local(name: str, service: typing.Dict[str, str]) -> typing.Dict[str, str]:
         if name.lower().startswith("artery"):
             return Handler.add_mountpoint(name, service, r"cavise/artery", r"./artery")
         return service
@@ -324,9 +288,7 @@ def parse_command_line() -> argparse.Namespace:
     parser.add_argument("--help", action="store_true", dest="help")
     parser.add_argument("--version", action="store_true", dest="version")
     # generator options.
-    parser.add_argument(
-        "-v", "--verbosity", action="store", dest="verbosity", default=logging.INFO
-    )
+    parser.add_argument("-v", "--verbosity", action="store", dest="verbosity", default=logging.INFO)
     parser.add_argument("-e", "--env-file", action="store", dest="env_file")
     parser.add_argument("-t", "--template", action="store", dest="template")
     parser.add_argument("--handlers", nargs="+", dest="handlers")
@@ -391,15 +353,11 @@ def main() -> None:
 
     env_file = None
     if getattr(args, "env_file") is not None:
-        env_file = resolve_path(
-            pathlib.PurePath(getattr(args, "env_file")), config.environment_path
-        )
+        env_file = resolve_path(pathlib.PurePath(getattr(args, "env_file")), config.environment_path)
     if getattr(args, "template") is None:
         logging.error("no template was specified. Why are so cruel?")
         sys.exit(errno.EPERM)
-    template = resolve_path(
-        pathlib.PurePath(getattr(args, "template")), config.templates_path
-    )
+    template = resolve_path(pathlib.PurePath(getattr(args, "template")), config.templates_path)
 
     holder = create_environment(env_file)
     if isinstance(holder, str):

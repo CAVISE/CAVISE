@@ -114,15 +114,9 @@ class HelpView(urwid.WidgetWrap, CommonElements):
                                             """)
 
         # Wrapping the string in urwid.Text directly
-        self.menu_logo = urwid.Padding(
-            urwid.AttrMap(urwid.Text(self.menu_logo), "default"), left=5, right=2
-        )
-        self.menu_structure = urwid.Padding(
-            urwid.AttrMap(urwid.Text(self.menu_structure), "default"), left=5, right=2
-        )
-        self.content = urwid.Padding(
-            urwid.AttrMap(urwid.Text(self.content_text), "default"), left=5, right=2
-        )
+        self.menu_logo = urwid.Padding(urwid.AttrMap(urwid.Text(self.menu_logo), "default"), left=5, right=2)
+        self.menu_structure = urwid.Padding(urwid.AttrMap(urwid.Text(self.menu_structure), "default"), left=5, right=2)
+        self.content = urwid.Padding(urwid.AttrMap(urwid.Text(self.content_text), "default"), left=5, right=2)
 
         _ = urwid.Filler(self.menu_logo, valign="top")  # menu_filler
         menu_str_filler = urwid.Filler(self.menu_structure, valign="top")
