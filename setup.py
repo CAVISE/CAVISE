@@ -34,12 +34,12 @@ def get_available_versions(repo_url: str) -> List[Tuple[Literal["tag", "branch"]
         refs_output = git.ls_remote("--heads", "--tags", repo_url).strip()
 
         versions = []
-        tag_pattern = r'refs/tags/(.+?)$'
+        tag_pattern = r"refs/tags/(.+?)$"
         for match in re.finditer(tag_pattern, refs_output, re.MULTILINE):
             tag_name = match.group(1)
             versions.append(("tag", tag_name))
 
-        branch_pattern = r'refs/heads/(.+?)$'
+        branch_pattern = r"refs/heads/(.+?)$"
         for match in re.finditer(branch_pattern, refs_output, re.MULTILINE):
             branch_name = match.group(1)
             versions.append(("branch", branch_name))
@@ -126,12 +126,14 @@ def parse_args():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-o", "--opencda-version",
+        "-o",
+        "--opencda-version",
         type=str,
         help="Version (branch or tag) for opencda. Default: main",
     )
     parser.add_argument(
-        "-a", "--artery-version",
+        "-a",
+        "--artery-version",
         type=str,
         help="Version (branch or tag) for artery. Default: main",
     )
@@ -141,7 +143,7 @@ def parse_args():
         choices=["opencda", "artery"],
         help="Repos for cloning. Default: all",
     )
-    
+
     args = parser.parse_args()
     return args
 
