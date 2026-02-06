@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout (with submodules)
         uses: actions/checkout@v4
         with:
           submodules: recursive
@@ -23,23 +23,54 @@ jobs:
           python-version: "3.10"
           cache: "pip"
 
-      - name: Install OpenCDA
+      # -------------------- OpenCDA (Sphinx) --------------------
+      - name: Install OpenCDA docs dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install -r extern/opencda/docs/requirements.txt
           pip install sphinx sphinx-rtd-theme recommonmark
 
-      - name: Build OpenCDA
+      - name: Build OpenCDA Sphinx HTML
         working-directory: extern/opencda/docs
         run: |
           python -m sphinx -b html . _build/html
 
+      # -------------------- Artery (MkDocs) --------------------
+      - name: Install Artery docs dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install mkdocs mkdocs-material pymdown-extensions
+
+      - name: Build Artery MkDocs site (safe config)
+        working-directory: extern/artery
+        run: |
+          # делаем временный конфиг без vidify и git revision plugin
+          python - << 'PY'
+          import re, pathlib
+          p = pathlib.Path("mkdocs.yml")
+          y = p.read_text(encoding="utf-8")
+
+          # удалить строку "  - vidify"
+          y = re.sub(r"(?m)^\s*-\s*vidify\s*$\n?", "", y)
+
+          # удалить plugin git-revision-date-localized (и похожие варианты)
+          y = re.sub(r"(?m)^\s*-\s*git-revision-date-localized.*$\n?", "", y)
+          y = re.sub(r"(?m)^\s*-\s*git-revision-date-localized-plugin.*$\n?", "", y)
+          y = re.sub(r"(?m)^\s*-\s*mkdocs-git-revision-date-localized-plugin.*$\n?", "", y)
+
+          # сохранить рядом временный файл
+          pathlib.Path("mkdocs.ci.yml").write_text(y, encoding="utf-8")
+          print("Generated mkdocs.ci.yml")
+          PY
+
+          mkdocs build --clean -f mkdocs.ci.yml --site-dir site
+
+      # -------------------- Artifacts --------------------
       - name: Prepare combined artifacts
         run: |
           mkdir -p artifacts/opencda artifacts/artery
           cp -r extern/opencda/docs/_build/html/* artifacts/opencda/ || true
-          cp -r extern/artery/docs/* artifacts/artery/ || true
-          cp extern/artery/mkdocs.yml artifacts/artery/ || true
+          cp -r extern/artery/site/* artifacts/artery/ || true
 
       - name: Upload docs artifact
         uses: actions/upload-artifact@v4
