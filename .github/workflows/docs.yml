@@ -46,9 +46,12 @@ jobs:
       - name: install artery docs
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          python -m pip install mkdocs mkdocs-material pymdown-extensions
-          python -m pip install git-revision-date-localized
-          python -m pip install vidify || true
+          python -m pip install \
+            mkdocs \
+            mkdocs-material \
+            pymdown-extensions \
+            mkdocs-git-revision-date-localized-plugin \
+            mkdocs-vidify
 
       - name: build MkDocs
         working-directory: extern/artery
