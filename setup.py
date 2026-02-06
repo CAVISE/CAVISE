@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
 import os
-import sys
 import re
-import logging
+import sys
 import argparse
+import logging
+from typing import List, Literal, Tuple
+
 from git import Repo, cmd
 from git.exc import GitCommandError, InvalidGitRepositoryError
 
@@ -16,7 +18,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def get_available_versions(repo_url):
+def get_available_versions(repo_url: str) -> List[Tuple[Literal["tag", "branch"], str]]:
     """
     Retrieves all available branches and tags from a remote Git repository.
 
@@ -26,7 +28,7 @@ def get_available_versions(repo_url):
     clone the repo; only queries the remote. Raises GitCommandError if the
     remote is unreachable or the URL is invalid.
     """
-    logger.info(f"Getting repo versions: {repo_url}...")
+    logger.info("Getting repo versions: %s...", repo_url)
     try:
         git = cmd.Git()
         refs_output = git.ls_remote("--heads", "--tags", repo_url).strip()
@@ -48,11 +50,11 @@ def get_available_versions(repo_url):
         raise
 
 
-def select_version_interactive(repo_name, repo_url):
+def select_version_interactive(repo_name: str, repo_url: str) -> str:
     """
     Lets the user pick a branch or tag interactively from the given repository.
 
-    Fetches available versions via get_available_versions, prints a numbered
+    Fetches available versions via get_available_versions, logs a numbered
     list (tags and branches), then prompts the user to enter a number. Loops
     until a valid choice is made. Returns the selected ref name (e.g. "main"
     or "v0.1.0"). Raises ValueError if no versions are available.
@@ -60,11 +62,13 @@ def select_version_interactive(repo_name, repo_url):
     versions = get_available_versions(repo_url)
 
     if not versions:
-        raise ValueError('Cannot get repo versions. Please check your local repository or try to clone it again.')
+        raise ValueError(
+            "Cannot get repo versions. Please check your local repository or try to clone it again."
+        )
 
-    print(f"{repo_name} versions:")
+    logger.info("%s versions:", repo_name)
     for i, (ref_type, version) in enumerate(versions, 1):
-        print(f"{i}. [{ref_type}] {version}")
+        logger.info("%s. [%s] %s", i, ref_type, version)
 
     while True:
         try:
@@ -106,8 +110,8 @@ def clone_repo(repo_base, repo_name, version):
         else:
             Repo.clone_from(repo_url, repo_name, recursive=True)
         logger.debug(f"Successfully cloned {repo_url}")
-    except GitCommandError as e:
-        logger.error(f"Failed to clone {repo_url}: {e}")
+    except GitCommandError as err:
+        logger.exception("Failed to clone %s: %s", repo_url, err)
         sys.exit(1)
 
 
@@ -124,12 +128,12 @@ def parse_args():
     parser.add_argument(
         "-o", "--opencda-version",
         type=str,
-        help="Version (branch or tah) for opencda. Default: main",
+        help="Version (branch or tag) for opencda. Default: main",
     )
     parser.add_argument(
         "-a", "--artery-version",
         type=str,
-        help="Version (branch or tah) for artery. Default: main",
+        help="Version (branch or tag) for artery. Default: main",
     )
     parser.add_argument(
         "repos",
@@ -140,6 +144,7 @@ def parse_args():
     
     args = parser.parse_args()
     return args
+
 
 def main():
     """
@@ -159,7 +164,7 @@ def main():
         origin_url = repo.remotes.origin.url
         repo_base = origin_url.rsplit("/", 1)[0] + "/"
     except InvalidGitRepositoryError:
-        logger.error("Current directory is not a Git repository")
+        logger.exception("Current directory is not a Git repository")
         sys.exit(1)
     except AttributeError:
         logger.error("No origin remote found")
