@@ -24,7 +24,7 @@ jobs:
           cache: "pip"
 
 
-      - name: Install OpenCDA docs dependencies
+      - name: install OpenCDA docs
         run: |
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install sphinx sphinx-rtd-theme recommonmark
@@ -47,7 +47,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install "Jinja2<3.1"
-          python -m pip install mkdocs mkdocs-material
+          python -m pip install mkdocs mkdocs-material pymdown-extensions
+          python -m pip install git-revision-date-localized-plugin
+          python -m pip install vidify || true
 
       - name: build MkDocs
         working-directory: extern/artery
