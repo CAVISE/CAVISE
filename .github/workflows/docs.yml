@@ -27,7 +27,7 @@ jobs:
       - name: install OpenCDA docs
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          pip install -r extern/opencda/docs/ci-requirements.txt
+          pip install -r extern/opencda/docs/requirements.txt
 
       - name: build Sphinx
         working-directory: extern/opencda/docs
