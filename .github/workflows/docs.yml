@@ -2,10 +2,10 @@ name: "build docs OpenCDA + Artery"
 
 on:
   push:
-    branches: [ main, docs-pipeline ]
+    branches: [ "main", "docs-pipeline" ]
   pull_request:
-    branches: [ main ]
-  workflow_dispatch: {}
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build-docs:
@@ -15,6 +15,7 @@ jobs:
       - name: Checkout (with submodules)
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           submodules: recursive
 
       - name: Setup Python
@@ -23,54 +24,43 @@ jobs:
           python-version: "3.10"
           cache: "pip"
 
-      # -------------------- OpenCDA (Sphinx) --------------------
-      - name: Install OpenCDA docs dependencies
+      # -------------------------
+      # OpenCDA (Sphinx)
+      # -------------------------
+      - name: Install OpenCDA docs dependencies (docs-only)
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          pip install -r extern/opencda/docs/requirements.txt
-          pip install sphinx sphinx-rtd-theme recommonmark
+          python -m pip install sphinx sphinx-rtd-theme recommonmark
 
       - name: Build OpenCDA Sphinx HTML
         working-directory: extern/opencda/docs
+        env:
+          PYTHONPATH: ${{ github.workspace }}/extern/opencda
         run: |
           python -m sphinx -b html . _build/html
 
-      # -------------------- Artery (MkDocs) --------------------
+      # -------------------------
+      # Artery (MkDocs)
+      # -------------------------
       - name: Install Artery docs dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          pip install mkdocs mkdocs-material pymdown-extensions
+          python -m pip install mkdocs mkdocs-material pymdown-extensions mkdocs-git-revision-date-localized-plugin
 
-      - name: Build Artery MkDocs site (safe config)
+      - name: Build Artery MkDocs site (CI config without vidify)
         working-directory: extern/artery
         run: |
-          # делаем временный конфиг без vidify и git revision plugin
-          python - << 'PY'
-          import re, pathlib
-          p = pathlib.Path("mkdocs.yml")
-          y = p.read_text(encoding="utf-8")
+          sed '/^[[:space:]]*- vidify[[:space:]]*$/d' mkdocs.yml > mkdocs.ci.yml
+          mkdocs build -f mkdocs.ci.yml --clean --site-dir site
 
-          # удалить строку "  - vidify"
-          y = re.sub(r"(?m)^\s*-\s*vidify\s*$\n?", "", y)
-
-          # удалить plugin git-revision-date-localized (и похожие варианты)
-          y = re.sub(r"(?m)^\s*-\s*git-revision-date-localized.*$\n?", "", y)
-          y = re.sub(r"(?m)^\s*-\s*git-revision-date-localized-plugin.*$\n?", "", y)
-          y = re.sub(r"(?m)^\s*-\s*mkdocs-git-revision-date-localized-plugin.*$\n?", "", y)
-
-          # сохранить рядом временный файл
-          pathlib.Path("mkdocs.ci.yml").write_text(y, encoding="utf-8")
-          print("Generated mkdocs.ci.yml")
-          PY
-
-          mkdocs build --clean -f mkdocs.ci.yml --site-dir site
-
-      # -------------------- Artifacts --------------------
-      - name: Prepare combined artifacts
+      # -------------------------
+      # Artifacts
+      # -------------------------
+      - name: Prepare combined artifact
         run: |
           mkdir -p artifacts/opencda artifacts/artery
-          cp -r extern/opencda/docs/_build/html/* artifacts/opencda/ || true
-          cp -r extern/artery/site/* artifacts/artery/ || true
+          cp -r extern/opencda/docs/_build/html/* artifacts/opencda/
+          cp -r extern/artery/site/* artifacts/artery/
 
       - name: Upload docs artifact
         uses: actions/upload-artifact@v4
