@@ -7,6 +7,15 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build-docs:
     runs-on: ubuntu-latest
@@ -18,7 +27,7 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-      - name: Python setings
+      - name: Python settings
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
@@ -47,14 +56,38 @@ jobs:
           sed '/^[[:space:]]*- vidify[[:space:]]*$/d' mkdocs.yml > mkdocs.ci.yml
           mkdocs build -f mkdocs.ci.yml --clean --site-dir site
 
-      - name: Prepare artifact
+      - name: Prepare site for Pages
         run: |
-          mkdir -p artifacts/opencda artifacts/artery
-          cp -r extern/opencda/docs/_build/html/* artifacts/opencda/
-          cp -r extern/artery/site/* artifacts/artery/
+          mkdir -p site/opencda site/artery
+          cp -r extern/opencda/docs/_build/html/* site/opencda/
+          cp -r extern/artery/site/* site/artery/
+          cat > site/index.html <<'EOF'
+          <!doctype html>
+          <html>
+            <head><meta charset="utf-8"><title>Docs</title></head>
+            <body>
+              <h1>Documentation</h1>
+              <ul>
+                <li><a href="./opencda/">OpenCDA (Sphinx)</a></li>
+                <li><a href="./artery/">Artery (MkDocs)</a></li>
+              </ul>
+            </body>
+          </html>
+          EOF
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: docs-html
-          path: artifacts
+          path: site
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build-docs
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
