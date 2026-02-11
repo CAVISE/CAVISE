@@ -22,3 +22,11 @@ artery/.vscode
 
 # CMake default directories
 artery/build/
+
+# Git data
+artery/.git
+
+# OPENCDA
+
+# Git data
+opencda/.git
