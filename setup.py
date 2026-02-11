@@ -16,6 +16,7 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
+ALLOWED_REPOS = {"opencda", "artery"}
 
 
 def get_available_versions(repo_url: str) -> List[Tuple[Literal["tag", "branch"], str]]:
@@ -138,11 +139,22 @@ def parse_args():
     parser.add_argument(
         "repos",
         nargs="*",
-        choices=["opencda", "artery"],
-        help="Repos for cloning. Default: all",
+        help="Repos for cloning (`opencda`, `artery`). Default: all",
     )
 
     args = parser.parse_args()
+
+    # Some IDE task runners pass an empty list literal (`[]`) as a positional arg.
+    # Treat it as "no repos provided" to keep CLI behavior simple.
+    cleaned_repos = [repo.strip() for repo in args.repos if repo.strip() and repo.strip() != "[]"]
+    invalid_repos = [repo for repo in cleaned_repos if repo not in ALLOWED_REPOS]
+    if invalid_repos:
+        parser.error(
+            f"argument repos: invalid choice(s): {invalid_repos} "
+            f"(choose from {', '.join(sorted(ALLOWED_REPOS))})"
+        )
+    args.repos = cleaned_repos
+
     return args
 
 
