@@ -149,10 +149,7 @@ def parse_args():
     cleaned_repos = [repo.strip() for repo in args.repos if repo.strip() and repo.strip() != "[]"]
     invalid_repos = [repo for repo in cleaned_repos if repo not in ALLOWED_REPOS]
     if invalid_repos:
-        parser.error(
-            f"argument repos: invalid choice(s): {invalid_repos} "
-            f"(choose from {', '.join(sorted(ALLOWED_REPOS))})"
-        )
+        parser.error(f"argument repos: invalid choice(s): {invalid_repos} (choose from {', '.join(sorted(ALLOWED_REPOS))})")
     args.repos = cleaned_repos
 
     return args
