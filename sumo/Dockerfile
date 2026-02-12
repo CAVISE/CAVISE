@@ -3,26 +3,25 @@ FROM debian:bookworm-slim
 ARG PYTHON_VERSION=3.10
 ARG SUMO_VERSION=v1_22_0
 
-# :)
 ARG USER=sumo
 ARG GROUP=sumo
 ARG UID=1000
 ARG GID=1000
 
-# Версии соответствуют репозиторию debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential=12.9 \
     cmake=3.25.1-1 \
-    git=1:2.39.2-1.1 \
-    bash=5.2.15-2+b7 \
-    curl=7.88.1-10+deb12u5 \
-    libssl-dev=3.0.11-1~deb12u2 \
+    git=1:2.39.5-0+deb12u3 \
+    bash=5.2.15-2+b10 \
+    ca-certificates=20230311+deb12u1 \
+    curl=7.88.1-10+deb12u14 \
+    libssl-dev=3.0.18-1~deb12u2 \
     libbz2-dev=1.0.8-5+b1 \
     zlib1g-dev=1:1.2.13.dfsg-1 \
     libxrender1=1:0.9.10-1.1 \
     libsm6=2:1.2.3-1 \
     libxext6=2:1.3.4-1+b1 \
-    ffmpeg=7:5.1.4-0+deb12u1 \
+    ffmpeg=7:5.1.8-0+deb12u1 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -43,7 +42,7 @@ RUN curl https://pyenv.run | bash && \
     pyenv rehash
 
 
-RUN pip install --no-cache-dir --upgrade pip==24.0 && \
+RUN pip install --no-cache-dir --upgrade pip==26.0.1 && \
     pip install --no-cache-dir \
-    traci==1.22.0 \
+    traci==1.26.0 \
     eclipse-sumo==1.22.0
