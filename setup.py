@@ -47,7 +47,6 @@ def get_available_versions(repo_url: str) -> List[Tuple[Literal["tag", "branch"]
 
         return versions
     except GitCommandError as e:
-        logger.error(f"Cannot get repo version from {repo_url}")
         raise e
 
 
@@ -64,10 +63,10 @@ def select_version_interactive(repo_name: str, repo_url: str) -> str:
 
     if not versions:
         raise ValueError("Cannot get repo versions. Please check your local repository or try to clone it again.")
-
-    logger.info("%s versions:", repo_name)
+    text = f"{repo_name} versions:"
     for i, (ref_type, version) in enumerate(versions, 1):
-        logger.info("%s. [%s] %s", i, ref_type, version)
+        text += f"\n{i}. [{ref_type}] {version}"
+    logger.info(text)
 
     while True:
         try:
@@ -77,9 +76,9 @@ def select_version_interactive(repo_name: str, repo_url: str) -> str:
                 selected = versions[choice_num - 1][-1]
                 break
             else:
-                print(f"Choose from 1 to {len(versions)}")
+                logger.warning("Choose from 1 to %s", len(versions))
         except ValueError:
-            print("Wrong value, try one more time")
+            logger.warning("Wrong value, try one more time")
     return selected
 
 
