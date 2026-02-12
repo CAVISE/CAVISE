@@ -34,20 +34,21 @@ def get_available_versions(repo_url: str) -> List[Tuple[Literal["tag", "branch"]
         git = cmd.Git()
         refs_output = git.ls_remote("--heads", "--tags", repo_url).strip()
 
-        versions = []
+        versions: List[Tuple[Literal["tag", "branch"], str]] = []
         tag_pattern = r"refs/tags/(.+?)$"
         for match in re.finditer(tag_pattern, refs_output, re.MULTILINE):
-            tag_name = match.group(1)
+            tag_name: str = match.group(1)
             versions.append(("tag", tag_name))
 
         branch_pattern = r"refs/heads/(.+?)$"
         for match in re.finditer(branch_pattern, refs_output, re.MULTILINE):
-            branch_name = match.group(1)
+            branch_name: str = match.group(1)
             versions.append(("branch", branch_name))
 
         return versions
-    except GitCommandError as e:
-        raise e
+    except GitCommandError:
+        logger.exception("Failed to get available versions for %s", repo_url)
+        sys.exit(1)
 
 
 def select_version_interactive(repo_name: str, repo_url: str) -> str:
@@ -82,7 +83,7 @@ def select_version_interactive(repo_name: str, repo_url: str) -> str:
     return selected
 
 
-def clone_repo(repo_base, repo_name, version):
+def clone_repo(repo_base: str, repo_name: str, version: str) -> None:
     """
     Clones a Git repository into a directory named after the repo.
 
@@ -108,12 +109,12 @@ def clone_repo(repo_base, repo_name, version):
         else:
             Repo.clone_from(repo_url, repo_name, recursive=True)
         logger.debug(f"Successfully cloned {repo_url}")
-    except GitCommandError as err:
-        logger.exception("Failed to clone %s: %s", repo_url, err)
+    except GitCommandError:
+        logger.exception("Failed to clone %s", repo_url)
         sys.exit(1)
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     """
     Parses command-line arguments for the setup script.
 
@@ -154,7 +155,7 @@ def parse_args():
     return args
 
 
-def main():
+def main() -> None:
     """
     Entry point: clones opencda and/or artery using versions from CLI or prompts.
 
@@ -171,26 +172,28 @@ def main():
         repo = Repo(".")
         origin_url = repo.remotes.origin.url
         repo_base = origin_url.rsplit("/", 1)[0] + "/"
+        raise InvalidGitRepositoryError
     except InvalidGitRepositoryError:
         logger.exception("Current directory is not a Git repository")
         sys.exit(1)
     except AttributeError:
-        logger.error("No origin remote found")
+        logger.exception("No origin remote found")
         sys.exit(1)
-    except Exception as e:
-        logger.error(f"Error determining repo base URL: {e}")
+    except Exception:
+        logger.exception("Error determining repo base URL")
         sys.exit(1)
 
     repos = args.repos if args.repos else ["opencda", "artery"]
     logger.info(f"Repositories to process: {repos}")
 
     for repo_name in repos:
-        if repo_name == "opencda":
-            version = args.opencda_version
-        elif repo_name == "artery":
-            version = args.artery_version
-        else:
-            version = None
+        match repo_name:
+            case "opencda":
+                version = args.opencda_version
+            case "artery":
+                version = args.artery_version
+            case _:
+                version = None
 
         if version is None:
             repo_url = f"{repo_base}{repo_name}"
