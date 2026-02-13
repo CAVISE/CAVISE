@@ -1,7 +1,6 @@
 FROM debian:bookworm-slim
 
 ARG PYTHON_VERSION=3.10
-ARG SUMO_VERSION=v1_22_0
 
 ARG USER=sumo
 ARG GROUP=sumo
@@ -40,7 +39,6 @@ RUN curl https://pyenv.run | bash && \
     pyenv install ${PYTHON_VERSION} && \
     pyenv global ${PYTHON_VERSION} && \
     pyenv rehash
-
 
 RUN pip install --no-cache-dir --upgrade pip==26.0.1 && \
     pip install --no-cache-dir \
