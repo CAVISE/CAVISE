@@ -45,4 +45,4 @@ RUN curl https://pyenv.run | bash && \
 RUN pip install --no-cache-dir --upgrade pip==26.0.1 && \
     pip install --no-cache-dir \
     traci==1.26.0 \
-    eclipse-sumo==1.22.0
+    eclipse-sumo==1.26.0
