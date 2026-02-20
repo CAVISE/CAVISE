@@ -172,7 +172,6 @@ def main() -> None:
         repo = Repo(".")
         origin_url = repo.remotes.origin.url
         repo_base = origin_url.rsplit("/", 1)[0] + "/"
-        raise InvalidGitRepositoryError
     except InvalidGitRepositoryError:
         logger.exception("Current directory is not a Git repository")
         sys.exit(1)
