@@ -1,0 +1,151 @@
+{% extends "!layout.html" %}
+{% set _root_doc = root_doc|default(master_doc) %}
+{% set _logo_url = logo_url|default(pathto('_static/' + (logo or ""), 1)) %}
+
+{% block extrahead %}
+  {{ super() }}
+  <meta name="theme-color" content="#0c1224" />
+{% endblock %}
+
+{% block extrabody %}
+  {% set _sidebar_tree = toctree(maxdepth=4, collapse=False, includehidden=True, titles_only=True) %}
+  <header class="cavise-site-header">
+    <div class="cavise-site-header__inner">
+      <div class="cavise-site-header__brand-shell">
+        <a class="cavise-site-header__brand" href="{{ pathto(_root_doc) }}" aria-label="{{ project }} home">
+          {% if logo or logo_url %}
+            <img src="{{ _logo_url }}" alt="{{ project }} logo" class="cavise-site-header__logo" />
+          {% else %}
+            <span class="cavise-site-header__logo-fallback">C</span>
+          {% endif %}
+        </a>
+
+        <span class="cavise-site-header__brand-divider" aria-hidden="true"></span>
+
+        <button
+          class="cavise-site-header__menu-toggle"
+          type="button"
+          data-cavise-sidebar-toggle
+          aria-label="Toggle sidebar navigation"
+          aria-expanded="true"
+        >
+          <img src="{{ pathto('_static/images/menu-alt-1-svgrepo-com.svg', 1) }}" alt="" />
+        </button>
+      </div>
+
+      <div class="cavise-topbar-controls">
+        <form class="cavise-topbar-search" action="{{ pathto('search') }}" method="get" role="search">
+          <span class="cavise-topbar-search__icon" aria-hidden="true">
+            <img src="{{ pathto('_static/images/magnifying-glass-backup-svgrepo-com.svg', 1) }}" alt="" />
+          </span>
+          <label class="cavise-visually-hidden" for="cavise-topbar-search-input">Search documentation</label>
+          <input
+            id="cavise-topbar-search-input"
+            type="search"
+            name="q"
+            placeholder="Search docs"
+            autocomplete="off"
+          />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+
+        <a
+          class="cavise-topbar-github"
+          href="{{ github_repo_url }}"
+          target="_blank"
+          rel="noreferrer noopener"
+          data-github-api="{{ github_repo_api }}"
+          aria-label="Open GitHub repository"
+        >
+          <span class="cavise-topbar-github__repo">
+            <span class="cavise-topbar-github__icon" aria-hidden="true">
+              <img src="{{ pathto('_static/images/github/github-svgrepo-com.svg', 1) }}" alt="" />
+            </span>
+            <span>{{ github_repo_name }}</span>
+          </span>
+          <span class="cavise-topbar-github__meta">
+            <span class="cavise-topbar-github__stat cavise-topbar-github__release">
+              <span class="cavise-topbar-github__stat-icon" aria-hidden="true">
+                <img src="{{ pathto('_static/images/github/tag-svgrepo-com.svg', 1) }}" alt="" />
+              </span>
+              <span data-github-release>--</span>
+            </span>
+            <span class="cavise-topbar-github__stat">
+              <span class="cavise-topbar-github__stat-icon" aria-hidden="true">
+                <img src="{{ pathto('_static/images/github/star-svgrepo-com.svg', 1) }}" alt="" />
+              </span>
+              <span data-github-stars>--</span>
+            </span>
+            <span class="cavise-topbar-github__stat">
+              <span class="cavise-topbar-github__stat-icon" aria-hidden="true">
+                <img src="{{ pathto('_static/images/github/forks-com.svg', 1) }}" alt="" />
+              </span>
+              <span data-github-forks>--</span>
+            </span>
+          </span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <aside class="cavise-sidebar" aria-label="Primary navigation">
+    <div class="cavise-sidebar__inner">
+      <nav class="cavise-sidebar__nav wy-menu wy-menu-vertical" role="navigation" aria-label="Navigation menu">
+        {{ _sidebar_tree }}
+      </nav>
+    </div>
+  </aside>
+
+  {{ super() }}
+{% endblock %}
+
+{% block sidebartitle %}
+  <div class="cavise-sidebar-brand">
+    <a class="cavise-sidebar-brand__link" href="{{ pathto(_root_doc) }}">
+      {% if logo or logo_url %}
+        <img src="{{ _logo_url }}" alt="{{ project }} logo" class="cavise-sidebar-brand__logo" />
+      {% endif %}
+      <span class="cavise-sidebar-brand__copy">
+        <strong>CAVISE</strong>
+        <span>Simulator Docs</span>
+      </span>
+    </a>
+  </div>
+
+  <p class="cavise-sidebar-note">
+    Operational guides, scenario workflows, and API reference for the CAVISE stack.
+  </p>
+
+  <div class="cavise-sidebar-shortcuts">
+    <a href="{{ pathto('quick-start/index') }}">Start Here</a>
+    <a href="{{ pathto('api/index') }}">API</a>
+  </div>
+
+  {% include "searchbox.html" %}
+{% endblock %}
+
+{% block mobile_nav %}
+  <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+  <a href="{{ pathto(_root_doc) }}">CAVISE Docs</a>
+{% endblock %}
+
+{% block document %}
+  <div role="main" class="document cavise-document" itemscope="itemscope" itemtype="http://schema.org/Article">
+    <div class="cavise-doc-layout">
+      <article class="cavise-doc-article" itemprop="articleBody">
+        {% if pagename == 'search' %}
+          {{ self.body() }}
+        {% else %}
+          {{ body }}
+        {% endif %}
+      </article>
+    </div>
+
+    {%- if self.comments()|trim %}
+      <div class="articleComments">
+        {%- block comments %}{% endblock %}
+      </div>
+    {%- endif %}
+  </div>
+{% endblock %}

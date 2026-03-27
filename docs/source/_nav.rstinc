@@ -1,0 +1,16 @@
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+   :caption: Wiki
+
+   Overview <wiki/index>
+   Install and Launch <wiki/install-and-launch>
+   Problems and Solutions <wiki/troubleshooting>
+   Additional Scripts <wiki/additional-scripts>
+
+.. toctree::
+   :hidden:
+   :maxdepth: 1
+   :caption: Scenarios
+
+   Scenario Creation <scenarios/index>

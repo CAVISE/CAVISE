@@ -1,0 +1,64 @@
+version: "3"
+
+vars:
+  PYTHON:
+    sh: if [ -x .venv/bin/python ]; then printf '%s\n' ".venv/bin/python"; else command -v python3 || command -v python; fi
+  SOURCE_DIR: source
+  BUILD_DIR: build
+  HTML_DIR: "{{.BUILD_DIR}}/html"
+  DOXYFILE: docs/doxyfile
+  DOXYGEN_SOURCE_DIR: "{{.SOURCE_DIR}}/doxygen/cavise"
+  DOXYGEN_SITE_DIR: "{{.HTML_DIR}}/doxygen/cavise"
+
+tasks:
+  default:
+    desc: Show available documentation tasks
+    cmds:
+      - task --list
+
+  help:
+    desc: Show Sphinx builder help
+    cmds:
+      - "{{.PYTHON}} -m sphinx -M help {{.SOURCE_DIR}} {{.BUILD_DIR}}"
+
+  html:
+    desc: Build the HTML documentation site
+    cmds:
+      - rm -rf "{{.BUILD_DIR}}/html"
+      - "{{.PYTHON}} -m sphinx -M html {{.SOURCE_DIR}} {{.BUILD_DIR}}"
+
+  clean:
+    desc: Remove generated documentation artifacts
+    cmds:
+      - rm -rf "{{.SOURCE_DIR}}/doxygen" "{{.BUILD_DIR}}"
+
+  doxygen:
+    desc: Generate API artifacts with Doxygen
+    dir: ..
+    cmds:
+      - mkdir -p "docs/{{.DOXYGEN_SOURCE_DIR}}"
+      - doxygen {{.DOXYFILE}}
+
+  sync-doxygen:
+    desc: Copy generated API artifacts into the built site tree
+    cmds:
+      - rm -rf "{{.DOXYGEN_SITE_DIR}}"
+      - mkdir -p "{{.HTML_DIR}}/doxygen"
+      - cp -R "{{.DOXYGEN_SOURCE_DIR}}" "{{.HTML_DIR}}/doxygen/"
+
+  linkcheck:
+    desc: Validate internal and external links
+    cmds:
+      - "{{.PYTHON}} -m sphinx -M linkcheck {{.SOURCE_DIR}} {{.BUILD_DIR}}"
+
+  live:
+    desc: Run a local auto-reloading docs server
+    cmds:
+      - "{{.PYTHON}} -m sphinx_autobuild {{.SOURCE_DIR}} {{.BUILD_DIR}}/html"
+
+  site:
+    desc: Build the full documentation site including API artifacts
+    cmds:
+      - task: doxygen
+      - task: html
+      - task: sync-doxygen

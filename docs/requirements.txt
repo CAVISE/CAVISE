@@ -1,3 +1,3 @@
-doxysphinx
-sphinx
+Sphinx
+sphinx-autobuild
 sphinx_rtd_theme
