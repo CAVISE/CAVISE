@@ -11,48 +11,57 @@ shift
 
 services="$@"
 
-COMPOSE_SM="$CAVISE_ROOT/scenario-manager/docker-compose.yml"
+COMPOSE_MAIN="$CAVISE_ROOT/dc-configs/docker-compose.yml"
+COMPOSE_SM="$PATH_TO_SCENARIO_MANAGER/docker-compose.yml"
+
+run_compose() {
+    local cmd="$1"
+    shift
+    local svcs="$@"
+
+    if echo "$svcs" | grep -qw "scenario-manager"; then
+        local remaining=$(echo "$svcs" | sed 's/scenario-manager//g' | xargs)
+        docker compose -f $COMPOSE_SM --profile prod $cmd $remaining
+        svcs="$remaining"
+    fi
+
+    if [ -z "$svcs" ] && ! echo "$@" | grep -qw "scenario-manager"; then
+        docker compose -f $COMPOSE_MAIN --env-file paths.conf $cmd
+    elif [ -n "$svcs" ]; then
+        docker compose -f $COMPOSE_MAIN --env-file paths.conf $cmd $svcs
+    fi
+}
 
 case "$command" in
   build)
     echo "Building container images..."
-    docker compose -f $CAVISE_ROOT/dc-configs/docker-compose.yml --env-file paths.conf build $services
+    run_compose build $services
     ;;
   up)
     echo "Creating and starting containers..."
-    docker compose -f $CAVISE_ROOT/dc-configs/docker-compose.yml --env-file paths.conf up -d $services
+    run_compose "up -d" $services
+    if echo "$services" | grep -qw "scenario-manager"; then
+        xdg-open http://localhost 2>/dev/null || open http://localhost 2>/dev/null || start http://localhost
+    fi
     ;;
   down)
     echo "Stopping and removing containers..."
-    docker compose -f $CAVISE_ROOT/dc-configs/docker-compose.yml --env-file paths.conf down $services
+    run_compose down $services
     ;;
   start)
     echo "Starting existing containers..."
-    docker compose -f $CAVISE_ROOT/dc-configs/docker-compose.yml --env-file paths.conf start $services
+    run_compose start $services
     ;;
   stop)
     echo "Stopping running containers..."
-    docker compose -f $CAVISE_ROOT/dc-configs/docker-compose.yml --env-file paths.conf stop $services
+    run_compose stop $services
     ;;
   restart)
     echo "Restarting containers..."
-    docker compose -f $CAVISE_ROOT/dc-configs/docker-compose.yml --env-file paths.conf restart $services
-    ;;
-  sm-up)
-    echo "Starting scenario-manager..."
-    docker compose -f $COMPOSE_SM --profile prod up --build -d
-    xdg-open http://localhost 2>/dev/null || open http://localhost 2>/dev/null || start http://localhost
-    ;;
-  sm-down)
-    echo "Stopping scenario-manager..."
-    docker compose -f $COMPOSE_SM --profile prod down
-    ;;
-  sm-build)
-    echo "Building scenario-manager..."
-    docker compose -f $COMPOSE_SM --profile prod build
+    run_compose restart $services
     ;;
   *)
-    echo "Usage: $0 {build|up|start|stop|down|restart|sm-up|sm-down|sm-build} [services...]"
+    echo "Usage: $0 {build|up|start|stop|down|restart} [services...]"
     exit 1
     ;;
 esac

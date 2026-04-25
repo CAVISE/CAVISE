@@ -118,10 +118,9 @@ def parse_args() -> argparse.Namespace:
     """
     Parses command-line arguments for the setup script.
 
-    Defines optional version flags for opencda and artery (-o/--opencda-version,
-    -a/--artery-version) and optional positional arguments for which repos to
-    clone (opencda, artery, or both). Returns the parsed namespace from
-    argparse.
+    Defines optional version flags for opencda, artery, and scenario-manager
+    and optional positional arguments for which repos to clone. Returns the
+    parsed namespace from argparse.
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -137,9 +136,15 @@ def parse_args() -> argparse.Namespace:
         help="Version (branch or tag) for artery. Default: main",
     )
     parser.add_argument(
+        "-s",
+        "--scenario-manager-version",
+        type=str,
+        help="Version (branch or tag) for scenario-manager. Default: main",
+    )
+    parser.add_argument(
         "repos",
         nargs="*",
-        help="Repos for cloning (`opencda`, `artery`). Default: all",
+        help="Repos for cloning (`opencda`, `artery`, `scenario-manager`). Default: all",
     )
 
     args = parser.parse_args()
@@ -157,10 +162,11 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     """
-    Entry point: clones opencda and/or artery using versions from CLI or prompts.
+    Entry point: clones opencda, artery, and/or scenario-manager using versions
+    from CLI flags or interactive prompts.
 
     Resolves the base URL from the current repo's origin remote. Determines
-    which repos to process (default: both). For each repo, uses the version
+    which repos to process (default: all three). For each repo, uses the version
     from the corresponding CLI flag if set; otherwise runs
     select_version_interactive to ask the user. Then calls clone_repo for each.
     Exits with code 1 if not in a Git repo, if origin is missing, or if clone
@@ -191,6 +197,8 @@ def main() -> None:
                 version = args.opencda_version
             case "artery":
                 version = args.artery_version
+            case "scenario-manager":
+                version = args.scenario_manager_version
             case _:
                 version = None
 
