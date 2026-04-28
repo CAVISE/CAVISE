@@ -25,4 +25,4 @@ Compiling protobuf to source code files is part of the **Artery** compilation ro
 
 ## Info
 
-We also have a [Wiki](https://github.com/CAVISE/CAVISE/wiki) that describes the architecture, simulator launch guide, troubleshooting, additional scripts, and more.
+We also have a [Wiki](https://github.com/CAVISE/CAVISE/wiki) that describes the architecture, simulator launch guide, Problems and Solutions, additional scripts, and more.
