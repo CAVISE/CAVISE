@@ -7,8 +7,8 @@
 
     <input>
         <net-file value="Town04.net.xml"/>
-        <route-files value="4cars_coperception.rou.xml"/>
-        <additional-files value="4cars_coperception.poly.xml"/>
+        <route-files value="aim_check.rou.xml"/>
+        <additional-files value="aim_check.poly.xml"/>
         <gui-settings-file value="viewsettings.xml"/>
     </input>
 
