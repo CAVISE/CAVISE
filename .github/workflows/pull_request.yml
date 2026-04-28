@@ -36,7 +36,6 @@ jobs:
         run: pip install mypy
       - name: Run mypy
         run: mypy .
-        continue-on-error: true
 
   unused-code-check:
     runs-on: ubuntu-latest
