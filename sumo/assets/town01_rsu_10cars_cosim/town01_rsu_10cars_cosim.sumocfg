@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <input>
+        <net-file value="town01_rsu_10cars_cosim.net.xml"/>
+        <route-files value="town01_rsu_10cars_cosim.rou.xml"/>
+    </input>
+    <time>
+        <step-length value="0.05"/>
+    </time>
+    <num-clients value="1"/>
+</configuration>

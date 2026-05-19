@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes>
+    <vType id="DEFAULT_VEHTYPE" vClass="passenger" carFollowModel="IDM" accel="2.6" decel="4.5" sigma="0.5" length="4.5" minGap="2.5" maxSpeed="13.89" color="255,255,255"/>
+    <vType id="DEFAULT_BIKETYPE" vClass="bicycle" accel="1.2" decel="3.0" sigma="0.5" length="1.8" minGap="1.0" maxSpeed="5.56" color="80,180,255"/>
+</routes>
