@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <input>
-        <net-file value="town01_rsu_10cars_cosim.net.xml"/>
+        <net-file value="Town01.net.xml"/>
         <route-files value="town01_rsu_10cars_cosim.rou.xml"/>
+        <additional-files value="Town01.poly.xml"/>
     </input>
     <time>
         <step-length value="0.05"/>
