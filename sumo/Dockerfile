@@ -11,10 +11,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential=12.9 \
     cmake=3.25.1-1 \
     git=1:2.39.5-0+deb12u3 \
-    bash \
+    bash=5.2.15-2+b13 \
     ca-certificates=20230311+deb12u1 \
     curl=7.88.1-10+deb12u14 \
-    libssl-dev \
+    libssl-dev=3.0.20-1~deb12u1 \
     libbz2-dev=1.0.8-5+b1 \
     zlib1g-dev=1:1.2.13.dfsg-1 \
     libxrender1=1:0.9.10-1.1 \
