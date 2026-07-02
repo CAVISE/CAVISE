@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<configuration>
+    <input>
+        <net-file value="../Town10HD/Town10HD.net.xml"/>
+        <route-files value="dense_autopilot_coperception_town10.rou.xml" />
+    </input>
+    <time>
+        <step-length value="0.1"/>
+    </time>
+    <num-clients value="1"/>
+</configuration>
