@@ -6,9 +6,9 @@
 <sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
-        <net-file value="Town04.net.xml"/>
+        <net-file value="../maps/Town04/Town04.net.xml"/>
         <route-files value="aim_check.rou.xml"/>
-        <additional-files value="aim_check.poly.xml"/>
+        <additional-files value="../maps/Town04/Town04.poly.xml"/>
         <gui-settings-file value="viewsettings.xml"/>
     </input>
 

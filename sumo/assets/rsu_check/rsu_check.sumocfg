@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <configuration>
 	<input>
-		<net-file value="rsu_check.net.xml"/>
+		<net-file value="../maps/Town06/Town06.net.xml"/>
 		<route-files value="rsu_check.rou.xml"/>
-		<additional-files value="rsu_check.poly.xml"/>
+		<additional-files value="../maps/Town06/Town06.poly.xml"/>
 	</input>
 	<time>
 		<step-length value="0.1"/>

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <configuration>
   <input>
-        <net-file value="avoid_lights.net.xml"/>
+        <net-file value="../maps/Town06/Town06.net.xml"/>
     <route-files value="avoid_lights.xml"/>
   </input>
   <num-clients value="1"/>

@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<routes>
+    <vType id="vType_0" minGap="2.00" speedFactor="normc(1.00,0.00)" vClass="passenger" carFollowModel="IDMM" tau="0.4"/>
+    <vType id="DEFAULT_VEHTYPE" minGap="2.50" tau="1.0"  color="255,255,255" Class="passenger" accel="0.5"/>
+    <vType id="cav_static" minGap="2.00" speedFactor="normc(1.00,0.00)" vClass="passenger" carFollowModel="IDMM" tau="0.4" color="0,128,255"/>
+
+    <vehicle id="static_cav"
+            type="cav_static"
+            depart="0"
+            departLane="0"
+            departPos="25"
+            departSpeed="0">
+        <route edges="4"/>
+        <stop lane="4_0" startPos="25" endPos="30" duration="100000" parking="true"/>
+    </vehicle>
+</routes>
