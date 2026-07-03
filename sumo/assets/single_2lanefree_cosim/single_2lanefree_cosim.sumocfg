@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <configuration>
   <input>
-        <net-file value="single_2lanefree_cosim.net.xml"/>
+        <net-file value="../maps/2lane_freeway_simplified.net.xml"/>
     <route-files value="single_2lanefree_cosim.rou.xml"/>
   </input>
   <num-clients value="1"/>
