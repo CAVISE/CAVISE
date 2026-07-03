@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <configuration>
 	<input>
-		<net-file value="1551_carla_cavs.net.xml"/>
+		<net-file value="../maps/Town06/Town06.net.xml"/>
 		<route-files value="1551_carla_cavs.rou.xml"/>
-		<additional-files value="1551_carla_cavs.poly.xml"/>
+		<additional-files value="../maps/Town06/Town06.poly.xml"/>
 	</input>
 
 	<output>
