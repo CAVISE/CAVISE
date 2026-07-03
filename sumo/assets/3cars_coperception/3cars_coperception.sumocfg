@@ -3,7 +3,7 @@
     <input>
         <net-file value="../maps/Town04/Town04.net.xml"/>
         <route-files value="3cars_coperception.rou.xml" />
-        <additional-files value="3cars_coperception.poly.xml"/>
+        <additional-files value="../maps/Town04/Town04.poly.xml"/>
     </input>
     <time>
         <step-length value="0.1"/>

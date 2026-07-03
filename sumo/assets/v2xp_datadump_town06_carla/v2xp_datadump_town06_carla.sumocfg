@@ -3,7 +3,7 @@
 	<input>
 		<net-file value="../maps/Town06/Town06.net.xml"/>
 		<route-files value="v2xp_datadump_town06_carla.rou.xml"/>
-		<additional-files value="v2xp_datadump_town06_carla.poly.xml"/>
+		<additional-files value="../maps/Town06/Town06.poly.xml"/>
 	</input>
 	<time>
 		<step-length value="0.1"/>
