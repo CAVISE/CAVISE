@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <configuration>
     <input>
-        <net-file value="../maps/Town10HD.net.xml"/>
+        <net-file value="../maps/Town10HD/Town10HD.net.xml"/>
         <route-files value="dense_autopilot_coperception_town10.rou.xml" />
     </input>
     <time>

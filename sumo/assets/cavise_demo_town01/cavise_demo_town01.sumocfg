@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <configuration>
 	<input>
-		<net-file value="../maps/Town01.net.xml"/>
+		<net-file value="../maps/Town01/Town01.net.xml"/>
 		<route-files value="cavise_demo_town01.xml"/>
-		<additional-files value="../maps/Town01.poly.xml"/>
+		<additional-files value="../maps/Town01/Town01.poly.xml"/>
 	</input>
 	<time>
 		<step-length value="0.1"/>

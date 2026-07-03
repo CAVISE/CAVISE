@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <configuration>
     <input>
-        <net-file value="../maps/Town04.net.xml"/>
+        <net-file value="../maps/Town04/Town04.net.xml"/>
         <route-files value="cooperative_intersection.rou.xml" />
     </input>
     <time>

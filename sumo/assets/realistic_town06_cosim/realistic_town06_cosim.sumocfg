@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <configuration>
 	<input>
-		<net-file value="../maps/Town06.net.xml"/>
+		<net-file value="../maps/Town06/Town06.net.xml"/>
 		<route-files value="realistic_town06_cosim.rou.xml"/>
 		<additional-files value="realistic_town06_cosim.poly.xml"/>
 	</input>
