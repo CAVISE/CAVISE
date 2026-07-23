@@ -51,9 +51,11 @@ services:
     build:
       context: ${CAVISE_ROOT}
       dockerfile: ${PATH_TO_OPENCDA}/Dockerfile
+      target: ${OPENCDA_BUILD_TARGET:-opencda}
       args:
         UID: 1000  # Example: use your actual UID from `echo $UID`
-    image: opencda:local
+        CUDA_ARCHITECTURES: "${CUDA_ARCHITECTURES:-86}"
+    image: opencda:${OPENCDA_IMAGE_TAG:-local}
     container_name: opencda
     command: ["sh", "-c", "sleep infinity"]
     networks:
@@ -69,7 +71,6 @@ services:
             - capabilities: [gpu]
               driver: nvidia
     volumes:
-      - ${CAVISE_ROOT}/cavise/messages:/home/opencda/cavise/messages
       - ${PATH_TO_OPENCDA}:/home/opencda/cavise/opencda
       - ${PATH_TO_SUMO}/assets:/home/opencda/cavise/opencda/opencda/sumo-assets
       - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d

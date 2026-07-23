@@ -32,36 +32,112 @@ run_compose() {
     fi
 }
 
+resolve_opencda_target() {
+    local selected_target=""
+    local service
+    local -a resolved_services=()
+    local -A seen_services=()
+
+    for service in $services; do
+        case "$service" in
+          opencda|opencda-minimal|opencda-protobuf|opencda-cuda)
+            if [ -n "$selected_target" ] && [ "$selected_target" != "$service" ]; then
+                echo "Error: multiple OpenCDA build targets requested: $selected_target and $service" >&2
+                exit 1
+            fi
+            selected_target="$service"
+            service="opencda"
+            ;;
+        esac
+
+        if [ -z "${seen_services[$service]+set}" ]; then
+            resolved_services+=("$service")
+            seen_services["$service"]=1
+        fi
+    done
+
+    OPENCDA_BUILD_TARGET="${selected_target:-opencda}"
+    case "$OPENCDA_BUILD_TARGET" in
+      opencda)
+        OPENCDA_IMAGE_TAG="local"
+        ;;
+      opencda-minimal)
+        OPENCDA_IMAGE_TAG="minimal"
+        ;;
+      opencda-protobuf)
+        OPENCDA_IMAGE_TAG="protobuf"
+        ;;
+      opencda-cuda)
+        OPENCDA_IMAGE_TAG="cuda"
+        ;;
+    esac
+
+    export OPENCDA_BUILD_TARGET
+    export OPENCDA_IMAGE_TAG
+    services="${resolved_services[*]}"
+}
+
+resolve_opencda_target
+
+uses_opencda_service() {
+    [ -z "$services" ] || [[ " $services " == *" opencda "* ]]
+}
+
 case "$command" in
   build)
-    echo "Building container images..."
+    if uses_opencda_service; then
+        echo "Building container images (OpenCDA target: $OPENCDA_BUILD_TARGET)..."
+    else
+        echo "Building container images..."
+    fi
     run_compose build $services
     ;;
   up)
-    echo "Creating and starting containers..."
+    if uses_opencda_service; then
+        echo "Creating and starting containers (OpenCDA target: $OPENCDA_BUILD_TARGET)..."
+    else
+        echo "Creating and starting containers..."
+    fi
     run_compose "up -d" $services
     if echo "$services" | grep -qw "scenario-manager"; then
         xdg-open http://localhost 2>/dev/null || open http://localhost 2>/dev/null || start http://localhost
     fi
     ;;
   down)
-    echo "Stopping and removing containers..."
+    if uses_opencda_service; then
+        echo "Stopping and removing containers (OpenCDA target: $OPENCDA_BUILD_TARGET)..."
+    else
+        echo "Stopping and removing containers..."
+    fi
     run_compose down $services
     ;;
   start)
-    echo "Starting existing containers..."
+    if uses_opencda_service; then
+        echo "Starting existing containers (OpenCDA target: $OPENCDA_BUILD_TARGET)..."
+    else
+        echo "Starting existing containers..."
+    fi
     run_compose start $services
     ;;
   stop)
-    echo "Stopping running containers..."
+    if uses_opencda_service; then
+        echo "Stopping running containers (OpenCDA target: $OPENCDA_BUILD_TARGET)..."
+    else
+        echo "Stopping running containers..."
+    fi
     run_compose stop $services
     ;;
   restart)
-    echo "Restarting containers..."
+    if uses_opencda_service; then
+        echo "Restarting containers (OpenCDA target: $OPENCDA_BUILD_TARGET)..."
+    else
+        echo "Restarting containers..."
+    fi
     run_compose restart $services
     ;;
   *)
     echo "Usage: $0 {build|up|start|stop|down|restart} [services...]"
+    echo "OpenCDA targets: opencda, opencda-minimal, opencda-protobuf, opencda-cuda"
     exit 1
     ;;
 esac
