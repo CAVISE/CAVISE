@@ -1,3 +1,4 @@
+# hadolint global ignore=DL3066
 ARG CARLA_VERSION=0.9.16
 FROM carlasim/carla:${CARLA_VERSION}
 
