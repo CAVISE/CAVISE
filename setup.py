@@ -178,8 +178,9 @@ def main() -> None:
     CLI flags or interactive prompts.
 
     Resolves the base URL from the current repo's origin remote. Determines
-    which repos to process (default: all three). For each repo, uses the version
-    from the corresponding CLI flag if set; otherwise runs
+    which repositories to process (default: all supported repositories). For
+    each repository, uses the version from the corresponding CLI flag if set;
+    otherwise runs
     select_version_interactive to ask the user. Then calls clone_repo for each.
     Exits with code 1 if not in a Git repo, if origin is missing, or if clone
     fails.
