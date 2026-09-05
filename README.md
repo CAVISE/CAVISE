@@ -26,3 +26,25 @@ Compiling protobuf to source code files is part of the **Artery** compilation ro
 ## Info
 
 We also have a [Wiki](https://cavise.github.io/Documentation/index.html) that describes the architecture, simulator launch guide, Problems and Solutions, additional scripts, and more.
+
+## Repository setup
+
+Install the setup dependencies and clone all simulator repositories:
+
+```bash
+python3 -m pip install -r requirements.txt
+./setup.py
+```
+
+OpenCOOD can also be cloned independently or together with OpenCDA. Pass a
+branch or tag to avoid the interactive version prompt:
+
+```bash
+./setup.py opencood
+./setup.py opencood --opencood-version main
+./setup.py opencda opencood --opencda-version main --opencood-version main
+```
+
+The short version options are `-o` for OpenCDA and `-O` for OpenCOOD. The
+`models` repository is not cloned by setup: OpenCDA downloads only the model or
+AdvCP bundle requested by a simulation.

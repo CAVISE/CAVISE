@@ -16,7 +16,7 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
-ALLOWED_REPOS = {"opencda", "sumo", "artery", "scenario-manager"}
+ALLOWED_REPOS = {"opencda", "opencood", "sumo", "artery", "scenario-manager"}
 
 
 def get_available_versions(repo_url: str) -> List[Tuple[Literal["tag", "branch"], str]]:
@@ -118,7 +118,7 @@ def parse_args() -> argparse.Namespace:
     """
     Parses command-line arguments for the setup script.
 
-    Defines optional version flags for opencda, artery, and scenario-manager
+    Defines optional version flags for opencda, opencood, sumo, artery, and scenario-manager
     and optional positional arguments for which repos to clone. Returns the
     parsed namespace from argparse.
     """
@@ -128,6 +128,12 @@ def parse_args() -> argparse.Namespace:
         "--opencda-version",
         type=str,
         help="Version (branch or tag) for opencda. Default: main",
+    )
+    parser.add_argument(
+        "-O",
+        "--opencood-version",
+        type=str,
+        help="Version (branch or tag) for opencood. Default: main",
     )
     parser.add_argument(
         "-S",
@@ -150,7 +156,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "repos",
         nargs="*",
-        help="Repos for cloning (`opencda`, `sumo`, `artery`, `scenario-manager`). Default: all",
+        help="Repos for cloning (`opencda`, `opencood`, `sumo`, `artery`, `scenario-manager`). Default: all",
     )
 
     args = parser.parse_args()
@@ -168,8 +174,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     """
-    Entry point: clones opencda, artery, and/or scenario-manager using versions
-    from CLI flags or interactive prompts.
+    Entry point: clones the requested CAVISE repositories using versions from
+    CLI flags or interactive prompts.
 
     Resolves the base URL from the current repo's origin remote. Determines
     which repos to process (default: all three). For each repo, uses the version
@@ -194,13 +200,15 @@ def main() -> None:
         logger.exception("Error determining repo base URL")
         sys.exit(1)
 
-    repos = args.repos if args.repos else ["opencda", "sumo", "artery", "scenario-manager"]
+    repos = args.repos if args.repos else ["opencda", "opencood", "sumo", "artery", "scenario-manager"]
     logger.info(f"Repositories to process: {repos}")
 
     for repo_name in repos:
         match repo_name:
             case "opencda":
                 version = args.opencda_version
+            case "opencood":
+                version = args.opencood_version
             case "sumo":
                 version = args.sumo_version
             case "artery":
