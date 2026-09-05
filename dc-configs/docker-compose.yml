@@ -72,6 +72,8 @@ services:
               driver: nvidia
     volumes:
       - ${PATH_TO_OPENCDA}:/home/opencda/cavise/opencda
+      - ${PATH_TO_OPENCOOD}:/home/opencda/cavise/opencood
+      - ${PATH_TO_MODELS}:/home/opencda/cavise/models
       - ${PATH_TO_SUMO}/assets:/home/opencda/cavise/opencda/opencda/sumo-assets
       - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
       - /tmp/.X11-unix:/tmp/.X11-unix

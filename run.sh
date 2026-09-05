@@ -40,7 +40,7 @@ resolve_opencda_target() {
 
     for service in $services; do
         case "$service" in
-          opencda|opencda-minimal|opencda-protobuf|opencda-cuda)
+          opencda|opencda-minimal|opencda-protobuf|opencda-coperception|opencda-cuda)
             if [ -n "$selected_target" ] && [ "$selected_target" != "$service" ]; then
                 echo "Error: multiple OpenCDA build targets requested: $selected_target and $service" >&2
                 exit 1
@@ -67,6 +67,9 @@ resolve_opencda_target() {
       opencda-protobuf)
         OPENCDA_IMAGE_TAG="protobuf"
         ;;
+      opencda-coperception)
+        OPENCDA_IMAGE_TAG="coperception"
+        ;;
       opencda-cuda)
         OPENCDA_IMAGE_TAG="cuda"
         ;;
@@ -83,6 +86,15 @@ uses_opencda_service() {
     [ -z "$services" ] || [[ " $services " == *" opencda "* ]]
 }
 
+prepare_models_directory() {
+    if uses_opencda_service; then
+        if ! mkdir -p "$PATH_TO_MODELS"; then
+            echo "Error: cannot create models directory: $PATH_TO_MODELS" >&2
+            exit 1
+        fi
+    fi
+}
+
 case "$command" in
   build)
     if uses_opencda_service; then
@@ -93,6 +105,7 @@ case "$command" in
     run_compose build $services
     ;;
   up)
+    prepare_models_directory
     if uses_opencda_service; then
         echo "Creating and starting containers (OpenCDA target: $OPENCDA_BUILD_TARGET)..."
     else
@@ -137,7 +150,7 @@ case "$command" in
     ;;
   *)
     echo "Usage: $0 {build|up|start|stop|down|restart} [services...]"
-    echo "OpenCDA targets: opencda, opencda-minimal, opencda-protobuf, opencda-cuda"
+    echo "OpenCDA targets: opencda, opencda-minimal, opencda-protobuf, opencda-coperception, opencda-cuda"
     exit 1
     ;;
 esac
