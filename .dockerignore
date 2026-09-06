@@ -30,3 +30,12 @@ artery/.git
 
 # Git data
 opencda/.git
+opencood/.git
+
+# Python caches and local build output
+opencood/**/__pycache__/
+opencood/.ruff_cache/
+opencood/build/
+
+# Runtime-only model repository
+models/

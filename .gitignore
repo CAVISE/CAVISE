@@ -162,6 +162,9 @@ ready*
 *.tar*
 
 opencda
+opencood
+models
+/.models.lock
 artery
 scenario-manager
 sumo
