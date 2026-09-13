@@ -5,10 +5,10 @@
 </p>
 
 <p align="center">
-  <a href="https://cavise.github.io/Documentation/">Wiki &amp; documentation</a> ·
-  <a href="#quick-start">Quick start</a> ·
-  <a href="CONTRIBUTING.md">Contributing</a> ·
-  <a href="https://github.com/CAVISE/CAVISE/issues">Report an issue</a>
+  <a href="https://cavise.github.io/Documentation/"><img alt="Wiki &amp; documentation" src="https://img.shields.io/badge/Wiki-documentation-9BFFCE?style=for-the-badge&amp;logo=readthedocs&amp;logoColor=D9E0EE&amp;labelColor=1E202B" /></a>
+  <a href="#quick-start"><img alt="Quick start" src="https://img.shields.io/badge/Quick-start-9BFFCE?style=for-the-badge&amp;logo=readthedocs&amp;logoColor=D9E0EE&amp;labelColor=1E202B" /></a>
+  <a href="CONTRIBUTING.md"><img alt="Contributing" src="https://img.shields.io/badge/Contributing-guide-9BFFCE?style=for-the-badge&amp;logo=github&amp;logoColor=D9E0EE&amp;labelColor=1E202B" /></a>
+  <a href="https://github.com/CAVISE/CAVISE/issues"><img alt="Report an issue" src="https://img.shields.io/badge/Report-an%20issue-9BFFCE?style=for-the-badge&amp;logo=github&amp;logoColor=D9E0EE&amp;labelColor=1E202B" /></a>
 </p>
 
 CAVISE brings driving, traffic, network simulation and cooperative perception
@@ -27,10 +27,6 @@ The simulation code lives in the individual component repositories.
 - Run cooperative perception with OpenCOOD models.
 - Evaluate attacks against cooperative perception with AdvCP.
 - Record simulation data, visualize predictions and inspect evaluation results.
-
-<p align="center">
-  <img src="docs/images/cooperative-perception.png" alt="Cooperative perception in Town06, showing a LiDAR point cloud and 3D bounding boxes" width="100%" />
-</p>
 
 ## Components
 
