@@ -5,6 +5,8 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/CAVISE/CAVISE/releases"><img alt="Latest Release" src="https://img.shields.io/github/v/release/CAVISE/CAVISE?style=for-the-badge&amp;color=9BFFCE&amp;logo=github&amp;logoColor=D9E0EE&amp;labelColor=1E202B" /></a>
+  <a href="https://github.com/CAVISE/CAVISE/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/CAVISE/CAVISE?style=for-the-badge&amp;color=9BFFCE&amp;logo=github&amp;logoColor=D9E0EE&amp;labelColor=1E202B" /></a>
   <a href="https://cavise.github.io/Documentation/"><img alt="Wiki &amp; documentation" src="https://img.shields.io/badge/Wiki-documentation-9BFFCE?style=for-the-badge&amp;logo=readthedocs&amp;logoColor=D9E0EE&amp;labelColor=1E202B" /></a>
   <a href="#quick-start"><img alt="Quick start" src="https://img.shields.io/badge/Quick-start-9BFFCE?style=for-the-badge&amp;logo=readthedocs&amp;logoColor=D9E0EE&amp;labelColor=1E202B" /></a>
   <a href="CONTRIBUTING.md"><img alt="Contributing" src="https://img.shields.io/badge/Contributing-guide-9BFFCE?style=for-the-badge&amp;logo=github&amp;logoColor=D9E0EE&amp;labelColor=1E202B" /></a>
