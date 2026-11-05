@@ -2,27 +2,22 @@ services:
   artery:
     build:
       context: ${CAVISE_ROOT}/artery
-      dockerfile: ${PATH_TO_ARTERY}/.devcontainer/debian/Dockerfile
-      target: cached-build
+      dockerfile: ${PATH_TO_ARTERY}/Dockerfile
+      target: runtime
+      args:
+        USER_UID: ${ARTERY_UID:-1000}
+        USER_GID: ${ARTERY_GID:-1000}
+        SUMO_TAG: v1_24_0
     image: artery:local
     container_name: artery
-    command: ["sh", "-c", "sleep infinity"]
+    command: ["sleep", "infinity"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
     networks:
       highly_accurate_network:
         ipv4_address: 8.8.0.12
-    environment:
-      - DISPLAY=${DISPLAY}
-    privileged: true
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - capabilities: [gpu]
-              driver: nvidia
     volumes:
       - ${PATH_TO_ARTERY}:/workspaces/artery/
-      - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
-      - /tmp/.X11-unix:/tmp/.X11-unix
 
   carla:
     build:
