@@ -6,6 +6,10 @@ else
     echo "Warning: paths.conf not found!"
 fi
 
+# Match Artery bind-mounted workspace ownership, including invocation through sudo.
+export ARTERY_UID="${ARTERY_UID:-${SUDO_UID:-$(id -u)}}"
+export ARTERY_GID="${ARTERY_GID:-${SUDO_GID:-$(id -g)}}"
+
 command="$1"
 shift
 
