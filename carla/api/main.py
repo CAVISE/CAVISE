@@ -1,14 +1,20 @@
 import os
 import asyncio
+import logging
+from collections.abc import Awaitable, Callable
 import signal
 from enum import StrEnum
 from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import Request
+from fastapi.responses import JSONResponse, Response
 
 
 class QualityLevel(StrEnum):
     EPIC = "Epic"
     LOW = "Low"
 
+
+logger = logging.getLogger("carla.api")
 
 API_VERSION = "v1"
 
@@ -39,6 +45,21 @@ async def _wait_for_group(current: asyncio.subprocess.Process) -> None:
         await asyncio.sleep(0.1)
 
 
+@app.middleware("http")
+async def log_requests(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+    """Report expected rejections and translate operating-system failures."""
+    try:
+        response = await call_next(request)
+    except OSError:
+        logger.exception("%s %s failed: pid=%s", request.method, request.url.path, process.pid if process else None)
+        return JSONResponse(status_code=500, content={"detail": "CARLA operation failed"})
+    if response.status_code >= 400:
+        logger.warning("%s %s rejected: HTTP %s", request.method, request.url.path, response.status_code)
+    elif request.url.path.endswith("/status"):
+        logger.debug("Status requested: HTTP %s", response.status_code)
+    return response
+
+
 @router.get("/status")
 async def status() -> dict[str, str | int | None]:
     if process is None:
@@ -54,6 +75,7 @@ async def status() -> dict[str, str | int | None]:
 @router.post("/run")
 async def run(render_off_screen: bool = True, quality_level: QualityLevel = QualityLevel.LOW) -> dict[str, str]:
     global process, stop_requested
+    logger.info("Run requested: render_off_screen=%s quality_level=%s", render_off_screen, quality_level)
     async with process_lock:
         if process is None or (process.returncode is not None and not _group_exists(process.pid)):
             cmd = [
@@ -67,14 +89,17 @@ async def run(render_off_screen: bool = True, quality_level: QualityLevel = Qual
                 start_new_session=True,
             )
             stop_requested = False
+            logger.info("Process started: pid=%s", process.pid)
             return {"message": f"Start process {process}"}
         else:
+            logger.info("Process already running: pid=%s", process.pid)
             return {"message": f"Process {process} already in progress"}
 
 
 @router.post("/stop")
 async def stop() -> dict[str, str | int | None]:
     global process, stop_requested, last_pid, last_returncode
+    logger.info("Stop requested")
     async with process_lock:
         if process is None:
             return {"state": "IDLE" if last_pid is None else "STOPPED", "pid": last_pid, "returncode": last_returncode}
@@ -84,18 +109,19 @@ async def stop() -> dict[str, str | int | None]:
             try:
                 os.killpg(current.pid, signal.SIGINT)
             except ProcessLookupError:
-                # An already exited process group needs no further signal.
-                pass
+                logger.info("Process group already exited: pid=%s", current.pid)
             stop_requested = True
 
         try:
             await asyncio.wait_for(_wait_for_group(current), timeout=30)
         except asyncio.TimeoutError:
+            logger.error("Stop timed out: pid=%s", process.pid)
             raise HTTPException(
                 status_code=504,
                 detail="CARLA did not stop within 30 seconds",
             )
 
+        logger.info("Process stopped: pid=%s returncode=%s", current.pid, current.returncode)
         last_pid = current.pid
         last_returncode = current.returncode
         process = None
