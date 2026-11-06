@@ -5,8 +5,8 @@ services:
       dockerfile: ${PATH_TO_ARTERY}/.devcontainer/debian/Dockerfile
       target: cached-build
       args:
-        USER_UID: ${uid:-1000}
-        USER_GID: ${gid:-1000}
+        uid: ${uid:-1000}
+        gid: ${gid:-1000}
     image: artery:local
     container_name: artery
     command: ["sh", "-c", "sleep infinity"]
@@ -57,8 +57,8 @@ services:
       dockerfile: ${PATH_TO_OPENCDA}/Dockerfile
       target: ${OPENCDA_BUILD_TARGET:-opencda}
       args:
-        UID: ${uid:-1000}
-        GID: ${gid:-1000}
+        uid: ${uid:-1000}
+        gid: ${gid:-1000}
         CUDA_ARCHITECTURES: "${CUDA_ARCHITECTURES:-86}"
     image: opencda:${OPENCDA_IMAGE_TAG:-local}
     container_name: opencda
