@@ -44,6 +44,7 @@ services:
             - capabilities: [gpu]
               driver: nvidia
     volumes:
+      - ${PATH_TO_CARLA}/api:/workspace/api
       - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
       - /tmp/.X11-unix:/tmp/.X11-unix
 
@@ -99,6 +100,7 @@ services:
               driver: nvidia
     volumes:
       - ${PATH_TO_SUMO}/assets:/home/sumo/assets
+      - ${PATH_TO_SUMO}/api:/home/sumo/api
       - /tmp/.X11-unix:/tmp/.X11-unix
 
 networks:

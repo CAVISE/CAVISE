@@ -97,6 +97,10 @@ docker exec -it carla bash
 ./CarlaUE4.sh -quality-level=Low
 ```
 
+Alternatively, use the [component APIs](#component-apis).
+The current Compose services idle until you manually start an API or simulator.
+Use one launch method at a time. Interactive shell access remains available.
+
 In another host terminal, enter OpenCDA and run the scenario after CARLA is ready:
 
 ```bash
@@ -184,3 +188,21 @@ cooperative perception, AdvCP attacks, model assets and troubleshooting.
 
 For development setup, validation and pull requests, see
 [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Component APIs
+
+Enter the required container and start its API:
+
+```bash
+# CARLA
+docker exec -it carla bash
+python -m api
+
+# SUMO
+docker exec -it sumo bash
+python -m api
+
+# OpenCDA
+docker exec -it opencda bash
+python -m api
+```
