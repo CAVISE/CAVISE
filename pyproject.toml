@@ -88,6 +88,7 @@ pretty = true
 exclude_gitignore = true
 exclude = [
     "docs",
+    "^Documentation/",
     "test"
 ]
 

@@ -59,3 +59,6 @@ RUN pip install --no-cache-dir --upgrade pip==26.0.1 && \
     pygame==2.6.1 \
     numpy==1.26.4 \
     carla==${CARLA_VERSION}
+
+COPY --chown=carla:carla carla/api/requirements.txt /tmp/carla-api-requirements.txt
+RUN pip install --no-cache-dir --break-system-packages -r /tmp/carla-api-requirements.txt
