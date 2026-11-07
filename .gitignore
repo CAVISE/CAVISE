@@ -168,3 +168,8 @@ models
 artery
 scenario-manager
 sumo
+
+# Private Runner and adapter state
+.runner-state/
+.adapter-state/
+.runner-secrets/

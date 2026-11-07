@@ -76,6 +76,11 @@ Run all `./run.sh` commands from the CAVISE repository root.
 
 ### 2. Start CARLA and OpenCDA
 
+Before starting containers, prepare the private state directories described in
+[Prepared Runner API startup](#prepared-runner-api-startup), including ownership
+for each container user. Registration variables can be omitted for an unbound
+node; its external Runner endpoints remain unavailable until enrollment.
+
 Choose the instructions for your operating system.
 Starting the containers prepares the environment. Start CARLA separately as
 shown below, then leave its terminal running while you launch the scenario.
@@ -98,7 +103,7 @@ docker exec -it carla bash
 ```
 
 Alternatively, use the [component APIs](#component-apis).
-The current Compose services idle until you manually start an API or simulator.
+The Compose services start their APIs automatically.
 Use one launch method at a time. Interactive shell access remains available.
 
 In another host terminal, enter OpenCDA and run the scenario after CARLA is ready:
@@ -191,7 +196,8 @@ For development setup, validation and pull requests, see
 
 ## Component APIs
 
-Enter the required container and start its API:
+The APIs start with their Compose services. For standalone development, run the
+following only when the corresponding API is not already running:
 
 ```bash
 # CARLA
@@ -206,3 +212,39 @@ python -m api
 docker exec -it opencda bash
 python -m api
 ```
+
+### Prepared Runner API startup
+
+The existing `dc-configs/docker-compose.yml` starts OpenCDA, CARLA and SUMO APIs
+automatically. See
+[OpenCDA Runner protocol](opencda/api/README.md) and
+[CARLA recovery](carla/api/README.md). All three services must be available,
+including SUMO for cleanup verification of the prepared node.
+
+On the Linux host, create private persistent directories before starting services:
+
+```sh
+mkdir -p .runner-state/{opencda,carla,sumo} .runner-secrets
+chmod 700 .runner-state .runner-state/* .runner-secrets
+```
+
+Set ownership of each component directory to that container's runtime UID/GID
+(`id` inside the corresponding image); do not let Docker create root-owned bind
+mount directories. Write the Manager-issued registration token to
+`.runner-secrets/token` with mode 0600 and an owner readable by OpenCDA.
+Set `CAVISE_REGISTRATION_TOKEN_FILE=/run/secrets/runner/token`.
+Export `CAVISE_REGISTRATION_ID`, `CAVISE_MANAGER_URL`, and
+`CAVISE_RUNNER_API_URL` using the UUID and URLs for this deployment. Keep the
+normal base Compose environment (`CAVISE_ROOT`, `PATH_TO_*`, display and image
+target settings) configured as for `run.sh`, then run from the workspace root:
+
+```sh
+docker compose -f dc-configs/docker-compose.yml up -d carla sumo opencda
+```
+
+Only OpenCDA's API is published, on host loopback port 8081 by default. For a
+remote Manager, configure a host HTTPS reverse proxy to that port and advertise
+its direct URL. Manager must reach that URL and the container must reach Manager;
+`localhost` inside OpenCDA is not the host. Internal adapter ports are not
+published. Simulation ports and GPU/display access remain deployment concerns
+separate from authenticated HTTP control. Restrict access to the Docker network.
