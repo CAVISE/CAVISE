@@ -12,7 +12,7 @@ from fastapi.testclient import TestClient
 
 @pytest.fixture
 def api(monkeypatch, caplog):
-    spec = importlib.util.spec_from_file_location("component_api", Path(__file__).with_name("main.py"))
+    spec = importlib.util.spec_from_file_location("component_api", Path(__file__).resolve().parents[1] / "main.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     caplog.set_level(logging.DEBUG, logger=module.logger.name)
@@ -23,8 +23,7 @@ def api(monkeypatch, caplog):
 
 @pytest.fixture
 def client(api):
-    with TestClient(api.app) as client:
-        yield client
+    yield TestClient(api.app)
 
 
 @pytest.fixture
@@ -84,7 +83,7 @@ def test_timeout_can_retry(api, client, process, monkeypatch, caplog):
     assert api.process is process and api.stop_requested
     assert "Stop timed out" in caplog.text
     assert client.post("/v1/stop").status_code == 200
-    assert process.send_signal.call_count == 1
+    assert process.send_signal.call_count == 2
 
 
 def test_start_and_duplicate(api, client, monkeypatch, caplog):
@@ -110,3 +109,29 @@ def test_start_failure_can_retry(api, client, monkeypatch, caplog):
     spawn.side_effect = None
     spawn.return_value = Mock(pid=12345, returncode=None)
     assert client.post("/v1/run?scenario=demo").status_code in (200, 202)
+
+
+def test_shutdown_stops_tracked_process(api, process):
+    with TestClient(api.app):
+        pass
+    assert api.process is None
+    process.wait.assert_awaited()
+    process.send_signal.assert_called_once()
+
+
+def test_stop_kills_unresponsive_group(api, process, monkeypatch):
+    calls = 0
+
+    async def wait_for(awaitable, timeout):
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            awaitable.close()
+            raise asyncio.TimeoutError()
+        return await awaitable
+
+    monkeypatch.setattr(api.asyncio, "wait_for", wait_for)
+    result = asyncio.run(api.stop())
+    assert result["state"] == "STOPPED"
+    assert api.process is None
+    assert [call.args for call in process.send_signal.call_args_list] == [(process.pid, api.signal.SIGINT), (process.pid, api.signal.SIGKILL)]

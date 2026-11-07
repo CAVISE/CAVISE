@@ -1,7 +1,8 @@
 import os
+from contextlib import asynccontextmanager
 import asyncio
 import logging
-from collections.abc import Awaitable, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable
 import signal
 from enum import StrEnum
 from fastapi import FastAPI, APIRouter, HTTPException
@@ -18,7 +19,26 @@ logger = logging.getLogger("carla.api")
 
 API_VERSION = "v1"
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    try:
+        yield
+    finally:
+        if process is not None:
+            current = process
+            try:
+                await stop()
+            except HTTPException:
+                logger.warning("Forcing process shutdown: pid=%s", current.pid)
+                try:
+                    os.killpg(current.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    logger.info("Process already exited: pid=%s", current.pid)
+                await current.wait()
+
+
+app = FastAPI(lifespan=lifespan)
 router = APIRouter(prefix=f"/{API_VERSION}")
 process = None
 process_lock = asyncio.Lock()
@@ -115,11 +135,19 @@ async def stop() -> dict[str, str | int | None]:
         try:
             await asyncio.wait_for(_wait_for_group(current), timeout=30)
         except asyncio.TimeoutError:
-            logger.error("Stop timed out: pid=%s", process.pid)
-            raise HTTPException(
-                status_code=504,
-                detail="CARLA did not stop within 30 seconds",
-            )
+            logger.warning("Graceful stop timed out; killing process group: pid=%s", current.pid)
+            try:
+                os.killpg(current.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                logger.info("Process group already exited: pid=%s", current.pid)
+            try:
+                await asyncio.wait_for(_wait_for_group(current), timeout=5)
+            except asyncio.TimeoutError:
+                logger.error("Stop timed out: pid=%s", current.pid)
+                raise HTTPException(
+                    status_code=504,
+                    detail="CARLA process group did not exit after SIGKILL",
+                )
 
         logger.info("Process stopped: pid=%s returncode=%s", current.pid, current.returncode)
         last_pid = current.pid
