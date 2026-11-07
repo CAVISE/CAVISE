@@ -1,3 +1,5 @@
+from pathlib import Path
+from api.persistence import Occupancy
 import os
 from contextlib import asynccontextmanager
 import asyncio
@@ -22,6 +24,8 @@ API_VERSION = "v1"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    global occupancy
+    occupancy = Occupancy(Path(os.environ.get("CAVISE_ADAPTER_STATE_DIR", ".adapter-state")))
     try:
         yield
     finally:
@@ -38,7 +42,23 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
                 await current.wait()
 
 
-app = FastAPI(lifespan=lifespan)
+occupancy: Occupancy | None = None
+
+
+@asynccontextmanager
+async def application_lifespan(app: FastAPI) -> AsyncIterator[None]:
+    """Close storage even if process cleanup fails, retaining durable uncertainty."""
+    global occupancy
+    try:
+        async with lifespan(app):
+            yield
+    finally:
+        if occupancy is not None:
+            occupancy.close()
+            occupancy = None
+
+
+app = FastAPI(lifespan=application_lifespan)
 router = APIRouter(prefix=f"/{API_VERSION}")
 process = None
 process_lock = asyncio.Lock()
@@ -82,6 +102,8 @@ async def log_requests(request: Request, call_next: Callable[[Request], Awaitabl
 
 @router.get("/status")
 async def status() -> dict[str, str | int | None]:
+    if occupancy is not None and occupancy.uncertain:
+        return {"state": "UNKNOWN", "pid": None, "returncode": None}
     if process is None:
         state = "IDLE" if last_pid is None else "STOPPED"
         return {"state": state, "pid": last_pid, "returncode": last_returncode}
@@ -97,17 +119,30 @@ async def run(render_off_screen: bool = True, quality_level: QualityLevel = Qual
     global process, stop_requested
     logger.info("Run requested: render_off_screen=%s quality_level=%s", render_off_screen, quality_level)
     async with process_lock:
+        if occupancy is not None and occupancy.uncertain:
+            raise HTTPException(409, "Previous execution ownership is unknown; verify container cleanup")
         if process is None or (process.returncode is not None and not _group_exists(process.pid)):
+            if occupancy is not None:
+                occupancy.clear()
             cmd = [
                 "/workspace/CarlaUE4.sh",
                 f"--quality-level={quality_level}",
             ]
             if render_off_screen:
                 cmd.append("-RenderOffScreen")
-            process = await asyncio.create_subprocess_exec(
-                *cmd,
-                start_new_session=True,
-            )
+            if occupancy is not None:
+                occupancy.reserve()
+            try:
+                process = await asyncio.create_subprocess_exec(
+                    *cmd,
+                    start_new_session=True,
+                )
+            except OSError:
+                if occupancy is not None:
+                    occupancy.clear()
+                raise
+            if occupancy is not None:
+                occupancy.started(process.pid)
             stop_requested = False
             logger.info("Process started: pid=%s", process.pid)
             return {"message": f"Start process {process}"}
@@ -119,6 +154,8 @@ async def run(render_off_screen: bool = True, quality_level: QualityLevel = Qual
 @router.post("/stop")
 async def stop() -> dict[str, str | int | None]:
     global process, stop_requested, last_pid, last_returncode
+    if occupancy is not None and occupancy.uncertain:
+        raise HTTPException(409, "Cannot signal a process whose ownership is unknown")
     logger.info("Stop requested")
     async with process_lock:
         if process is None:
@@ -152,6 +189,8 @@ async def stop() -> dict[str, str | int | None]:
         logger.info("Process stopped: pid=%s returncode=%s", current.pid, current.returncode)
         last_pid = current.pid
         last_returncode = current.returncode
+        if occupancy is not None:
+            occupancy.clear()
         process = None
         stop_requested = False
         return {"state": "IDLE" if last_pid is None else "STOPPED", "pid": last_pid, "returncode": last_returncode}

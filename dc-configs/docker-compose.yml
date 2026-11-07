@@ -35,12 +35,13 @@ services:
       dockerfile: ${PATH_TO_CARLA}/Dockerfile
     image: carla:local
     container_name: carla
-    command: ["sh", "-c", "sleep infinity"]
+    command: ["python", "-m", "api"]
     networks:
       highly_accurate_network:
         ipv4_address: 8.8.0.11
     environment:
       - DISPLAY=${DISPLAY}
+      - CAVISE_ADAPTER_STATE_DIR=/home/carla/.adapter-state
     privileged: true
     deploy:
       resources:
@@ -49,11 +50,13 @@ services:
             - capabilities: [gpu]
               driver: nvidia
     volumes:
+      - ${CAVISE_ROOT}/.runner-state/carla:/home/carla/.adapter-state
       - ${PATH_TO_CARLA}/api:/workspace/api
       - /usr/share/vulkan/icd.d:/usr/share/vulkan/icd.d
       - /tmp/.X11-unix:/tmp/.X11-unix
 
   opencda:
+    init: true
     build:
       context: ${CAVISE_ROOT}
       dockerfile: ${PATH_TO_OPENCDA}/Dockerfile
@@ -64,12 +67,19 @@ services:
         CUDA_ARCHITECTURES: "${CUDA_ARCHITECTURES:-86}"
     image: opencda:${OPENCDA_IMAGE_TAG:-local}
     container_name: opencda
-    command: ["sh", "-c", "sleep infinity"]
+    command: ["python", "-m", "api"]
     networks:
       highly_accurate_network:
         ipv4_address: 8.8.0.10
     environment:
       - DISPLAY=${DISPLAY}
+      - CAVISE_RUNNER_STATE_DIR=/home/opencda/.runner-state
+      - CAVISE_MANAGER_URL=${CAVISE_MANAGER_URL:-}
+      - CAVISE_REGISTRATION_ID=${CAVISE_REGISTRATION_ID:-}
+      - CAVISE_RUNNER_API_URL=${CAVISE_RUNNER_API_URL:-}
+      - CAVISE_REGISTRATION_TOKEN_FILE=${CAVISE_REGISTRATION_TOKEN_FILE:-}
+    ports:
+      - "127.0.0.1:${CAVISE_RUNNER_PORT:-8081}:8080"
     privileged: true
     deploy:
       resources:
@@ -78,6 +88,8 @@ services:
             - capabilities: [gpu]
               driver: nvidia
     volumes:
+      - ${CAVISE_ROOT}/.runner-state/opencda:/home/opencda/.runner-state
+      - ${CAVISE_ROOT}/.runner-secrets:/run/secrets/runner:ro
       - ${PATH_TO_OPENCDA}:/home/opencda/cavise/opencda
       - ${PATH_TO_OPENCOOD}:/home/opencda/cavise/opencood
       - ${PATH_TO_MODELS}:/home/opencda/cavise/models
@@ -91,12 +103,13 @@ services:
       dockerfile: ${PATH_TO_SUMO}/Dockerfile
     image: sumo:local
     container_name: sumo
-    command: ["sh", "-c", "sleep infinity"]
+    command: ["python", "-m", "api"]
     networks:
       highly_accurate_network:
         ipv4_address: 8.8.0.7
     environment:
       - DISPLAY=${DISPLAY}
+      - CAVISE_ADAPTER_STATE_DIR=/home/sumo/.adapter-state
     privileged: true
     deploy:
       resources:
@@ -105,6 +118,7 @@ services:
             - capabilities: [gpu]
               driver: nvidia
     volumes:
+      - ${CAVISE_ROOT}/.runner-state/sumo:/home/sumo/.adapter-state
       - ${PATH_TO_SUMO}/assets:/home/sumo/assets
       - ${PATH_TO_SUMO}/api:/home/sumo/api
       - /tmp/.X11-unix:/tmp/.X11-unix

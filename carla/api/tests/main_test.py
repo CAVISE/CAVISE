@@ -11,7 +11,8 @@ from fastapi.testclient import TestClient
 
 
 @pytest.fixture
-def api(monkeypatch, caplog):
+def api(monkeypatch, caplog, tmp_path):
+    monkeypatch.setenv("CAVISE_ADAPTER_STATE_DIR", str(tmp_path))
     spec = importlib.util.spec_from_file_location("component_api", Path(__file__).resolve().parents[1] / "main.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
