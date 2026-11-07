@@ -6,6 +6,10 @@ else
     echo "Warning: paths.conf not found!"
 fi
 
+# Match bind-mounted workspace ownership, including invocation through sudo.
+export uid="${uid:-${SUDO_UID:-$(id -u)}}"
+export gid="${gid:-${SUDO_GID:-$(id -g)}}"
+
 command="$1"
 shift
 

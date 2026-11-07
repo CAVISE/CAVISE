@@ -4,6 +4,9 @@ services:
       context: ${CAVISE_ROOT}/artery
       dockerfile: ${PATH_TO_ARTERY}/.devcontainer/debian/Dockerfile
       target: cached-build
+      args:
+        uid: ${uid:-1000}
+        gid: ${gid:-1000}
     image: artery:local
     container_name: artery
     command: ["sh", "-c", "sleep infinity"]
@@ -12,7 +15,8 @@ services:
         ipv4_address: 8.8.0.12
     environment:
       - DISPLAY=${DISPLAY}
-    privileged: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
     deploy:
       resources:
         reservations:
@@ -53,7 +57,8 @@ services:
       dockerfile: ${PATH_TO_OPENCDA}/Dockerfile
       target: ${OPENCDA_BUILD_TARGET:-opencda}
       args:
-        UID: 1000  # Example: use your actual UID from `echo $UID`
+        uid: ${uid:-1000}
+        gid: ${gid:-1000}
         CUDA_ARCHITECTURES: "${CUDA_ARCHITECTURES:-86}"
     image: opencda:${OPENCDA_IMAGE_TAG:-local}
     container_name: opencda
