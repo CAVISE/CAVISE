@@ -11,7 +11,7 @@ from fastapi.responses import JSONResponse, Response
 
 
 class QualityLevel(StrEnum):
-    EPIC = "Epic"
+    EPIC = "Epic"  # noqa: DC06 - Accepted by FastAPI through the quality_level query parameter.
     LOW = "Low"
 
 
@@ -66,7 +66,7 @@ async def _wait_for_group(current: asyncio.subprocess.Process) -> None:
 
 
 @app.middleware("http")
-async def log_requests(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
+async def log_requests(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:  # noqa: DC02 - Registered middleware.
     """Report expected rejections and translate operating-system failures."""
     try:
         response = await call_next(request)
@@ -81,7 +81,7 @@ async def log_requests(request: Request, call_next: Callable[[Request], Awaitabl
 
 
 @router.get("/status")
-async def status() -> dict[str, str | int | None]:
+async def status() -> dict[str, str | int | None]:  # noqa: DC02 - Registered HTTP route.
     if process is None:
         state = "IDLE" if last_pid is None else "STOPPED"
         return {"state": state, "pid": last_pid, "returncode": last_returncode}
