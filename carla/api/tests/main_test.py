@@ -55,20 +55,20 @@ def test_stop_and_repeat(api, client, process, caplog):
 
 
 def test_disappeared_process(api, client, process, caplog):
-    process.send_signal.side_effect = ProcessLookupError()
+    process.send_signal.side_effect = ProcessLookupError()  # noqa: DC05 - Read by unittest.mock when the mock is called.
     assert client.post("/v1/stop").status_code == 200
     assert api.process is None
     assert "already exited" in caplog.text
 
 
 def test_signal_failure_can_retry(api, client, process, caplog):
-    process.send_signal.side_effect = PermissionError("private detail")
+    process.send_signal.side_effect = PermissionError("private detail")  # noqa: DC05 - Read by unittest.mock when the mock is called.
     response = client.post("/v1/stop")
     assert response.status_code == 500
     assert "private detail" not in response.text
     assert api.process is process and not api.stop_requested
     assert any(record.exc_info for record in caplog.records)
-    process.send_signal.side_effect = None
+    process.send_signal.side_effect = None  # noqa: DC05 - Read by unittest.mock when the mock is called.
     assert client.post("/v1/stop").status_code == 200
 
 
@@ -106,8 +106,8 @@ def test_start_failure_can_retry(api, client, monkeypatch, caplog):
     assert "private executable" not in response.text
     assert api.process is None
     assert any(record.exc_info for record in caplog.records)
-    spawn.side_effect = None
-    spawn.return_value = Mock(pid=12345, returncode=None)
+    spawn.side_effect = None  # noqa: DC05 - Read by unittest.mock when the mock is called.
+    spawn.return_value = Mock(pid=12345, returncode=None)  # noqa: DC05 - Read by unittest.mock when the mock is called.
     assert client.post("/v1/run?scenario=demo").status_code in (200, 202)
 
 
