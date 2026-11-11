@@ -11,6 +11,7 @@
   <a href="#quick-start"><img alt="Quick start" src="https://img.shields.io/badge/Quick-start-9BFFCE?style=for-the-badge&amp;logo=readthedocs&amp;logoColor=D9E0EE&amp;labelColor=1E202B" /></a>
   <a href="CONTRIBUTING.md"><img alt="Contributing" src="https://img.shields.io/badge/Contributing-guide-9BFFCE?style=for-the-badge&amp;logo=github&amp;logoColor=D9E0EE&amp;labelColor=1E202B" /></a>
   <a href="https://github.com/CAVISE/CAVISE/issues"><img alt="Report an issue" src="https://img.shields.io/badge/Report-an%20issue-9BFFCE?style=for-the-badge&amp;logo=github&amp;logoColor=D9E0EE&amp;labelColor=1E202B" /></a>
+  <a href="https://github.com/CAVISE/CAVISE/actions/workflows/pull_request.yml"><img alt="Checks on main" src="https://img.shields.io/github/actions/workflow/status/CAVISE/CAVISE/pull_request.yml?branch=main&amp;style=for-the-badge&amp;label=Checks&amp;logo=githubactions&amp;logoColor=D9E0EE&amp;labelColor=1E202B" /></a>
 </p>
 
 CAVISE brings driving, traffic, network simulation and cooperative perception
