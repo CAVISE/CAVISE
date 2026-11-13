@@ -39,3 +39,6 @@ opencood/build/
 
 # Runtime-only model repository
 models/
+
+# CARLA map archives are supplied only through the extended build context.
+carla/*/

@@ -86,8 +86,8 @@ shown below, then leave its terminal running while you launch the scenario.
 Build and start the containers:
 
 ```bash
-./run.sh build carla opencda-minimal
-./run.sh up carla opencda-minimal
+./run.sh build carla-extended opencda-minimal
+./run.sh up carla-extended opencda-minimal
 ```
 
 Enter the CARLA container and start the server:
@@ -146,7 +146,7 @@ and sensor data under `opencda/simulation_output/data_dumping/`.
 To stop the Linux containers, run this from the CAVISE root in a host terminal:
 
 ```bash
-./run.sh stop carla opencda-minimal
+./run.sh stop carla-extended opencda-minimal
 ```
 
 On Windows, stop CARLA in its PowerShell terminal and stop OpenCDA from WSL2:
@@ -154,6 +154,61 @@ On Windows, stop CARLA in its PowerShell terminal and stop OpenCDA from WSL2:
 ```bash
 ./run.sh stop opencda-minimal
 ```
+
+## Choose a CARLA image
+
+CARLA is packaged locally from the official Linux release archive. The build
+downloads `https://downloads.carlasim.com/Linux/CARLA_${CARLA_VERSION}.tar.gz`
+inside Docker; cloning CARLA or installing Unreal Engine on the host is unnecessary.
+Docker Compose 2.17 or newer and a BuildKit builder with named context support
+are required.
+
+| Target | Image with the default version | Included maps |
+| --- | --- | --- |
+| `carla` | `carla:0.9.16-default` | Maps included in the main release package. |
+| `carla-extended` | `carla:0.9.16-extended` | Main package plus the matching AdditionalMaps archive. |
+
+Both targets use the same `carla` container and retain Python 3.12, the CARLA
+Python client, NumPy and Pygame. Use `carla-extended` for the Town06 quick start.
+The containers still wait for a manual server launch as shown above.
+
+For an extended build, `run.sh` downloads
+`https://downloads.carlasim.com/Linux/AdditionalMaps_${CARLA_VERSION}.tar.gz`
+with host `curl` and checks it with `tar`. Install these tools before the first
+extended build. The archive is stored at
+`$PATH_TO_CARLA/$CARLA_VERSION/AdditionalMaps_${CARLA_VERSION}.tar.gz`, for example
+`carla/0.9.16/AdditionalMaps_0.9.16.tar.gz`, and reused on later builds. You can
+also place a downloaded archive there yourself. Downloads use a `.part` file
+and become reusable only after archive validation. An invalid existing archive
+causes an error; remove or replace it before rebuilding.
+
+Compose exposes `PATH_TO_CARLA` as a named build context. Only the extended
+stage mounts its selected version directory and runs the packaged
+`ImportAssets.sh`; only the extracted maps are added to the image. The archive
+stays on the host and is not needed
+to run a built image. Default builds and container lifecycle commands do not
+download additional maps.
+
+Run from the CAVISE root in a Linux host terminal. To select a release, export
+its version before both building and starting the selected target:
+
+```bash
+export CARLA_VERSION=0.9.16
+./run.sh build carla-extended opencda-minimal
+./run.sh up carla-extended opencda-minimal
+```
+
+`CARLA_VERSION` defaults to `0.9.16` and controls both archive URLs, the map
+directory, the Python client in the CARLA image and its image tag. Use the same
+version and target for build and up; assigning an environment variable to just
+one command does not persist it for the next command. Different versions get
+separate image tags, but the shared container name allows one CARLA container
+at a time.
+
+This recipe targets CARLA 0.9.16. Other releases require compatible runtime
+dependencies and Python wheels. OpenCDA separately pins `carla==0.9.16`; changing
+the server version does not update that client. CARLA 0.10.0 uses UE5 and needs
+separate validation of its launch script, maps and client compatibility.
 
 ## Choose an OpenCDA image
 

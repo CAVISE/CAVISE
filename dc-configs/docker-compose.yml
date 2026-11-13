@@ -30,9 +30,15 @@ services:
 
   carla:
     build:
-      context: ${CAVISE_ROOT}
-      dockerfile: ${PATH_TO_CARLA}/Dockerfile
-    image: carla:local
+      context: ${PATH_TO_CARLA}
+      dockerfile: Dockerfile
+      target: ${CARLA_BUILD_TARGET:-default}
+      args:
+        CARLA_VERSION: ${CARLA_VERSION:-0.9.16}
+      additional_contexts:
+        maps: ${PATH_TO_CARLA}
+    image: carla:${CARLA_VERSION:-0.9.16}-${CARLA_BUILD_TARGET:-default}
+    pull_policy: never
     container_name: carla
     command: ["sh", "-c", "sleep infinity"]
     networks:

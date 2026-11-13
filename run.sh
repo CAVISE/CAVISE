@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [ -f "paths.conf" ]; then
     source paths.conf
 else
@@ -10,10 +12,12 @@ fi
 export uid="${uid:-${SUDO_UID:-$(id -u)}}"
 export gid="${gid:-${SUDO_GID:-$(id -g)}}"
 
-command="$1"
-shift
+command="${1:-}"
+if [ "$#" -gt 0 ]; then
+    shift
+fi
 
-services="$@"
+services="$*"
 
 COMPOSE_MAIN="$CAVISE_ROOT/dc-configs/docker-compose.yml"
 COMPOSE_SM="$PATH_TO_SCENARIO_MANAGER/docker-compose.yml"
@@ -21,29 +25,39 @@ COMPOSE_SM="$PATH_TO_SCENARIO_MANAGER/docker-compose.yml"
 run_compose() {
     local cmd="$1"
     shift
-    local svcs="$@"
+    local svcs="$*"
 
     if echo "$svcs" | grep -qw "scenario-manager"; then
-        local remaining=$(echo "$svcs" | sed 's/scenario-manager//g' | xargs)
-        docker compose -f $COMPOSE_SM --profile prod $cmd $remaining
+        local remaining
+        remaining=$(echo "$svcs" | sed 's/scenario-manager//g' | xargs)
+        docker compose -f "$COMPOSE_SM" --profile prod $cmd
         svcs="$remaining"
     fi
 
     if [ -z "$svcs" ] && ! echo "$@" | grep -qw "scenario-manager"; then
-        docker compose -f $COMPOSE_MAIN --env-file paths.conf $cmd
+        docker compose -f "$COMPOSE_MAIN" --env-file paths.conf $cmd
     elif [ -n "$svcs" ]; then
-        docker compose -f $COMPOSE_MAIN --env-file paths.conf $cmd $svcs
+        docker compose -f "$COMPOSE_MAIN" --env-file paths.conf $cmd $svcs
     fi
 }
 
-resolve_opencda_target() {
+resolve_build_targets() {
     local selected_target=""
+    local selected_carla_target=""
     local service
     local -a resolved_services=()
     local -A seen_services=()
 
     for service in $services; do
         case "$service" in
+          carla|carla-extended)
+            if [ -n "$selected_carla_target" ] && [ "$selected_carla_target" != "$service" ]; then
+                echo "Error: multiple CARLA build targets requested: $selected_carla_target and $service" >&2
+                exit 1
+            fi
+            selected_carla_target="$service"
+            service="carla"
+            ;;
           opencda|opencda-minimal|opencda-protobuf|opencda-coperception|opencda-cuda)
             if [ -n "$selected_target" ] && [ "$selected_target" != "$service" ]; then
                 echo "Error: multiple OpenCDA build targets requested: $selected_target and $service" >&2
@@ -81,10 +95,55 @@ resolve_opencda_target() {
 
     export OPENCDA_BUILD_TARGET
     export OPENCDA_IMAGE_TAG
+
+    CARLA_VERSION="${CARLA_VERSION:-0.9.16}"
+    if [[ ! "$CARLA_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "Error: CARLA_VERSION must be a release number such as 0.9.16" >&2
+        exit 1
+    fi
+    CARLA_BUILD_TARGET=default
+    if [ "$selected_carla_target" = carla-extended ]; then
+        CARLA_BUILD_TARGET=extended
+    fi
+
+    export CARLA_VERSION CARLA_BUILD_TARGET
     services="${resolved_services[*]}"
 }
 
-resolve_opencda_target
+resolve_build_targets
+
+prepare_carla_maps() {
+    if [ "$CARLA_BUILD_TARGET" != extended ]; then
+        return
+    fi
+
+    local archive="$PATH_TO_CARLA/$CARLA_VERSION/AdditionalMaps_${CARLA_VERSION}.tar.gz"
+
+    if [ -f "$archive" ]; then
+        if ! tar -tzf "$archive" > /dev/null; then
+            echo "Error: invalid maps archive: $archive. Remove or replace it before rebuilding." >&2
+            return 1
+        fi
+        echo "Using existing CARLA maps: $archive"
+        return
+    fi
+
+    if ! command -v curl > /dev/null; then
+        echo "Error: curl is required to download CARLA maps. Install it or place the archive at $archive" >&2
+        return 1
+    fi
+
+    mkdir -p "$PATH_TO_CARLA/$CARLA_VERSION"
+    echo "Downloading CARLA $CARLA_VERSION additional maps..."
+    curl --fail --location --retry 3 --connect-timeout 30 \
+        "https://downloads.carlasim.com/Linux/AdditionalMaps_${CARLA_VERSION}.tar.gz" \
+        --output "$archive.part"
+    if ! tar -tzf "$archive.part" > /dev/null; then
+        echo "Error: downloaded maps archive is invalid: $archive.part" >&2
+        return 1
+    fi
+    mv -- "$archive.part" "$archive"
+}
 
 uses_opencda_service() {
     [ -z "$services" ] || [[ " $services " == *" opencda "* ]]
@@ -101,6 +160,7 @@ prepare_models_directory() {
 
 case "$command" in
   build)
+    prepare_carla_maps
     if uses_opencda_service; then
         echo "Building container images (OpenCDA target: $OPENCDA_BUILD_TARGET)..."
     else
@@ -154,6 +214,7 @@ case "$command" in
     ;;
   *)
     echo "Usage: $0 {build|up|start|stop|down|restart} [services...]"
+    echo "CARLA targets: carla (default), carla-extended; version: CARLA_VERSION (default: 0.9.16)"
     echo "OpenCDA targets: opencda, opencda-minimal, opencda-protobuf, opencda-coperception, opencda-cuda"
     exit 1
     ;;
