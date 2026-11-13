@@ -11,6 +11,7 @@
   <a href="#quick-start"><img alt="Quick start" src="https://img.shields.io/badge/Quick-start-9BFFCE?style=for-the-badge&amp;logo=readthedocs&amp;logoColor=D9E0EE&amp;labelColor=1E202B" /></a>
   <a href="CONTRIBUTING.md"><img alt="Contributing" src="https://img.shields.io/badge/Contributing-guide-9BFFCE?style=for-the-badge&amp;logo=github&amp;logoColor=D9E0EE&amp;labelColor=1E202B" /></a>
   <a href="https://github.com/CAVISE/CAVISE/issues"><img alt="Report an issue" src="https://img.shields.io/badge/Report-an%20issue-9BFFCE?style=for-the-badge&amp;logo=github&amp;logoColor=D9E0EE&amp;labelColor=1E202B" /></a>
+  <a href="https://github.com/CAVISE/CAVISE/actions/workflows/pull_request.yml"><img alt="Checks on main" src="https://img.shields.io/github/actions/workflow/status/CAVISE/CAVISE/pull_request.yml?branch=main&amp;event=push&amp;style=for-the-badge&amp;label=Checks&amp;logo=githubactions&amp;logoColor=D9E0EE&amp;labelColor=1E202B" /></a>
 </p>
 
 CAVISE brings driving, traffic, network simulation and cooperative perception
@@ -96,6 +97,10 @@ Enter the CARLA container and start the server:
 docker exec -it carla bash
 ./CarlaUE4.sh -quality-level=Low
 ```
+
+Alternatively, use the [component APIs](#component-apis).
+The current Compose services idle until you manually start an API or simulator.
+Use one launch method at a time. Interactive shell access remains available.
 
 In another host terminal, enter OpenCDA and run the scenario after CARLA is ready:
 
@@ -239,3 +244,21 @@ cooperative perception, AdvCP attacks, model assets and troubleshooting.
 
 For development setup, validation and pull requests, see
 [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Component APIs
+
+Enter the required container and start its API:
+
+```bash
+# CARLA
+docker exec -it carla bash
+python -m api
+
+# SUMO
+docker exec -it sumo bash
+python -m api
+
+# OpenCDA
+docker exec -it opencda bash
+python -m api
+```

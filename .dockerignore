@@ -41,4 +41,4 @@ opencood/build/
 models/
 
 # CARLA map archives are supplied only through the extended build context.
-carla/*/
+carla/[0-9]*.[0-9]*.[0-9]*/

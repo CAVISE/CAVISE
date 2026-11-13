@@ -71,9 +71,12 @@ ENV PATH="/opt/python/bin:${PATH}" \
 
 ARG CARLA_VERSION
 
+COPY api/requirements.txt /tmp/carla-api-requirements.txt
+
 RUN python -m pip install --no-cache-dir pip==26.0.1 \
     && python -m pip install --no-cache-dir \
         pygame==2.6.1 numpy==1.26.4 "carla==${CARLA_VERSION}" \
+        -r /tmp/carla-api-requirements.txt \
     && python -c "import bz2, ctypes, lzma, readline, sqlite3, ssl; import carla, numpy, pygame"
 
 WORKDIR /workspace
