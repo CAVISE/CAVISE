@@ -11,7 +11,7 @@ RUN apt-get update \
     && apt-get install --no-install-recommends -y ca-certificates curl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl --fail --location --retry 3 \
+RUN curl --http1.1 --fail --location --retry 3 \
         "https://downloads.carlasim.com/Linux/CARLA_${CARLA_VERSION}.tar.gz" \
         --output /tmp/carla.tar.gz \
     && mkdir /package \

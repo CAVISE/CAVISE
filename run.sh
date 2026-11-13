@@ -135,7 +135,7 @@ prepare_carla_maps() {
 
     mkdir -p "$PATH_TO_CARLA/$CARLA_VERSION"
     echo "Downloading CARLA $CARLA_VERSION additional maps..."
-    curl --fail --location --retry 3 --connect-timeout 30 \
+    curl --http1.1 --fail --location --retry 3 --connect-timeout 30 \
         "https://downloads.carlasim.com/Linux/AdditionalMaps_${CARLA_VERSION}.tar.gz" \
         --output "$archive.part"
     if ! tar -tzf "$archive.part" > /dev/null; then
