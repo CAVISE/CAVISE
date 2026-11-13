@@ -36,8 +36,9 @@ services:
       target: ${CARLA_BUILD_TARGET:-default}
       args:
         CARLA_VERSION: ${CARLA_VERSION:-0.9.16}
+        CARLA_MAPS_ARCHIVE: ${CARLA_MAPS_FILE:-${CARLA_VERSION:-0.9.16}/AdditionalMaps_${CARLA_VERSION:-0.9.16}.tar.gz}
       additional_contexts:
-        maps: ${PATH_TO_CARLA}
+        maps: ${CARLA_MAPS_CONTEXT:-${PATH_TO_CARLA}}
     image: carla:${CARLA_VERSION:-0.9.16}-${CARLA_BUILD_TARGET:-default}
     pull_policy: never
     container_name: carla

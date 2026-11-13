@@ -187,11 +187,26 @@ also place a downloaded archive there yourself. Downloads use a `.part` file
 and become reusable only after archive validation. An invalid existing archive
 causes an error; remove or replace it before rebuilding.
 
+To use an existing archive from another directory, set `CARLA_MAPS_ARCHIVE`
+when building. Relative paths are resolved from the CAVISE root; paths with
+spaces are supported. The archive must match `CARLA_VERSION`:
+
+```bash
+CARLA_MAPS_ARCHIVE="/path/to/AdditionalMaps_0.9.16.tar.gz" ./run.sh build carla-extended
+./run.sh up carla-extended
+```
+
+The supplied archive is validated and read directly, without copying it into
+`carla/` or downloading another archive. An invalid or missing supplied file
+causes an error. The path is needed only for building, not for starting the
+built container.
+
 Compose exposes `PATH_TO_CARLA` as a named build context. Only the extended
-stage mounts its selected version directory and runs the packaged
+stage mounts its selected archive and runs the packaged
 `ImportAssets.sh`; only the extracted maps are added to the image. The archive
-stays on the host and is not needed
-to run a built image. Default builds and container lifecycle commands do not
+stays on the host and is not needed to run a built image. For an external
+archive, the named context points to its containing directory instead.
+Default builds and container lifecycle commands do not
 download additional maps.
 
 Run from the CAVISE root in a Linux host terminal. To select a release, export

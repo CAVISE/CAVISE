@@ -117,7 +117,17 @@ prepare_carla_maps() {
         return
     fi
 
-    local archive="$PATH_TO_CARLA/$CARLA_VERSION/AdditionalMaps_${CARLA_VERSION}.tar.gz"
+    local archive="${CARLA_MAPS_ARCHIVE:-$PATH_TO_CARLA/$CARLA_VERSION/AdditionalMaps_${CARLA_VERSION}.tar.gz}"
+
+    if [ -n "${CARLA_MAPS_ARCHIVE:-}" ]; then
+        if [ ! -f "$archive" ] || [ ! -r "$archive" ]; then
+            echo "Error: CARLA maps archive is not a readable file: $archive" >&2
+            return 1
+        fi
+        archive=$(realpath -- "$archive")
+        export CARLA_MAPS_CONTEXT="$(dirname -- "$archive")"
+        export CARLA_MAPS_FILE="${archive##*/}"
+    fi
 
     if [ -f "$archive" ]; then
         if ! tar -tzf "$archive" > /dev/null; then
@@ -215,6 +225,7 @@ case "$command" in
   *)
     echo "Usage: $0 {build|up|start|stop|down|restart} [services...]"
     echo "CARLA targets: carla (default), carla-extended; version: CARLA_VERSION (default: 0.9.16)"
+    echo "Existing maps archive: CARLA_MAPS_ARCHIVE=/path/to/AdditionalMaps_<version>.tar.gz"
     echo "OpenCDA targets: opencda, opencda-minimal, opencda-protobuf, opencda-coperception, opencda-cuda"
     exit 1
     ;;

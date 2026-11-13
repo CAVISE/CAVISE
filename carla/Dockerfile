@@ -86,7 +86,9 @@ CMD ["/bin/bash", "CarlaUE4.sh"]
 
 FROM default AS extended
 
-RUN --mount=type=bind,from=maps,source=${CARLA_VERSION},target=/workspace/Import \
-    test -s "Import/AdditionalMaps_${CARLA_VERSION}.tar.gz" \
-    && tar -tzf "Import/AdditionalMaps_${CARLA_VERSION}.tar.gz" > /dev/null \
+ARG CARLA_MAPS_ARCHIVE=${CARLA_VERSION}/AdditionalMaps_${CARLA_VERSION}.tar.gz
+
+RUN --mount=type=bind,from=maps,source=${CARLA_MAPS_ARCHIVE},target=/workspace/Import/AdditionalMaps.tar.gz \
+    test -s Import/AdditionalMaps.tar.gz \
+    && tar -tzf Import/AdditionalMaps.tar.gz > /dev/null \
     && bash ./ImportAssets.sh
