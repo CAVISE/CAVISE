@@ -130,6 +130,7 @@ prepare_carla_maps() {
     fi
 
     if [ -f "$archive" ]; then
+        echo "Checking CARLA maps archive (full scan; large archives may take several minutes): $archive"
         if ! tar -tzf "$archive" > /dev/null; then
             echo "Error: invalid maps archive: $archive. Remove or replace it before rebuilding." >&2
             return 1
@@ -148,6 +149,7 @@ prepare_carla_maps() {
     curl --http1.1 --fail --location --retry 3 --connect-timeout 30 \
         "https://downloads.carlasim.com/Linux/AdditionalMaps_${CARLA_VERSION}.tar.gz" \
         --output "$archive.part"
+    echo "Checking downloaded CARLA maps archive (full scan): $archive.part"
     if ! tar -tzf "$archive.part" > /dev/null; then
         echo "Error: downloaded maps archive is invalid: $archive.part" >&2
         return 1
