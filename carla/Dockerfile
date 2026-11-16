@@ -56,7 +56,7 @@ RUN apt-get update \
         libncursesw6 libomp5 libreadline8 libsdl2-2.0-0 libsqlite3-0 libssl1.1 \
         libstdc++6 libuuid1 libvulkan1 ttf-ubuntu-font-family xdg-user-dirs xserver-xorg zlib1g \
     && rm -rf /var/lib/apt/lists/* \
-    && useradd --create-home carla \
+    && useradd --create-home --uid 1000 carla \
     && install -d -o carla -g carla /workspace
 
 COPY --from=python /opt/python /opt/python
@@ -80,7 +80,7 @@ RUN python -m pip install --no-cache-dir pip==26.0.1 \
     && python -c "import bz2, ctypes, lzma, readline, sqlite3, ssl; import carla, numpy, pygame"
 
 WORKDIR /workspace
-USER carla
+USER 1000
 
 CMD ["/bin/bash", "CarlaUE4.sh"]
 
