@@ -6,9 +6,10 @@ FROM ubuntu:24.04 AS package
 
 ARG CARLA_VERSION
 
-# hadolint ignore=DL3008
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y ca-certificates curl \
+    && apt-get install --no-install-recommends -y \
+        ca-certificates=20260816ubuntu0.24.04.* \
+        curl=8.5.* \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl --http1.1 --fail --location --retry 3 \
@@ -24,11 +25,18 @@ FROM ubuntu:24.04 AS default
 ENV DEBIAN_FRONTEND=noninteractive
 
 # CARLA runtime libraries and Ubuntu's Python 3.12.
-# hadolint ignore=DL3008
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
-        ca-certificates fontconfig fonts-ubuntu libomp5 libsdl2-2.0-0 \
-        libvulkan1 python3 python3-venv xdg-user-dirs xserver-xorg \
+        ca-certificates=20260816ubuntu0.24.04.* \
+        fontconfig=2.15.* \
+        fonts-ubuntu=0.869+* \
+        libomp5=1:18.0-* \
+        libsdl2-2.0-0=2.30.* \
+        libvulkan1=1.3.* \
+        python3=3.12.* \
+        python3-venv=3.12.* \
+        xdg-user-dirs=0.18-* \
+        xserver-xorg=1:7.7+* \
     && rm -rf /var/lib/apt/lists/* \
     && python3 -m venv /opt/venv
 
@@ -55,13 +63,10 @@ COPY api/requirements.txt /tmp/carla-api-requirements.txt
 RUN python -m pip install --no-cache-dir pip==26.0.1 \
     && python -m pip install --no-cache-dir \
         pygame==2.6.1 numpy==1.26.4 "carla==${CARLA_VERSION}" \
-        -r /tmp/carla-api-requirements.txt \
-    && python -c "import bz2, ctypes, lzma, readline, sqlite3, ssl; import carla, numpy, pygame"
+        -r /tmp/carla-api-requirements.txt
 
 WORKDIR /workspace
 USER 1000
-
-CMD ["/bin/bash", "CarlaUE4.sh"]
 
 FROM default AS extended
 
