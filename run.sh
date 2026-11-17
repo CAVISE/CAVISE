@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 if [ -f "paths.conf" ]; then
     source paths.conf
 else
@@ -30,7 +28,7 @@ run_compose() {
     if echo "$svcs" | grep -qw "scenario-manager"; then
         local remaining
         remaining=$(echo "$svcs" | sed 's/scenario-manager//g' | xargs)
-        docker compose -f "$COMPOSE_SM" --profile prod $cmd
+        docker compose -f "$COMPOSE_SM" --profile prod $cmd $remaining
         svcs="$remaining"
     fi
 
@@ -124,17 +122,12 @@ prepare_carla_maps() {
             echo "Error: CARLA maps archive is not a readable file: $archive" >&2
             return 1
         fi
-        archive=$(realpath -- "$archive")
+        archive=$(realpath -- "$archive") || return
         export CARLA_MAPS_CONTEXT="$(dirname -- "$archive")"
         export CARLA_MAPS_FILE="${archive##*/}"
     fi
 
     if [ -f "$archive" ]; then
-        echo "Checking CARLA maps archive (full scan; large archives may take several minutes): $archive"
-        if ! tar -tzf "$archive" > /dev/null; then
-            echo "Error: invalid maps archive: $archive. Remove or replace it before rebuilding." >&2
-            return 1
-        fi
         echo "Using existing CARLA maps: $archive"
         return
     fi
@@ -144,11 +137,11 @@ prepare_carla_maps() {
         return 1
     fi
 
-    mkdir -p "$PATH_TO_CARLA/$CARLA_VERSION"
+    mkdir -p "$PATH_TO_CARLA/$CARLA_VERSION" || return
     echo "Downloading CARLA $CARLA_VERSION additional maps..."
     curl --http1.1 --fail --location --retry 3 --connect-timeout 30 \
         "https://downloads.carlasim.com/Linux/AdditionalMaps_${CARLA_VERSION}.tar.gz" \
-        --output "$archive.part"
+        --output "$archive.part" || return
     echo "Checking downloaded CARLA maps archive (full scan): $archive.part"
     if ! tar -tzf "$archive.part" > /dev/null; then
         echo "Error: downloaded maps archive is invalid: $archive.part" >&2
@@ -172,7 +165,7 @@ prepare_models_directory() {
 
 case "$command" in
   build)
-    prepare_carla_maps
+    prepare_carla_maps || exit $?
     if uses_opencda_service; then
         echo "Building container images (OpenCDA target: $OPENCDA_BUILD_TARGET)..."
     else

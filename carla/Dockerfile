@@ -2,7 +2,7 @@
 
 ARG CARLA_VERSION=0.9.16
 
-FROM ubuntu:20.04 AS package
+FROM ubuntu:24.04 AS package
 
 ARG CARLA_VERSION
 
@@ -19,50 +19,29 @@ RUN curl --http1.1 --fail --location --retry 3 \
     && test "$(cat /package/VERSION)" = "$CARLA_VERSION" \
     && rm /tmp/carla.tar.gz
 
-FROM ubuntu:20.04 AS python
-
-ARG PYTHON_VERSION=3.12.3
-
-# Keep the existing Python version without shipping its compiler or pyenv.
-# hadolint ignore=DL3008
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
-        build-essential ca-certificates curl libbz2-dev libffi-dev libgdbm-dev \
-        liblzma-dev libncursesw5-dev libreadline-dev libsqlite3-dev libssl-dev \
-        uuid-dev zlib1g-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /tmp/python
-
-RUN curl --fail --location --retry 3 \
-        "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz" \
-        --output /tmp/python.tar.gz \
-    && tar -xzf /tmp/python.tar.gz --strip-components=1 \
-    && ./configure --prefix=/opt/python --with-ensurepip=install \
-    && make -j "$(nproc)" \
-    && make install \
-    && ln -s python3 /opt/python/bin/python \
-    && rm /tmp/python.tar.gz
-
-FROM ubuntu:20.04 AS default
+FROM ubuntu:24.04 AS default
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# CARLA's release runtime dependencies and the shared libraries used by Python.
+# CARLA runtime libraries and Ubuntu's Python 3.12.
 # hadolint ignore=DL3008
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
-        ca-certificates fontconfig libbz2-1.0 libffi7 libgdbm6 libgdbm-compat4 liblzma5 \
-        libncursesw6 libomp5 libreadline8 libsdl2-2.0-0 libsqlite3-0 libssl1.1 \
-        libstdc++6 libuuid1 libvulkan1 ttf-ubuntu-font-family xdg-user-dirs xserver-xorg zlib1g \
+        ca-certificates fontconfig fonts-ubuntu libomp5 libsdl2-2.0-0 \
+        libvulkan1 python3 python3-venv xdg-user-dirs xserver-xorg \
     && rm -rf /var/lib/apt/lists/* \
-    && useradd --create-home --uid 1000 carla \
+    && python3 -m venv /opt/venv
+
+# Ubuntu's base image may already assign UID 1000 to its default user.
+RUN if id ubuntu > /dev/null 2>&1; then userdel -r ubuntu; fi \
+    && ! getent passwd 1000 \
+    && groupadd --gid 1000 carla \
+    && useradd --create-home --uid 1000 --gid 1000 carla \
     && install -d -o carla -g carla /workspace
 
-COPY --from=python /opt/python /opt/python
 COPY --from=package --chown=carla:carla /package/ /workspace/
 
-ENV PATH="/opt/python/bin:${PATH}" \
+ENV PATH="/opt/venv/bin:${PATH}" \
     HOME=/home/carla \
     OMP_PROC_BIND=FALSE \
     OMP_NUM_THREADS=48 \
@@ -90,5 +69,4 @@ ARG CARLA_MAPS_ARCHIVE=${CARLA_VERSION}/AdditionalMaps_${CARLA_VERSION}.tar.gz
 
 RUN --mount=type=bind,from=maps,source=${CARLA_MAPS_ARCHIVE},target=/workspace/Import/AdditionalMaps.tar.gz \
     test -s Import/AdditionalMaps.tar.gz \
-    && tar -tzf Import/AdditionalMaps.tar.gz > /dev/null \
     && bash ./ImportAssets.sh

@@ -173,7 +173,8 @@ are required.
 | `carla` | `carla:0.9.16-default` | Maps included in the main release package. |
 | `carla-extended` | `carla:0.9.16-extended` | Main package plus the matching AdditionalMaps archive. |
 
-Both targets use the same `carla` container and retain Python 3.12, the CARLA
+Both targets use Ubuntu 24.04 and the same `carla` container, with system Python 3.12
+in a virtual environment, the CARLA
 Python client, NumPy and Pygame. Use `carla-extended` for the Town06 quick start.
 The containers still wait for a manual server launch as shown above.
 
@@ -184,8 +185,8 @@ extended build. The archive is stored at
 `$PATH_TO_CARLA/$CARLA_VERSION/AdditionalMaps_${CARLA_VERSION}.tar.gz`, for example
 `carla/0.9.16/AdditionalMaps_0.9.16.tar.gz`, and reused on later builds. You can
 also place a downloaded archive there yourself. Downloads use a `.part` file
-and become reusable only after archive validation. An invalid existing archive
-causes an error; remove or replace it before rebuilding.
+and become reusable only after archive validation. Existing archives are reused without a full scan; invalid archives fail during
+map import. Remove or replace them before rebuilding.
 
 To use an existing archive from another directory, set `CARLA_MAPS_ARCHIVE`
 when building. Relative paths are resolved from the CAVISE root; paths with
@@ -196,7 +197,7 @@ CARLA_MAPS_ARCHIVE="/path/to/AdditionalMaps_0.9.16.tar.gz" ./run.sh build carla-
 ./run.sh up carla-extended
 ```
 
-The supplied archive is validated and read directly, without copying it into
+The supplied archive is read directly during map import, without copying it into
 `carla/` or downloading another archive. An invalid or missing supplied file
 causes an error. The path is needed only for building, not for starting the
 built container.
