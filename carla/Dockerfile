@@ -1,64 +1,84 @@
-# hadolint global ignore=DL3066
+# syntax=docker/dockerfile:1
+
 ARG CARLA_VERSION=0.9.16
-FROM carlasim/carla:${CARLA_VERSION}
 
-ARG PYTHON_VERSION=3.12.3
+FROM ubuntu:24.04 AS package
+
 ARG CARLA_VERSION
-ARG MAPS_ARCHIVE_URL=https://carla-releases.s3.us-east-005.backblazeb2.com/Linux/AdditionalMaps_${CARLA_VERSION}.tar.gz
 
-USER root
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+        ca-certificates=20260816ubuntu0.24.04.* \
+        curl=8.5.* \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install --no-install-recommends -y \
-    wget=1.20.* \
-    curl=7.68.* \
-    ca-certificates=20240203~20.04.* \
-    git=1:2.25.* \
-    build-essential=12.8* \
-    libssl-dev=1.1.* \
-    zlib1g-dev=1:1.2.* \
-    libbz2-dev=1.0.* \
-    libreadline-dev=8.0-* \
-    libsqlite3-dev=3.31.* \
-    libncurses5-dev=6.2-* \
-    libncursesw5-dev=6.2-* \
-    xz-utils=5.2.* \
-    fontconfig=2.13.* \
-    ttf-ubuntu-font-family=1:0.83-* && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN curl --fail --location --retry 3 \
+        "https://downloads.carlasim.com/Linux/CARLA_${CARLA_VERSION}.tar.gz" \
+        --output /tmp/carla.tar.gz \
+    && mkdir /package \
+    && tar -xzf /tmp/carla.tar.gz -C /package \
+    && test "$(cat /package/VERSION)" = "$CARLA_VERSION" \
+    && rm /tmp/carla.tar.gz
 
+FROM ubuntu:24.04 AS default
 
-USER carla
-ARG CARLA_ROOT=/workspace
-WORKDIR ${CARLA_ROOT}
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN wget --progress=dot:giga ${MAPS_ARCHIVE_URL} -P ${CARLA_ROOT}/Import && \
-    ${CARLA_ROOT}/ImportAssets.sh && \
-    rm ${CARLA_ROOT}/Import/AdditionalMaps_${CARLA_VERSION}.tar.gz
+# CARLA runtime libraries and Ubuntu's Python 3.12.
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+        ca-certificates=20260816ubuntu0.24.04.* \
+        fontconfig=2.15.* \
+        fonts-ubuntu=0.869+* \
+        libomp5=1:18.0-* \
+        libsdl2-2.0-0=2.30.* \
+        libvulkan1=1.3.* \
+        python3=3.12.* \
+        python3-venv=3.12.* \
+        xdg-user-dirs=0.18-* \
+        xserver-xorg=1:7.7+* \
+    && rm -rf /var/lib/apt/lists/* \
+    && python3 -m venv /opt/venv
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# Ubuntu's base image may already assign UID 1000 to its default user.
+RUN if id ubuntu > /dev/null 2>&1; then userdel -r ubuntu; fi \
+    && ! getent passwd 1000 \
+    && groupadd --gid 1000 carla \
+    && useradd --create-home --uid 1000 --gid 1000 carla \
+    && install -d -o carla -g carla /workspace
 
-RUN wget -qO- https://pyenv.run | bash && \
-    rm -rf /tmp/*
+COPY --from=package --chown=carla:carla /package/ /workspace/
 
-ENV HOME=/home/carla
-ENV PYENV_ROOT=${HOME}/.pyenv
-ENV PATH=${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}
+ENV PATH="/opt/venv/bin:${PATH}" \
+    HOME=/home/carla \
+    OMP_PROC_BIND=FALSE \
+    OMP_NUM_THREADS=48 \
+    NVIDIA_DRIVER_CAPABILITIES=all \
+    NVIDIA_VISIBLE_DEVICES=all
 
-RUN pyenv install ${PYTHON_VERSION} && \
-    pyenv global ${PYTHON_VERSION} && \
-    pyenv rehash && \
-    rm -rf ${PYENV_ROOT}/sources/*
+ARG CARLA_VERSION
 
-USER root
-RUN apt-get purge -y build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libncurses5-dev libncursesw5-dev xz-utils && \
-    apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
+COPY api/requirements.txt /tmp/carla-api-requirements.txt
 
-USER carla
-RUN pip install --no-cache-dir --upgrade pip==26.0.1 && \
-    pip install --no-cache-dir --break-system-packages \
-    pygame==2.6.1 \
-    numpy==1.26.4 \
-    carla==${CARLA_VERSION}
+RUN python -m pip install --no-cache-dir pip==26.0.1 \
+    && python -m pip install --no-cache-dir \
+        pygame==2.6.1 numpy==1.26.4 "carla==${CARLA_VERSION}" \
+        -r /tmp/carla-api-requirements.txt
 
-COPY --chown=carla:carla carla/api/requirements.txt /tmp/carla-api-requirements.txt
-RUN pip install --no-cache-dir --break-system-packages -r /tmp/carla-api-requirements.txt
+WORKDIR /workspace
+USER 1000
+
+FROM default AS extended
+
+USER 0
+# GNU tar 1.35 fails with --keep-newer-files on existing directories of equal age.
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y libarchive-tools=3.7.* \
+    && rm -rf /var/lib/apt/lists/*
+USER 1000
+
+ARG CARLA_MAPS_ARCHIVE=${CARLA_VERSION}/AdditionalMaps_${CARLA_VERSION}.tar.gz
+
+RUN --mount=type=bind,from=maps,source=${CARLA_MAPS_ARCHIVE},target=/workspace/Import/AdditionalMaps.tar.gz \
+    test -s Import/AdditionalMaps.tar.gz \
+    && bsdtar --keep-newer-files -xf Import/AdditionalMaps.tar.gz

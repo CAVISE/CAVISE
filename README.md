@@ -87,8 +87,8 @@ shown below, then leave its terminal running while you launch the scenario.
 Build and start the containers:
 
 ```bash
-./run.sh build carla opencda-minimal
-./run.sh up carla opencda-minimal
+./run.sh build carla-extended opencda-minimal
+./run.sh up carla-extended opencda-minimal
 ```
 
 Enter the CARLA container and start the server:
@@ -151,7 +151,7 @@ and sensor data under `opencda/simulation_output/data_dumping/`.
 To stop the Linux containers, run this from the CAVISE root in a host terminal:
 
 ```bash
-./run.sh stop carla opencda-minimal
+./run.sh stop carla-extended opencda-minimal
 ```
 
 On Windows, stop CARLA in its PowerShell terminal and stop OpenCDA from WSL2:
@@ -159,6 +159,48 @@ On Windows, stop CARLA in its PowerShell terminal and stop OpenCDA from WSL2:
 ```bash
 ./run.sh stop opencda-minimal
 ```
+
+## Choose a CARLA image
+
+Run these commands from the **CAVISE root on Linux/WSL**. Requires Docker Compose
+2.17+, BuildKit, and host `curl` and `tar` for downloading additional maps.
+
+| Target | Image (default version) | Included maps |
+| --- | --- | --- |
+| `carla` | `carla:0.9.16-default` | Maps from the main CARLA release package. |
+| `carla-extended` | `carla:0.9.16-extended` | Main package plus additional maps, including Town06. |
+
+Build and start the base image:
+
+```bash
+./run.sh build carla
+./run.sh up carla
+```
+
+For additional maps and the Town06 quick start:
+
+```bash
+./run.sh build carla-extended opencda-minimal
+./run.sh up carla-extended opencda-minimal
+```
+
+`build carla-extended` automatically downloads additional maps to
+`carla/0.9.16/AdditionalMaps_0.9.16.tar.gz` and reuses that archive on later builds.
+`up` starts the container; launch the CARLA server manually as shown above.
+Both variants use the same `carla` container. After rebuilding or switching
+variants, use `up` to apply the image.
+
+To use your own matching maps archive instead of downloading it:
+
+```bash
+CARLA_MAPS_ARCHIVE="/path/to/my-maps.tar.gz" ./run.sh build carla-extended
+./run.sh up carla-extended
+```
+
+The archive path is needed only for building. To select a version, run
+`export CARLA_VERSION=0.9.16` before both `build` and `up`. The default is `0.9.16`;
+other versions require compatible maps and clients. This variable does not
+change OpenCDA's separately pinned CARLA client.
 
 ## Choose an OpenCDA image
 

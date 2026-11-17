@@ -10,6 +10,7 @@ repos:
   rev: v2.14.0
   hooks:
     - id: hadolint-docker
+      exclude: '\.dockerignore$'
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v6.0.0
