@@ -70,8 +70,15 @@ USER 1000
 
 FROM default AS extended
 
+USER 0
+# GNU tar 1.35 fails with --keep-newer-files on existing directories of equal age.
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y libarchive-tools=3.7.* \
+    && rm -rf /var/lib/apt/lists/*
+USER 1000
+
 ARG CARLA_MAPS_ARCHIVE=${CARLA_VERSION}/AdditionalMaps_${CARLA_VERSION}.tar.gz
 
 RUN --mount=type=bind,from=maps,source=${CARLA_MAPS_ARCHIVE},target=/workspace/Import/AdditionalMaps.tar.gz \
     test -s Import/AdditionalMaps.tar.gz \
-    && bash ./ImportAssets.sh
+    && bsdtar --keep-newer-files -xf Import/AdditionalMaps.tar.gz
