@@ -139,7 +139,7 @@ prepare_carla_maps() {
 
     mkdir -p "$PATH_TO_CARLA/$CARLA_VERSION" || return
     echo "Downloading CARLA $CARLA_VERSION additional maps..."
-    curl --http1.1 --fail --location --retry 3 --connect-timeout 30 \
+    curl --fail --location --retry 3 --connect-timeout 30 \
         "https://downloads.carlasim.com/Linux/AdditionalMaps_${CARLA_VERSION}.tar.gz" \
         --output "$archive.part" || return
     echo "Checking downloaded CARLA maps archive (full scan): $archive.part"

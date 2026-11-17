@@ -12,7 +12,7 @@ RUN apt-get update \
         curl=8.5.* \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl --http1.1 --fail --location --retry 3 \
+RUN curl --fail --location --retry 3 \
         "https://downloads.carlasim.com/Linux/CARLA_${CARLA_VERSION}.tar.gz" \
         --output /tmp/carla.tar.gz \
     && mkdir /package \
