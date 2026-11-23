@@ -94,9 +94,9 @@ resolve_build_targets() {
     export OPENCDA_BUILD_TARGET
     export OPENCDA_IMAGE_TAG
 
-    CARLA_VERSION="${CARLA_VERSION:-0.9.16}"
-    if [[ ! "$CARLA_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        echo "Error: CARLA_VERSION must be a release number such as 0.9.16" >&2
+    CARLA_VERSION="${CARLA_VERSION:-1.0}"
+    if [[ ! "$CARLA_VERSION" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+        echo "Error: CARLA_VERSION must be a release number such as 1.0" >&2
         exit 1
     fi
     CARLA_BUILD_TARGET=default
@@ -219,7 +219,7 @@ case "$command" in
     ;;
   *)
     echo "Usage: $0 {build|up|start|stop|down|restart} [services...]"
-    echo "CARLA targets: carla (default), carla-extended; version: CARLA_VERSION (default: 0.9.16)"
+    echo "CARLA targets: carla (default), carla-extended; version: CARLA_VERSION (default: 1.0)"
     echo "Existing maps archive: CARLA_MAPS_ARCHIVE=/path/to/AdditionalMaps_<version>.tar.gz"
     echo "OpenCDA targets: opencda, opencda-minimal, opencda-protobuf, opencda-coperception, opencda-cuda"
     exit 1
