@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG CARLA_VERSION=0.9.16
+ARG CARLA_VERSION=1.0
 
 FROM ubuntu:24.04 AS package
 
@@ -15,9 +15,13 @@ RUN apt-get update \
 RUN curl --fail --location --retry 3 \
         "https://downloads.carlasim.com/Linux/CARLA_${CARLA_VERSION}.tar.gz" \
         --output /tmp/carla.tar.gz \
-    && mkdir /package \
-    && tar -xzf /tmp/carla.tar.gz -C /package \
-    && test "$(cat /package/VERSION)" = "$CARLA_VERSION" \
+    && mkdir /unpack \
+    && tar -xzf /tmp/carla.tar.gz -C /unpack \
+    && if [ -d "/unpack/Carla-${CARLA_VERSION}-Linux-Shipping" ]; then \
+        mv "/unpack/Carla-${CARLA_VERSION}-Linux-Shipping" /package; \
+       else mv /unpack /package; fi \
+    && test -f /package/Tools/carla_pack.py \
+    && test -f /package/CarlaUnreal.sh \
     && rm /tmp/carla.tar.gz
 
 FROM ubuntu:24.04 AS default
@@ -62,23 +66,17 @@ COPY api/requirements.txt /tmp/carla-api-requirements.txt
 
 RUN python -m pip install --no-cache-dir pip==26.0.1 \
     && python -m pip install --no-cache-dir \
-        pygame==2.6.1 numpy==1.26.4 "carla==${CARLA_VERSION}" \
-        -r /tmp/carla-api-requirements.txt
+        pygame==2.6.1 numpy==1.26.4 \
+        /workspace/PythonAPI/carla/dist/carla-${CARLA_VERSION}-cp312-*x86_64.whl \
+        -r /tmp/carla-api-requirements.txt \
+    && python -c 'import carla; print(carla.Client("localhost", 2000).get_client_version())'
 
 WORKDIR /workspace
 USER 1000
 
 FROM default AS extended
 
-USER 0
-# GNU tar 1.35 fails with --keep-newer-files on existing directories of equal age.
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y libarchive-tools=3.7.* \
-    && rm -rf /var/lib/apt/lists/*
-USER 1000
-
 ARG CARLA_MAPS_ARCHIVE=${CARLA_VERSION}/AdditionalMaps_${CARLA_VERSION}.tar.gz
 
-RUN --mount=type=bind,from=maps,source=${CARLA_MAPS_ARCHIVE},target=/workspace/Import/AdditionalMaps.tar.gz \
-    test -s Import/AdditionalMaps.tar.gz \
-    && bsdtar --keep-newer-files -xf Import/AdditionalMaps.tar.gz
+RUN --mount=type=bind,from=maps,source=${CARLA_MAPS_ARCHIVE},target=/tmp/AdditionalMaps.tar.gz \
+    python Tools/carla_pack.py install /tmp/AdditionalMaps.tar.gz --server /workspace

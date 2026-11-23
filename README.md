@@ -95,7 +95,7 @@ Enter the CARLA container and start the server:
 
 ```bash
 docker exec -it carla bash
-./CarlaUE4.sh -quality-level=Low
+./CarlaUnreal.sh -quality-level=Low
 ```
 
 Alternatively, use the [component APIs](#component-apis).
@@ -121,11 +121,11 @@ Build and start OpenCDA from the CAVISE root in WSL2:
 ./run.sh up opencda-minimal
 ```
 
-Install the Windows distribution of CARLA **0.9.16** as described in the wiki.
+Install the Windows distribution of CARLA **1.0** as described in the wiki.
 In PowerShell, open the extracted CARLA directory and start the server:
 
 ```powershell
-.\CarlaUE4.exe -quality-level=Low
+.\CarlaUnreal.exe -quality-level=Low
 ```
 
 After CARLA is ready, use another WSL2 terminal to enter OpenCDA and run the scenario:
@@ -163,12 +163,12 @@ On Windows, stop CARLA in its PowerShell terminal and stop OpenCDA from WSL2:
 ## Choose a CARLA image
 
 Run these commands from the **CAVISE root on Linux/WSL**. Requires Docker Compose
-2.17+, BuildKit, and host `curl` and `tar` for downloading additional maps.
+2.22+, BuildKit, and host `curl` and `tar` for downloading additional maps.
 
 | Target | Image (default version) | Included maps |
 | --- | --- | --- |
-| `carla` | `carla:0.9.16-default` | Maps from the main CARLA release package. |
-| `carla-extended` | `carla:0.9.16-extended` | Main package plus additional maps, including Town06. |
+| `carla` | `carla:1.0-default` | Maps from the main CARLA release package. |
+| `carla-extended` | `carla:1.0-extended` | Main package plus additional maps, including Town06_Opt. |
 
 Build and start the base image:
 
@@ -185,7 +185,7 @@ For additional maps and the Town06 quick start:
 ```
 
 `build carla-extended` automatically downloads additional maps to
-`carla/0.9.16/AdditionalMaps_0.9.16.tar.gz` and reuses that archive on later builds.
+`carla/1.0/AdditionalMaps_1.0.tar.gz` and reuses that archive on later builds.
 `up` starts the container; launch the CARLA server manually as shown above.
 Both variants use the same `carla` container. After rebuilding or switching
 variants, use `up` to apply the image.
@@ -198,9 +198,17 @@ CARLA_MAPS_ARCHIVE="/path/to/my-maps.tar.gz" ./run.sh build carla-extended
 ```
 
 The archive path is needed only for building. To select a version, run
-`export CARLA_VERSION=0.9.16` before both `build` and `up`. The default is `0.9.16`;
-other versions require compatible maps and clients. This variable does not
-change OpenCDA's separately pinned CARLA client.
+`export CARLA_VERSION=1.0` before both `build` and `up`. The default is `1.0`;
+the image expects the CARLA 1.0 package layout and content-pack installer.
+OpenCDA installs the cp312 wheel copied from the selected CARLA server image
+through Compose's `carla-server` build context. Update the OpenCDA checkout to
+the companion CARLA 1.0 change before building it.
+
+The release archive has a `Carla-1.0-Linux-Shipping` directory, which the build
+flattens into `/workspace`. Additional maps are installed with the packaged
+`Tools/carla_pack.py`; they cannot be unpacked like the old UE4 maps.
+Classic towns are now named `Town01_Opt` through `Town07_Opt`. OpenCDA resolves
+legacy scenario names such as `Town06` to the installed map path.
 
 ## Choose an OpenCDA image
 

@@ -99,8 +99,8 @@ async def run(render_off_screen: bool = True, quality_level: QualityLevel = Qual
     async with process_lock:
         if process is None or (process.returncode is not None and not _group_exists(process.pid)):
             cmd = [
-                "/workspace/CarlaUE4.sh",
-                f"--quality-level={quality_level}",
+                "/workspace/CarlaUnreal.sh",
+                f"-quality-level={quality_level}",
             ]
             if render_off_screen:
                 cmd.append("-RenderOffScreen")
